@@ -1,12 +1,13 @@
 {
   "name": "yarnspinnereditor",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A new editor for Yarn Spinner",
+  "main": "main.js",
   "scripts": {
+	"start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "uTas Project Team (YarnSpinnerEditor)",
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {

@@ -4,12 +4,12 @@ window.addEventListener("DOMContentLoaded", () => {
 	const replaceText = (selector: string, text: any) => {
 	  const element = document.getElementById(selector);
 	  if (element) {
-		element.innerText = text;
+			element.innerText = text;
 	  }
 	};
   
 	for (const type of ["chrome", "node", "electron"]) {
-	  replaceText(`${type}-version`, String(process.versions[type as keyof NodeJS.ProcessVersions]));
+	  replaceText(`${type}-version`, String(process.versions[type as keyof NodeJS.ProcessVersions]))
 	}
-  });
+});
   

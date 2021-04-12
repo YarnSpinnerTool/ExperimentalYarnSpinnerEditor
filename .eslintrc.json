@@ -17,10 +17,12 @@
         "@typescript-eslint"
     ],
     "rules": {
+		"valid-jsdoc": "error",
+		"require-jsdoc": "error",
 		"no-mixed-spaces-and-tabs": 0,
         "indent": [
             "error",
-            "tab"
+            4
         ],
         "linebreak-style": [
             "error",

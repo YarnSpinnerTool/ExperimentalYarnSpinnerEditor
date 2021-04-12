@@ -17,7 +17,7 @@ function createWindow() {
     });
 	
     // and load the index.html of the app.
-    mainWindow.loadFile(path.join(__dirname, "../src/html/index.html"));
+    mainWindow.loadFile(path.join(__dirname, "../src/views/html/index.html"));
 }
 
 app.whenReady().then(createWindow);

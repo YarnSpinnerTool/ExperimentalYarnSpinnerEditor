@@ -6,7 +6,7 @@ Coding style and rules, subject to change.
 |  Object Type | Stylistic Convention  | 
 |---|---|
 | Constants  | UPPERCASE |   
-| File names | Lowercase  |     
+| File names | lowercase  |     
 | Everything else  | camelCase  |   
 
 

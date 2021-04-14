@@ -12,27 +12,10 @@
       http-equiv="X-Content-Security-Policy"
       content="default-src 'self'; script-src 'self'"
     />
-    <style>
-        textarea {
-          width: inherit;
-          height: inherit;
-          min-width: 100%;
-          min-height: 100%;
-          background: gray;
-          resize: none;
-        }
+</head>
 
-    </style>
-
-
-
-  </head>
-  <script>
-
-
-  </script>
-
-  <body onload="initialize()">
+<body onload="loaded()">
+	<script src="../src/views/ts/renderer.ts"></script>
     
 
 
@@ -41,11 +24,8 @@
     <span id="chrome-version"></span>, and Electron
     <span id="electron-version"></span>.
     <br>
-    <textarea>
-
-    </textarea>
+	<div id='container'></div>
 
     <!-- You can also require other files to run in this process -->
-    <script src="./dist/renderer.js"></script>
   </body>
 </html>

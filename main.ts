@@ -2,7 +2,7 @@ import { app, BrowserWindow } from "electron";
 import * as path from "path";
 
 /**
- * Creates the main window
+ * Creates the main window. This is a change.
  * 
  * @returns {null} No return
  */

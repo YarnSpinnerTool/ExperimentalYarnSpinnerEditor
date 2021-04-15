@@ -6,5 +6,5 @@
 // needed in the renderer process.
 function loaded() {
 	console.log("test123")
-	
 }
+window.onload = loaded;

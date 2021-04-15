@@ -11,10 +11,11 @@ function createWindow() {
     const mainWindow = new BrowserWindow({
 	  height: 600,
 	  webPreferences: {
-		  preload: path.join(__dirname, "src/controllers/preload.js"),
-        },
+		preload: path.join(__dirname, "preload.preload.js"),
+	},
         width: 800,
     });
+	console.log(__dirname)
 	
     // and load the index.html of the app.
     mainWindow.loadFile(path.join(__dirname, "../src/views/html/index.html"));

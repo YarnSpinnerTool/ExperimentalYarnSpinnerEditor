@@ -1,4 +1,5 @@
 const path = require('path')
+const {merge} = require('webpack-merge')
 
 const loaders = {
     rules: [
@@ -13,14 +14,21 @@ const loaders = {
 	  {
 		test: /\.ts$/,
 		exclude: [/node_modules/],
-		loader: 'ts-loader'
+		loader: 'ts-loader',
+		options: {
+			transpileOnly: true,
+			experimentalWatchApi: true,
+		  },
 	  }
     ],
   };
+  
+const commonConfig = { 
+	mode: 'development',
+}
 
-const renderConfig = {
+const renderConfig = merge(commonConfig, {
   target: 'electron-renderer',
-  mode: 'development',
   entry: {
     'render': './src/views/ts/renderer.ts',
     'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker.js',
@@ -28,42 +36,34 @@ const renderConfig = {
   },
   output: {
     globalObject: 'self',
-    filename: '[name].render.js',
+	filename: (chunkData) => {
+		switch (chunkData.chunk.name) {
+			case 'editor.worker':
+				return 'editor.worker.js';
+			default:
+				return '[name].render.js';
+		}
+	},
+    // filename: '[name].render.js',
     path: path.resolve(__dirname, 'dist'),
+	pathinfo: false
   },
   module: loaders,
   
-};
+});
 
-const mainConfig = {
+const mainConfig = merge(commonConfig, {
 	target: 'electron-main',
-	mode: 'development',
 	entry: {
 	  'main': './src/main.ts',
-	  'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker.js',
-	  'ts.worker': 'monaco-editor/esm/vs/language/typescript/ts.worker',
 	},
 	output: {
 	  globalObject: 'self',
 	  filename: '[name].main.js',
 	  path: path.resolve(__dirname, 'dist'),
+	  pathinfo: false
 	},
 	module: loaders
-  };
+  });
   
-  const preloadConfig = {
-	target: 'electron-preload',
-	mode: 'development',
-	entry: {
-	  'preload': './src/controllers/preload.ts',
-	  'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker.js',
-	  'ts.worker': 'monaco-editor/esm/vs/language/typescript/ts.worker',
-	},
-	output: {
-	  globalObject: 'self',
-	  filename: '[name].preload.js',
-	  path: path.resolve(__dirname, 'dist'),
-	},
-	module: loaders
-  };
-  module.exports = [renderConfig, preloadConfig, mainConfig]
+  module.exports = [renderConfig, mainConfig]

@@ -6,8 +6,8 @@
   "scripts": {
     "start": "npm run build && electron ./dist/main.main.js",
     "build": "webpack --config ./webpack.config.js",
-    "lint": "npx eslint main.ts src/**/*.ts --max-warnings 0",
-    "lint-fix": "npx eslint main.ts src/**/*.ts --fix",
+    "lint": "npx eslint src/**/*.ts --max-warnings 0",
+    "lint-fix": "npx eslint src/**/*.ts --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "UTAS Project Team (YarnSpinnerEditor)",

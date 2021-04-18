@@ -1,5 +1,5 @@
-import { app, BrowserWindow } from "electron";
-import * as path from "path";
+let { app, BrowserWindow } = require("electron");
+let path = require("path");
 
 /**
  * Creates the main window. This is a change.
@@ -9,15 +9,12 @@ import * as path from "path";
 function createWindow() {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-	  height: 600,
-	  webPreferences: {
-		  preload: path.join(__dirname, "src/ts/preload.js"),
-        },
-        width: 800,
+	    height: 600,
+	    width: 800,
     });
 	
     // and load the index.html of the app.
-    mainWindow.loadFile(path.join(__dirname, "../src/views/html/index.html"));
+    mainWindow.loadFile(path.join(__dirname, "../src/index.html"));
 }
 
 app.whenReady().then(createWindow);

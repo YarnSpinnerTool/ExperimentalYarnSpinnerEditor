@@ -1,5 +1,5 @@
-import { app, BrowserWindow } from "electron";
-import * as path from "path";
+let { app, BrowserWindow } = require("electron");
+let path = require("path");
 
 /**
  * Creates the main window. This is a change.

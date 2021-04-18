@@ -1,4 +1,5 @@
 const path = require('path')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const {merge} = require('webpack-merge')
 
 const loaders = {
@@ -25,6 +26,9 @@ const loaders = {
   
 const commonConfig = { 
 	mode: 'development',
+	plugins: [
+		new CleanWebpackPlugin(),
+	]
 }
 
 const renderConfig = merge(commonConfig, {

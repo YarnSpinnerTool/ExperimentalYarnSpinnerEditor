@@ -38,6 +38,6 @@ if(document!) {
 	};
 }`
 		].join('\n'),
-		language: 'javascript',
+		language: 'typescript',
 	});
 }

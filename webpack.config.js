@@ -4,8 +4,8 @@ const {merge} = require('webpack-merge')
 const loaders = {
     rules: [
       {
-        test: /\.css$/,
-        loader: 'css-loader',
+		test: /\.css$/,
+		use: ['style-loader', 'css-loader']
       },
       {
         test: /\.ttf$/,

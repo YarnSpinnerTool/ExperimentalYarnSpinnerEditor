@@ -9,8 +9,8 @@ let path = require("path");
 function createWindow() {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-	    height: 600,
-	    width: 800,
+	    height: 1080,
+	    width: 1920,
     });
 	
     // and load the index.html of the app.

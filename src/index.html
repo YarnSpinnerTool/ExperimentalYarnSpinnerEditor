@@ -8,8 +8,21 @@
 </head>
 
 <body>
-	<div class='editorView' id='container'></div>
-	
+    <div class='topBar'>
+        <p>Placeholder text to place stuff in here to do other stuff on design</p>
+    </div>
+
+    <div class="parentLayout" horizontal layout>
+        <div class='horizontalLay' id="leftSideContainer">
+            <details id="workingFilesDetail">
+                <summary>Working files</summary>
+                <p>Samplefile.yarn</p>
+                <p>Samplefile2.yarn</p>
+            </details>
+        </div>
+	    <div class='editorView horizontalLay' id='container'></div>
+    </div>
+    
     <!-- You can also require other files to run in this process -->
 </body>
 <script src='../dist/render.render.js'></script>

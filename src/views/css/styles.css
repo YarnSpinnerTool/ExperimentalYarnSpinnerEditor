@@ -5,4 +5,61 @@
 body {
     margin: 0;
     padding: 0;
+    background-color: #1e1e1e; /* Default vscode dark theme */
+}
+
+
+
+details {
+    /* border: white;
+    border-radius: 1px;
+    border-style: ridge; */
+    background-color: #3e3e3e;
+    padding-right: 5%;
+}
+
+details > p {
+    text-align: justify;
+    word-wrap: break-word;
+    font-size: smaller;
+    margin: 5%;
+}
+
+.parentLayout{
+    width: match-parent;
+}
+
+.topBar{
+    border: white;
+    border-radius: 1px;
+    border-style: ridge; 
+    color: white;
+}
+
+.horizontalLay {
+    float: left;
+    color: white;
+    border: red;
+    border-radius: 1px;
+    border-style: ridge; 
+}
+
+.horizontalLay.editorView{
+    float: left;
+    clear: none;
+    width: 90%;
+    overflow: auto;
+}
+
+::-webkit-scrollbar{
+    visibility: hidden;
+}
+
+#leftSideContainer{
+    border: white;
+    border-radius: 1px;
+    border-style: ridge; 
+    color: white;
+    background-color: pink;
+    width: auto;
 }

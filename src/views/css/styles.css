@@ -1,6 +1,8 @@
 .editorView {
     height: 98vh;
     width: auto;
+    grid-column-start: 2;
+    grid-column-end: 2;
 }
 
 body {
@@ -28,6 +30,7 @@ details > p {
 
 .parentLayout{
     width: match-parent;
+    display: grid;
 }
 
 .topBar{
@@ -38,7 +41,7 @@ details > p {
 }
 
 .horizontalLay {
-    float: left;
+    /* float: left; */
     color: white;
     border: red;
     border-radius: 1px;
@@ -46,7 +49,7 @@ details > p {
 }
 
 .horizontalLay.editorView{
-    float: left;
+    /* float: left; */
     clear: none;
     width: 90%;
     overflow: auto;
@@ -63,4 +66,7 @@ details > p {
     color: white;
     background-color: pink;
     width: auto;
+
+    grid-column-start: 1;
+    grid-column-end: 1;
 }

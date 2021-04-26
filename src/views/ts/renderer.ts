@@ -5,7 +5,12 @@
 // Use preload.js to selectively enable features
 // needed in the renderer process.
 import * as monaco from 'monaco-editor';
+let editor: monaco.editor.IStandaloneCodeEditor;
 if(document!) {
+
+	// Look at https://microsoft.github.io/monaco-editor/playground.html#extending-language-services-custom-languages
+	monaco.languages.register({id: 'yarn'});
+
 	// @ts-ignore
 	self.MonacoEnvironment = {
 		getWorkerUrl: function (moduleId: String, label: String) {
@@ -16,7 +21,7 @@ if(document!) {
 		}
 	};
 	
-	monaco.editor.create(document.getElementById('container')!, {
+	editor = monaco.editor.create(document.getElementById('container')!, {
 		theme: 'vs-dark',
 		value: [`
 // This file is required by the index.html file and will
@@ -40,4 +45,6 @@ if(document!) {
 		].join('\n'),
 		language: 'typescript',
 	});
+
+	
 }

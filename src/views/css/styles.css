@@ -9,6 +9,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #1e1e1e; /* Default vscode dark theme */
+
 }
 
 
@@ -51,12 +52,13 @@ details > p {
 .horizontalLay.editorView{
     /* float: left; */
     clear: none;
-    width: 90%;
+    width: 100%;
     overflow: auto;
 }
 
 ::-webkit-scrollbar{
     visibility: hidden;
+    width: 0px;
 }
 
 #leftSideContainer{

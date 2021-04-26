@@ -11,8 +11,11 @@ function createWindow() {
     const mainWindow = new BrowserWindow({
 	    height: 540,
 	    width: 960,
+        minHeight: 480,
+        minWidth: 480,
     });
 	
+    
     // and load the index.html of the app.
     mainWindow.loadFile(path.join(__dirname, "../src/index.html"));
 }

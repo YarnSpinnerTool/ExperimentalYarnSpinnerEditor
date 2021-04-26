@@ -46,7 +46,6 @@ if(document!) {
 	};
 }`
 		].join('\n'),
-		//TODO Change this to yarnSpinner when working
-		language: 'typescript',
+		language: 'yarnSpinner',
 	});
 }

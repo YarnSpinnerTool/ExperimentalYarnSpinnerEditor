@@ -5,11 +5,14 @@
 // Use preload.js to selectively enable features
 // needed in the renderer process.
 import * as monaco from 'monaco-editor';
+import { yarnSpinnerMonarch } from '../../YarnSpinner/yarnSpinnerMonarch'
+
 let editor: monaco.editor.IStandaloneCodeEditor;
 if(document!) {
 
 	// Look at https://microsoft.github.io/monaco-editor/playground.html#extending-language-services-custom-languages
-	monaco.languages.register({id: 'yarn'});
+	monaco.languages.register({id: 'yarnSpinner'});
+	monaco.languages.setMonarchTokensProvider('yarnSpinner', yarnSpinnerMonarch );
 
 	// @ts-ignore
 	self.MonacoEnvironment = {
@@ -43,8 +46,7 @@ if(document!) {
 	};
 }`
 		].join('\n'),
+		//TODO Change this to yarnSpinner when working
 		language: 'typescript',
 	});
-
-	
 }

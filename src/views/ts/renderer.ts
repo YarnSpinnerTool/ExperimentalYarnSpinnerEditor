@@ -54,7 +54,7 @@ if(document!) {
 		value: [value].join('\n'),
 		language: 'typescript',
 		automaticLayout: true,
-		fontFamily: "Arial",
-		fontSize: 20
+		fontFamily: "Courier New",
+		fontSize: 14
 	});
 }

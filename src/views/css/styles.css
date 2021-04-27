@@ -1,8 +1,18 @@
+
+::-webkit-scrollbar{
+    visibility: hidden;
+    width: 0px;
+}
+
 .editorView {
-    height: 98vh;
-    width: auto;
+    height: 90vh;
+    width: 99%;
     grid-column-start: 2;
     grid-column-end: 2;
+
+    border: white;
+    border-style: groove;
+    border-width: 1px;
 }
 
 body {
@@ -12,21 +22,15 @@ body {
 
 }
 
-
-
 details {
-    /* border: white;
-    border-radius: 1px;
-    border-style: ridge; */
-    background-color: #3e3e3e;
-    padding-right: 5%;
+    background-color: #4e4e4e;
+    padding: 5%;
 }
 
-details > p {
+#workingFilesDetail > p {
     text-align: justify;
     word-wrap: break-word;
     font-size: smaller;
-    margin: 5%;
 }
 
 .parentLayout{
@@ -39,36 +43,56 @@ details > p {
     border-radius: 1px;
     border-style: ridge; 
     color: white;
-}
-
-.horizontalLay {
-    /* float: left; */
-    color: white;
-    border: red;
-    border-radius: 1px;
-    border-style: ridge; 
-}
-
-.horizontalLay.editorView{
-    /* float: left; */
-    clear: none;
-    width: 100%;
-    overflow: auto;
-}
-
-::-webkit-scrollbar{
-    visibility: hidden;
-    width: 0px;
+    display: grid;
 }
 
 #leftSideContainer{
     border: white;
     border-radius: 1px;
-    border-style: ridge; 
+    border-style: groove; 
     color: white;
     background-color: pink;
-    width: auto;
+    min-width: 150px;
 
     grid-column-start: 1;
     grid-column-end: 1;
+}
+
+/* Temporary top bar sorting out */
+
+.topBar {
+    min-height: 15%;
+    height: 25%;
+    max-height: 30%;
+}
+
+.topBar > button{
+    overflow-wrap: break-word;
+    height: 50px;
+
+    color: white;
+    background-color: #4e4e4e;
+
+    border-style: inset;
+    border-color: white;
+    border-radius: 25px;
+
+    margin: 5px;
+}
+
+#iconOne{
+    grid-column-start: 1;
+    grid-column-end: 1;
+}
+#iconTwo{
+    grid-column-start: 2;
+    grid-column-end: 2;
+}
+#iconThree{
+    grid-column-start: 3;
+    grid-column-end: 3;
+}
+#iconFour{
+    grid-column-start: 4;
+    grid-column-end: 4;
 }

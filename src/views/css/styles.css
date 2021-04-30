@@ -4,26 +4,48 @@
     width: 0px;
 }
 
+:root{
+    /* ~~COLOUR INFORMATION~~ */
+    /* 
+        FOR USE WITH
+        https://davidwalsh.name/css-variables-javascript?__cf_chl_jschl_tk__=1173ddcdfb18d816eca6b7bb352bd7e26ea09bb6-1619762597-0-AV0wN_9mCGCFJbZCQw2qZQRw_E6hWY3uv-XKcHdIcuTriEY5dh7sI65ygYpW4rqmGbK-Eiq5IfQ-1z9FLf7zTXFZ7ftctl9rA9YHVUiBE8OMUJXBhO3gKey25UmyZKse30DzFYpMgVAK0V3jlq49VYyHsPlNpbHPD-yQqjZSnYkh49z3r0XbPLHi7E07N5kmOanvDYv6LlSi4vDyllmOxzRPAwN9Xj3PUA9IVWeiLDU0547GFYiSA7dDRh-VI-qUaEisTCgN8XnmQQ8T0mmdDfXVZM68wlq2-W3DpCCxF4TjOHPmeZP5D03XvsZ2X3VeHMDC4RGORytHxs07YHYJc0vaPLN8iUyBL0OOAD6ZCBpA2OzJarmnxjRJu1DhYzYqePM18rg6lOJAcjTsc7WoK_g
+    */
+    --clr1: #ECEFF1;
+    --clr2: #CFD8DC;
+    --clr3: #B0BEC5;
+    --clr4: #90A4AE;
+    --clr5: #78909C;
+    --clr6: #607D8B;
+    --clr7: #546E7A;
+    --clr8: #455A64;
+    --clr9: #37474F;
+    --clr10: #263238;
+    
+    /* ~~CONSTANT COLOURS~~ */
+    --white: #FFFFFF;
+    --black: #000000;
+}
+
 .editorView {
     height: 90vh;
     width: 99%;
     grid-column-start: 2;
     grid-column-end: 2;
 
-    border: white;
-    border-style: groove;
-    border-width: 1px;
+    border: var(--clr5);
+    border-style: groove hidden hidden groove;  
+    /* border-width: 1px; */
 }
 
 body {
     margin: 0;
     padding: 0;
-    background-color: #1e1e1e; /* Default vscode dark theme */
+    background-color: var(--clr10); /* Default vscode dark theme */
 
 }
 
 details {
-    background-color: #4e4e4e;
+    background-color: var(--clr7);
     padding: 5%;
 }
 
@@ -38,51 +60,85 @@ details {
     display: grid;
 }
 
+button {
+    background-color: var(--white);
+    color: var(--black);
+    border-width: 1px;
+
+    border: var(--clr8);
+    border-style: solid;
+}
+
 .topBar{
-    border: white;
-    border-radius: 1px;
-    border-style: ridge; 
-    color: white;
+ 
+    border: var(--clr3);
+    border-style: hidden; 
+
+    color: var(--white);
+    background-color: var(--clr8);
+
     display: grid;
+
+    min-height: 15%;
+    height: 25%;
+    max-height: 30%;
 }
 
 #leftSideContainer{
-    border: white;
-    border-radius: 1px;
-    border-style: groove; 
-    color: white;
-    background-color: pink;
+    border: var(--clr5);
+    border-style: groove hidden hidden hidden;  
+
+    color: var(--white);
+    background-color: var(--clr5);
     min-width: 150px;
 
     grid-column-start: 1;
     grid-column-end: 1;
 }
 
-/* Temporary top bar sorting out */
+.topBar > div{
+    display: flex;
+    border: var(--white);
+    border-style: hidden; 
 
-.topBar {
-    min-height: 15%;
-    height: 25%;
-    max-height: 30%;
+    justify-content: center;
+    align-items: center;
 }
 
-.topBar > button{
-    overflow-wrap: break-word;
-    height: 50px;
-
-    color: white;
-    background-color: #4e4e4e;
-    margin: 5px;
+.topBar > div > input{
+    width: 25px;
 }
 
+.topBar > div > button{
+    height: min-content;
+    margin: 0px 5px;
+}
+
+.topBar > div > select{
+    height: min-content;
+}
+
+
+/* 
+    Each section is defined by a unique ID, there is probably a better way to
+    do this, but at least it's not tables. 
+*/
 #iconOne{
     grid-column-start: 1;
     grid-column-end: 1;
 }
+#iconOne > select{
+    width: 60px;
+}
+
 #iconTwo{
     grid-column-start: 2;
     grid-column-end: 2;
 }
+#iconTwo > select{
+    width: 100px;
+}
+
 #iconThree{
     grid-column-start: 3;
     grid-column-end: 3;

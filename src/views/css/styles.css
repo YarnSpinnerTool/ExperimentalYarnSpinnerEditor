@@ -22,8 +22,8 @@
     --clr10: #263238;
     
     /* ~~CONSTANT COLOURS~~ */
-    --white: #FFFFFF;
-    --black: #000000;
+    --primary_text: #FFFFFF;
+    --secondary_text: #000000;
 }
 
 .editorView {
@@ -61,8 +61,8 @@ details {
 }
 
 button {
-    background-color: var(--white);
-    color: var(--black);
+    background-color: var(--primary_text);
+    color: var(--secondary_text);
     border-width: 1px;
 
     border: var(--clr8);
@@ -74,7 +74,7 @@ button {
     border: var(--clr3);
     border-style: hidden; 
 
-    color: var(--white);
+    color: var(--primary_text);
     background-color: var(--clr8);
 
     display: grid;
@@ -88,7 +88,7 @@ button {
     border: var(--clr5);
     border-style: groove hidden hidden hidden;  
 
-    color: var(--white);
+    color: var(--primary_text);
     background-color: var(--clr5);
     min-width: 150px;
 
@@ -98,7 +98,7 @@ button {
 
 .topBar > div{
     display: flex;
-    border: var(--white);
+    border: var(--primary_text);
     border-style: hidden; 
 
     justify-content: center;

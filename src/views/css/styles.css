@@ -76,6 +76,8 @@ button {
 
     color: var(--primary_text);
     background-color: var(--clr8);
+    box-shadow: 0px 5px rgba(135,135,135,0.60);
+    
 
     display: grid;
 

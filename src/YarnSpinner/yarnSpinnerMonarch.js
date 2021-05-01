@@ -2,145 +2,56 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-
+/* Currently unable to import .ts file into renderer, likely a webpack issue. https://webpack.js.org/guides/typescript/
+ * Monaco Custom Language Documentation: https://microsoft.github.io/monaco-editor/playground.html#extending-language-services-custom-languages
+ * Yarn Spinner Documentation: https://yarnspinner.dev/docs/syntax/
+ * JS RegExp Documentation: https://www.w3schools.com/jsref/jsref_obj_regexp.asp
+ */
 import { languages } from "monaco-editor";
 
-export const yarnSpinnerMonarch = {
+export const yarnSpinnerTokensProvider = {
     // Set defaultToken to invalid to see what you do not tokenize yet
     defaultToken: "invalid",
     tokenPostfix: ".ts",
 
     keywords: [
-        // Should match the keys of textToKeywordObj in
-        // https://github.com/microsoft/TypeScript/blob/master/src/compiler/scanner.ts
-        "cullie",
-        "adam",
-        "seth",
-        "harry",
-        "nicky",
-        //TODO Remove testing strings above
-        "abstract",
-        "any",
+        //Commands
+        "jump","stop","declare","set",
+        //Flow Control
+        "if", "else", "elseif","endif",
+        //Explicit Typing
         "as",
-        "asserts",
-        "bigint",
-        "boolean",
-        "break",
-        "case",
-        "catch",
-        "class",
-        "continue",
-        "const",
-        "constructor",
-        "debugger",
-        "declare",
-        "default",
-        "delete",
-        "do",
-        "else",
-        "enum",
-        "export",
-        "extends",
-        "false",
-        "finally",
-        "for",
-        "from",
-        "function",
-        "get",
-        "if",
-        "implements",
-        "import",
-        "in",
-        "infer",
-        "instanceof",
-        "interface",
-        "is",
-        "keyof",
-        "let",
-        "module",
-        "namespace",
-        "never",
-        "new",
-        "null",
-        "number",
-        "object",
-        "package",
-        "private",
-        "protected",
-        "public",
-        "readonly",
-        "require",
-        "global",
-        "return",
-        "set",
-        "static",
-        "string",
-        "super",
-        "switch",
-        "symbol",
-        "this",
-        "throw",
-        "true",
-        "try",
-        "type",
-        "typeof",
-        "undefined",
-        "unique",
-        "unknown",
-        "var",
-        "void",
-        "while",
-        "with",
-        "yield",
-        "async",
-        "await",
-        "of"
+        //Miscellaneous
+        "Title:","true","false", "->"
+    ],
+
+    typeKeywords: [
+        "boolean", "string", "number"
     ],
 
     operators: [
-        "<=",
-        ">=",
-        "==",
+        //Equality
+        "is", "==",
+        //Inequality 
         "!=",
-        "===",
-        "!==",
-        "=>",
-        "+",
-        "-",
-        "**",
-        "*",
-        "/",
-        "%",
-        "++",
-        "--",
-        "<<",
-        "</",
-        ">>",
-        ">>>",
-        "&",
-        "|",
-        "^",
+        //Greater than
+        ">",
+        //Less than
+        "<",
+        //Less than or equal to
+        "<=",
+        //Greater than or equal to
+        ">=",
+        //Boolean OR
+        "or", "||",
+        //Boolean XOR
+        "xor", "^",
+        //Boolean negation
         "!",
-        "~",
-        "&&",
-        "||",
-        "??",
-        "?",
-        ":",
-        "=",
-        "+=",
-        "-=",
-        "*=",
-        "**=",
-        "/=",
-        "%=",
-        "<<=",
-        ">>=",
-        ">>>=",
-        "&=",
-        "|=",
-        "^=",
-        "@"
+        //Boolean AND
+        "and", "&&",
+        //Mathematical Operators
+        "+", "-", "*", "/", "%"
     ],
 
     // we include these common regular expressions
@@ -164,13 +75,14 @@ export const yarnSpinnerMonarch = {
                 /[a-z_$][\w$]*/,
                 {
                     cases: {
+                        "@typeKeywords": "type.identifier",
                         "@keywords": "keyword",
                         "@default": "identifier"
                     }
                 }
+
             ],
-            [/[A-Z][\w$]*/, "type.identifier"], // to show class names nicely
-            // [/[A-Z][\w\$]*/, 'identifier'],
+            [/[A-Z][\w$]*/, "identifier"],
 
             // whitespace
             { include: "@whitespace" },
@@ -300,73 +212,40 @@ export const yarnSpinnerMonarch = {
     }
 };
 
-export const conf = {
+export const yarnSpinnerConfig = {
 
     // Default typescript iLanguageDefinition
     // Set defaultToken to invalid to see what you do not tokenize yet
+    defaultToken: "invalid",
     wordPattern: /(-?\d*\.\d\w*)|([^`~!@#%^&*()\-=+[{\]}\\|;:'",.<>/?\s]+)/g,
 
     comments: {
-        lineComment: "//",
-        blockComment: ["/*", "*/"]
+        lineComment: "//"
     },
 
     brackets: [
-        ["{", "}"],
+        ['<<', '>>'],
         ["[", "]"],
         ["(", ")"]
     ],
 
     onEnterRules: [
-        {
-            // e.g. /** | */
-            beforeText: /^\s*\/\*\*(?!\/)([^*]|\*(?!\/))*$/,
-            afterText: /^\s*\*\/$/,
-            action: {
-                indentAction: languages.IndentAction.IndentOutdent,
-                appendText: " * "
-            }
-        },
-        {
-            // e.g. /** ...|
-            beforeText: /^\s*\/\*\*(?!\/)([^*]|\*(?!\/))*$/,
-            action: {
-                indentAction: languages.IndentAction.None,
-                appendText: " * "
-            }
-        },
-        {
-            // e.g.  * ...|
-            beforeText: /^(\t|( {2}))* \*( ([^*]|\*(?!\/))*)?$/,
-            action: {
-                indentAction: languages.IndentAction.None,
-                appendText: "* "
-            }
-        },
-        {
-            // e.g.  */|
-            beforeText: /^(\t|( {2}))* \*\/\s*$/,
-            action: {
-                indentAction: languages.IndentAction.None,
-                removeText: 1
-            }
-        }
+       
     ],
 
     autoClosingPairs: [
-        { open: "{", close: "}" },
-        { open: "[", close: "]" },
-        { open: "(", close: ")" },
-        { open: "\"", close: "\"", notIn: ["string"] },
-        { open: "'", close: "'", notIn: ["string", "comment"] },
-        { open: "`", close: "`", notIn: ["string", "comment"] },
-        { open: "/**", close: " */", notIn: ["string"] }
+        //Command
+        { open: '<<', close: '>>' },
+        //Interpolation
+		{ open: '{', close: '}' },
+        //Mathematical 
+		{ open: '(', close: ')' },
     ],
 
     folding: {
         markers: {
-            start: new RegExp("^\\s*//\\s*#?region\\b"),
-            end: new RegExp("^\\s*//\\s*#?endregion\\b")
+            start: new RegExp('^Title:'),
+			end: new RegExp('^===')
         }
     }
 };

@@ -7,6 +7,8 @@
 import * as monaco from 'monaco-editor';
 import { yarnSpinnerTokensProvider } from '../../YarnSpinner/yarnSpinnerMonarch';
 import { yarnSpinnerConfig } from '../../YarnSpinner/yarnSpinnerMonarch';
+import { yarnSpinnerTheme } from '../../YarnSpinner/yarnSpinnerMonarch';
+import { yarnSpinnerValue } from '../../YarnSpinner/yarnSpinnerMonarch';
 
 let editor: monaco.editor.IStandaloneCodeEditor;
 if(document!) {
@@ -15,7 +17,7 @@ if(document!) {
 	monaco.languages.register({id: 'yarnSpinner'});
 	monaco.languages.setMonarchTokensProvider('yarnSpinner', yarnSpinnerTokensProvider);
 	monaco.languages.setLanguageConfiguration('yarnSpinner', yarnSpinnerConfig);
-
+	monaco.editor.defineTheme('yarnSpinnerTheme', yarnSpinnerTheme);
 	// @ts-ignore
 	self.MonacoEnvironment = {
 		getWorkerUrl: function (moduleId: String, label: String) {
@@ -25,20 +27,23 @@ if(document!) {
 			return '../dist/editor.worker.js';
 		}
 	};
-	
 	editor = monaco.editor.create(document.getElementById('container')!, {
-		theme: 'vs-dark',
-		value: [
-`Title: Node Collapse Test
+		theme: 'yarnSpinnerTheme',
+		value: [`
+Title: Node Collapse Test
 ---
 woweeeeeeee
 ===
-		
+				
 Syntax Highlighting Test
 type a Yarn 2.0 keyword:
-
+		
 Auto-Closing Brackets Test
 try either <<, {, or (.
+		
+[b]Here is some bold text[\\b]
+[u]Here is some underlined text[\\u]
+[i]Here is some italicised text[\\i]
 `
 		].join('\n'),
 		language: 'yarnSpinner',

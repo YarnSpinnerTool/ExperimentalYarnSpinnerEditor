@@ -70,10 +70,15 @@ export const yarnSpinnerTokensProvider = {
         root: [[/[{}]/, "delimiter.bracket"], { include: "common" }],
 
         common: [
+            //Markup
+            [/\[b\].*\[\\b\]/,"bold-bbcode"],
+            [/\[i\].*\[\\i\]/,"italics-bbcode"],
+            [/\[u\].*\[\\u\]/,"underline-bbcode"],
             // identifiers and keywords
+            [/[A-Z][\w$]*/, "identifier"],
             [
                 /[a-z_$][\w$]*/,
-                {
+                {   
                     cases: {
                         "@typeKeywords": "type.identifier",
                         "@keywords": "keyword",
@@ -82,7 +87,7 @@ export const yarnSpinnerTokensProvider = {
                 }
 
             ],
-            [/[A-Z][\w$]*/, "identifier"],
+            
 
             // whitespace
             { include: "@whitespace" },
@@ -247,5 +252,26 @@ export const yarnSpinnerConfig = {
             start: new RegExp('^Title:'),
 			end: new RegExp('^===')
         }
+    }
+};
+
+export const yarnSpinnerTheme = {
+    base: 'vs',
+    inherit: true,
+
+    rules: [
+        { background: 'CFD8DC'},
+        { token: 'bold-bbcode', fontStyle: 'bold' },
+        { token: 'underline-bbcode', fontStyle: 'underline' },
+        { token: 'italics-bbcode', fontStyle: 'italic' }
+        ],
+    colors: {
+        'editor.foreground': '#000000',
+        'editor.background': '#CFD8DC',
+        'editorCursor.foreground': '#8B0000',
+        'editor.lineHighlightBackground': '#0000FF20',
+        'editorLineNumber.foreground': '#008800',
+        'editor.selectionBackground': '#88000030',
+        'editor.inactiveSelectionBackground': '#88000015'
     }
 };

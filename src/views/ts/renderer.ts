@@ -5,19 +5,21 @@
 // Use preload.js to selectively enable features
 // needed in the renderer process.
 import * as monaco from 'monaco-editor';
-import { yarnSpinnerTokensProvider } from '../../YarnSpinner/yarnSpinnerMonarch';
-import { yarnSpinnerConfig } from '../../YarnSpinner/yarnSpinnerMonarch';
-import { yarnSpinnerTheme } from '../../YarnSpinner/yarnSpinnerMonarch';
-import { yarnSpinnerValue } from '../../YarnSpinner/yarnSpinnerMonarch';
+import * as yarnSpinner from '../../YarnSpinner/yarnSpinnerMonarch';
 
 let editor: monaco.editor.IStandaloneCodeEditor;
 if(document!) {
 
-	// Look at https://microsoft.github.io/monaco-editor/playground.html#extending-language-services-custom-languages
+	//Register our new custom language
 	monaco.languages.register({id: 'yarnSpinner'});
-	monaco.languages.setMonarchTokensProvider('yarnSpinner', yarnSpinnerTokensProvider);
-	monaco.languages.setLanguageConfiguration('yarnSpinner', yarnSpinnerConfig);
-	monaco.editor.defineTheme('yarnSpinnerTheme', yarnSpinnerTheme);
+	//set the tokeniser
+	monaco.languages.setMonarchTokensProvider('yarnSpinner', yarnSpinner.tokens);
+	//set the configuration
+	monaco.languages.setLanguageConfiguration('yarnSpinner', yarnSpinner.config);
+	//set the completions NOT WORKING CURRENTLY
+	monaco.languages.registerCompletionItemProvider('yarnSpinner', yarnSpinner.completions);
+
+	monaco.editor.defineTheme('yarnSpinnerTheme', yarnSpinner.theme);
 	// @ts-ignore
 	self.MonacoEnvironment = {
 		getWorkerUrl: function (moduleId: String, label: String) {

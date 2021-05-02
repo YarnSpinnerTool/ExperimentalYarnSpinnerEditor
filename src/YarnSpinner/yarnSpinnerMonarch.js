@@ -9,7 +9,7 @@
  */
 import { languages } from "monaco-editor";
 
-export const yarnSpinnerTokensProvider = {
+export const tokens = {
     // Set defaultToken to invalid to see what you do not tokenize yet
     defaultToken: "invalid",
     tokenPostfix: ".ts",
@@ -217,7 +217,7 @@ export const yarnSpinnerTokensProvider = {
     }
 };
 
-export const yarnSpinnerConfig = {
+export const config = {
 
     // Default typescript iLanguageDefinition
     // Set defaultToken to invalid to see what you do not tokenize yet
@@ -255,7 +255,7 @@ export const yarnSpinnerConfig = {
     }
 };
 
-export const yarnSpinnerTheme = {
+export const theme = {
     base: 'vs',
     inherit: true,
 
@@ -274,4 +274,48 @@ export const yarnSpinnerTheme = {
         'editor.selectionBackground': '#88000030',
         'editor.inactiveSelectionBackground': '#88000015'
     }
+};
+
+export const completions = {
+    provideCompletionItems: () => {
+		var suggestions = [{
+			label: 'if',
+			kind: monaco.languages.CompletionItemKind.Text,
+			insertText: 'if'
+		}, {
+            label: 'jump',
+			kind: monaco.languages.CompletionItemKind.Text,
+			insertText: 'jump'
+		}, {
+            label: 'stop',
+			kind: monaco.languages.CompletionItemKind.Text,
+			insertText: 'stop'
+		}, {
+            label: 'cullie',
+			kind: monaco.languages.CompletionItemKind.Text,
+			insertText: 'cullie'
+		}, {
+            label: 'adam',
+			kind: monaco.languages.CompletionItemKind.Text,
+			insertText: 'adam'
+		}, {
+			label: 'testing',
+			kind: monaco.languages.CompletionItemKind.Keyword,
+			insertText: 'testing(${1:condition})',
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+		}, {
+			label: 'ifelse',
+			kind: monaco.languages.CompletionItemKind.Snippet,
+			insertText: [
+				'if (${1:condition}) {',
+				'\t$0',
+				'} else {',
+				'\t',
+				'}'
+			].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			documentation: 'If-Else Statement'
+		}];
+		return { suggestions: suggestions };
+	}
 };

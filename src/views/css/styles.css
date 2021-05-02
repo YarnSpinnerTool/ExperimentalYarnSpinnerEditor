@@ -26,15 +26,27 @@
     --secondary_text: #000000;
 }
 
-.editorView {
-    height: 90vh;
-    width: 99%;
+#outerEditor{
     grid-column-start: 2;
     grid-column-end: 2;
+}
+
+.editorView {
+    height: 90%;
+    width: 99%;
 
     border: var(--clr5);
-    border-style: groove hidden hidden groove;  
+    border-style: groove hidden hidden groove; 
+    
+    left: 0px;
+    top: 0px;
+    z-index: -1;
     /* border-width: 1px; */
+}
+
+#zoomHover{
+    position: relative;
+    z-index: 1;
 }
 
 body {

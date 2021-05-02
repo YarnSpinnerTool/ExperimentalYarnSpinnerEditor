@@ -37,7 +37,7 @@ SOFTWARE.
     <div class='topBar'>
         <div id="iconOne" horizontal layout>
             <p>Zoom:</p>
-            <button>-</button>
+            <button class="buttonOutline">-</button>
             <select>
                 <option value="50%">50%</option>
                 <option value="75%">75%</option>
@@ -60,11 +60,6 @@ SOFTWARE.
                 <option>Courier New</option>
                 <option>Monospace</option>
             </select>
-
-            <p>Size:</p>
-            <button>-</button>
-            <input type="text" value="11">
-            <button>+</button>
         </div>
 
         <div id="iconThree" horizontal layout>
@@ -94,7 +89,11 @@ SOFTWARE.
                 <p>Samplefile2.yarn</p>
             </details>
         </div>
-	    <div class='editorView' id='container'></div>
+
+        <div id="outerEditor">
+	        <div class='editorView' id='container'></div>
+            <div id="zoomHover"><p>This should be over the top of the editorView container</p></div>
+        </div>
     </div> 
     <!-- You can also require other files to run in this process -->
 </body>

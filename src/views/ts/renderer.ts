@@ -55,6 +55,8 @@ if(document!) {
 		language: 'typescript',
 		automaticLayout: true,
 		fontFamily: "Courier New",
-		fontSize: 14
+		fontSize: 14,
+        mouseWheelZoom: true,
+        wordWrap: true
 	});
 }

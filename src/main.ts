@@ -13,6 +13,7 @@ function createWindow() {
 	    width: 960,
         minHeight: 480,
         minWidth: 480,
+        transparent: true
     });
 	
     

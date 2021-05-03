@@ -29,6 +29,7 @@ if(document!) {
 			return '../dist/editor.worker.js';
 		}
 	};
+
 	editor = monaco.editor.create(document.getElementById('container')!, {
 		theme: 'yarnSpinnerTheme',
 		value: [`
@@ -49,5 +50,12 @@ try either <<, {, or (.
 `
 		].join('\n'),
 		language: 'yarnSpinner',
+		automaticLayout: true,
+		fontFamily: "Courier New",
+		fontSize: 14,
+		mouseWheelZoom: true,
+        wordWrap: "on"
 	});
+
+
 }

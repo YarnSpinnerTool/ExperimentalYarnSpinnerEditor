@@ -35,15 +35,13 @@ SOFTWARE.
 
 <body>
     <div class='topBar'>
-        <div id="iconOne" horizontal layout>
+        <div id="iconOne" >
             <p>Quick actions </p>
-            <br>
-            <i class="material-icons">&#xe8ad;</i><!-- Printer? -->
-            <i class="material-icons">&#xe8ce;</i><!-- Spell Check toggle? -->
-            <i class="material-icons">&#xe880;</i><!-- Find in page? -->
-            <i class="material-icons">&#xe881;</i><!-- Find/Replace in page? -->
-            <i class="material-icons">&#xe2c7;</i><!-- Open working folder? -->
-            
+            <span class="material-icons md-48">&#xe8ad;</span ><!-- Printer? -->
+            <span class="material-icons md-48">&#xe8ce;</span ><!-- Spell Check toggle? -->
+            <span class="material-icons md-48">&#xe880;</span><!-- Find in page? -->
+            <span class="material-icons md-48">&#xe881;</span><!-- Find/Replace in page? -->
+            <span class="material-icons md-48">&#xe2c7;</span><!-- Open working folder? -->
         </div>
 
         <div id="iconTwo" horizontal layout>
@@ -51,45 +49,37 @@ SOFTWARE.
             <button>Italics</button>
             <button>Underline</button>
 
-            <p>Text Colour:</p>
+            <p>Text Colour: </p>
             <input type="color">
         </div>
 
         <div id="iconThree" horizontal layout>
 
-
-            <p>Zoom:</p>
-            <button class="buttonOutline">-</button>
-            <select>
-                <option value="50%">50%</option>
-                <option value="75%">75%</option>
-                <option value="90%">90%</option>
-                <option value="100%">100%</option>
-                <option value="125%">125%</option>
-                <option value="150%">150%</option>
-            </select>
-            <button>+</button>
         </div>
 
         <div id="iconFour" horizontal layout>
 
         </div>
-
     </div>
+        <div class="parentLayout">
+            <div id="leftCont">
+                <div id="leftSideContainer">
+                    <details id="workingFilesDetail">
+                        <summary>Working files</summary>
+                        <p>Samplefile.yarn</p>
+                        <p>Samplefile2.yarn</p>
+                    </details>
+                </div>
+            </div>
 
-    <div class="parentLayout">
-        <div id="leftSideContainer">
-            <details id="workingFilesDetail">
-                <summary>Working files</summary>
-                <p>Samplefile.yarn</p>
-                <p>Samplefile2.yarn</p>
-            </details>
-        </div>
+            <div class="outerOuterEditor">
+                <div class="outerEditor">
+                    <div class='editorView' id='container'></div>
+                </div>
+            </div>
 
-        <div id="outerEditor">
-	        <div class='editorView' id='container'></div>
-        </div>
-    </div> 
+        </div> 
+    
     <!-- You can also require other files to run in this process -->
 </body>
 <script src='../dist/render.render.js'></script>

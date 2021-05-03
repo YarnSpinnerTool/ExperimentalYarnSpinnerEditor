@@ -4,6 +4,7 @@
     width: 0px;
 }
 
+/* ROOT */
 :root{
     /* ~~COLOUR INFORMATION~~ */
     /* 
@@ -21,113 +22,63 @@
     --clr9: #37474F;
     --clr10: #263238;
 
+    /* Human readable colour theme */
+    --editor: #CFD8DC;
+    --topSideEdit: #CFD8DC;
+    --tabGap: #546E7A;
+    --dividerColour: #90A4AE;
     
     /* ~~CONSTANT COLOURS~~ */
-    --primary_text: #FFFFFF;
-    --secondary_text: #000000;
+    --primary_text: #000000;
+    --secondary_text: #FFFFFF;
 }
 
-#outerEditor{
-    grid-column-start: 2;
-    grid-column-end: 2;
-    border-style: hidden;
-    border-radius: 15px;
-    background-color:var(--clr2) ;
-
-
-    margin-right: -20px;
-    padding-bottom: 20px;
-
-}
-
-.editorView {
-    margin-top: 5px;
-    margin-left: 5px;
-    height: 98vh;
-    width: 99%;
-
-    /* border: var(--clr5);
-    border-style: groove hidden hidden groove;  */
-    
-    left: 0px;
-    top: 0px;
-    /* border-width: 1px; */
-}
+/* BODY */
 
 body {
     margin: 0;
     padding: 0;
-    background-color: var(--clr8);
+    background-color: var(--topSideEdit);
 
     overflow-x: hidden;
     overflow-y: hidden;
 }
 
-#workingFilesDetail{
-    background-color: var(--clr7);
-    padding: 5%;
-}
 
-#workingFilesDetail > p {
-    text-align: justify;
-    word-wrap: break-word;
-    font-size: smaller;
-}
 
-.parentLayout{
-    width: match-parent;
-    display: grid;
-    /* background-color: pink; *//*DEBUG COLOUR */
-    background-color: var(--clr8);
-}
-
-button {
-    background-color: var(--primary_text);
-    color: var(--secondary_text);
-    border-width: 1px;
-
-    border: var(--clr8);
-    border-style: solid;
-}
-
+/* TOP BAR */
 .topBar{
- 
-    border: var(--clr3);
-    border-style: hidden; 
-
     color: var(--primary_text);
-    background-color: var(--clr8);
-    box-shadow: 0px 5px rgba(135,135,135,0.60);
-    
-
+    background-color: var(--topSideEdit);
     display: grid;
+    padding-top: 5px;
 
     min-height: 15%;
     height: 25%;
     max-height: 30%;
 }
 
-#leftSideContainer{
-    border: var(--clr5);
-    /* border-style: groove hidden hidden hidden;   */
 
+button {
+    background-color: var(--topSideEdit);
     color: var(--primary_text);
-    background-color: var(--clr8);
-    min-width: 150px;
 
-    margin-top: 20px;
+    border: var(--primary_text);
+    border-style: solid;
+    border-width: thin;
 
-    grid-column-start: 1;
-    grid-column-end: 1;
+    padding: 5px;
 }
+
 
 .topBar > div{
     display: flex;
-    border: var(--primary_text);
-    border-style: hidden; 
-
     justify-content: center;
     align-items: center;
+
+    border-style: hidden solid hidden hidden;
+    border-color: var(--dividerColour);
+    border-width: thin;
 }
 
 .topBar > div > input{
@@ -151,6 +102,7 @@ button {
 #iconOne{
     grid-column-start: 1;
     grid-column-end: 1;
+
 }
 
 select{
@@ -160,6 +112,7 @@ select{
 #iconTwo{
     grid-column-start: 2;
     grid-column-end: 2;
+
 }
 #iconTwo > select{
     width: 100px;
@@ -168,8 +121,104 @@ select{
 #iconThree{
     grid-column-start: 3;
     grid-column-end: 3;
+    border-style: hidden;
 }
 #iconFour{
     grid-column-start: 4;
     grid-column-end: 4;
 }
+
+
+
+/* PARENT LAYOUTS */
+
+
+
+.parentLayout{
+    display: grid;
+    border-style: hidden;
+    border-radius: 15px;
+}
+
+/* SIDE BAR */
+
+#leftCont{
+    margin-left: 5px;
+}
+
+#leftSideContainer{
+    border: var(--dividerColour);
+    border-style: solid hidden hidden hidden;
+    border-width: thin;
+
+    color: var(--primary_text);
+    background-color: var(--topSideEdit);
+    min-width: 150px;
+
+    padding-top: 10px;
+
+    grid-column-start: 1;
+    grid-column-end: 1;
+}
+
+#workingFilesDetail{
+    background-color: var(--topSideEdit);
+    padding: 5%;
+}
+
+#workingFilesDetail > p {
+    text-align: justify;
+    word-wrap: break-word;
+    font-size: smaller;
+}
+
+
+/* EDIT SPACE */
+
+.outerOuterEditor{
+    width: match-parent;
+    background-color: var(--tabGap);
+    grid-column-start: 2;
+    grid-column-end: 2;
+
+    border-style: hidden;
+    border-radius: 15px;
+    margin-right: -20px;
+
+    margin-top: 5px;
+    margin-left: 5px;
+}
+
+.outerEditor{
+    border-style: hidden;
+    border-radius: 15px;
+    background-color: var(--editor);
+    margin-left: 15px;
+    margin-top: 15px;
+    padding-bottom: 20px;
+    padding-top: 5px;
+}
+
+.editorView {
+    margin-top: 5px;
+    margin-left: 5px;
+    height: 98vh;
+    width: 99%;
+
+    /* border: var(--clr5);
+    border-style: groove hidden hidden groove;  */
+    
+    left: 0px;
+    top: 0px;
+    /* border-width: 1px; */
+}
+
+
+
+
+
+
+
+
+
+

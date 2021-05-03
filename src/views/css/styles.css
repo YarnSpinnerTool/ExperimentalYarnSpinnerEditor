@@ -25,7 +25,6 @@
     /* ~~CONSTANT COLOURS~~ */
     --primary_text: #FFFFFF;
     --secondary_text: #000000;
-
 }
 
 #outerEditor{
@@ -61,6 +60,7 @@ body {
     background-color: var(--clr8);
 
     overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 #workingFilesDetail{

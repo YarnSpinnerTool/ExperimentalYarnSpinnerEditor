@@ -7,24 +7,24 @@
 import * as monaco from 'monaco-editor';
 if(document!) {
 
-    var value = `  
-    title: EmptyTags
-    tags: 
-    ---
-    In this test, the 'tags' header is provided, but has no value.
-    ===
-    title: Tags
-    tags: one two three
-    ---
-    In this test, the 'tags' header is provided, and has three values.
-    ===
-    title: ArbitraryHeaderWithValue
-    arbitraryheader: some-arbitrary-text
-    ---
-    In this test, an arbitrary header is defined with some text.
-    
-    (TODO: If the last header is an arbitrary header, and is empty, a parse error is thrown. This is a bug.)
-    ===`;
+    var value =   `
+title: EmptyTags
+tags: 
+---
+In this test, the 'tags' header is provided, but has no value.
+===
+title: Tags
+tags: one two three
+---
+In this test, the 'tags' header is provided, and has three values.
+===
+title: ArbitraryHeaderWithValue
+arbitraryheader: some-arbitrary-text
+---
+In this test, an arbitrary header is defined with some text.
+
+(TODO: If the last header is an arbitrary header, and is empty, a parse error is thrown. This is a bug.)
+===`;
 
 	// @ts-ignore
 	self.MonacoEnvironment = {
@@ -59,4 +59,6 @@ if(document!) {
         mouseWheelZoom: true,
         wordWrap: "on"
 	});
+
+
 }

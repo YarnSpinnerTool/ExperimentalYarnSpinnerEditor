@@ -36,6 +36,30 @@ SOFTWARE.
 <body>
     <div class='topBar'>
         <div id="iconOne" horizontal layout>
+            <p>Quick actions </p>
+            <br>
+            <i class="material-icons">&#xe8ad;</i><!-- Printer? -->
+            <i class="material-icons">&#xe8ce;</i><!-- Spell Check toggle? -->
+            <i class="material-icons">&#xe880;</i><!-- Find in page? -->
+            <i class="material-icons">&#xe881;</i><!-- Find/Replace in page? -->
+            <i class="material-icons">&#xe2c7;</i><!-- Open working folder? -->
+
+        </div>
+
+        <div id="iconTwo" horizontal layout>
+            <!-- <p>[REDACTED]</p>
+            <div REDACTED="hehe">haha</div> -->
+            <button>Bold</button>
+            <button>Italics</button>
+            <button>Underline</button>
+
+            <p>Text Colour:</p>
+            <input type="color">
+        </div>
+
+        <div id="iconThree" horizontal layout>
+
+
             <p>Zoom:</p>
             <button class="buttonOutline">-</button>
             <select>
@@ -49,34 +73,8 @@ SOFTWARE.
             <button>+</button>
         </div>
 
-        <div id="iconTwo" horizontal layout>
-            <p>Font:</p>
-            <select>
-                <option>Monaco</option>
-                <option>Menlo</option>
-                <option>Consolas</option>
-                <option>Droid Sans Mono</option>
-                <option>Inconsolata</option>
-                <option>Courier New</option>
-                <option>Monospace</option>
-            </select>
-        </div>
-
-        <div id="iconThree" horizontal layout>
-            <button>Bold</button>
-            <button>Italics</button>
-            <button>Underline</button>
-
-            <p>Text Colour:</p>
-            <input type="color">
-        </div>
-
         <div id="iconFour" horizontal layout>
-            <i class="material-icons">&#xe8ad;</i><!-- Printer? -->
-            <i class="material-icons">&#xe8ce;</i><!-- Spell Check toggle? -->
-            <i class="material-icons">&#xe880;</i><!-- Find in page? -->
-            <i class="material-icons">&#xe881;</i><!-- Find/Replace in page? -->
-            <i class="material-icons">&#xe2c7;</i><!-- Open working folder? -->
+
         </div>
 
     </div>
@@ -92,7 +90,6 @@ SOFTWARE.
 
         <div id="outerEditor">
 	        <div class='editorView' id='container'></div>
-            <div id="zoomHover"><p>This should be over the top of the editorView container</p></div>
         </div>
     </div> 
     <!-- You can also require other files to run in this process -->

@@ -57,6 +57,6 @@ if(document!) {
 		fontFamily: "Courier New",
 		fontSize: 14,
         mouseWheelZoom: true,
-        wordWrap: true
+        wordWrap: "on"
 	});
 }

@@ -20,43 +20,50 @@
     --clr8: #455A64;
     --clr9: #37474F;
     --clr10: #263238;
+
     
     /* ~~CONSTANT COLOURS~~ */
     --primary_text: #FFFFFF;
     --secondary_text: #000000;
+
 }
 
 #outerEditor{
     grid-column-start: 2;
     grid-column-end: 2;
+    border-style: hidden;
+    border-radius: 15px;
+    background-color:var(--clr2) ;
+
+
+    margin-right: -20px;
+    padding-bottom: 20px;
+
 }
 
 .editorView {
-    height: 90%;
+    margin-top: 5px;
+    margin-left: 5px;
+    height: 98vh;
     width: 99%;
 
-    border: var(--clr5);
-    border-style: groove hidden hidden groove; 
+    /* border: var(--clr5);
+    border-style: groove hidden hidden groove;  */
     
     left: 0px;
     top: 0px;
-    z-index: -1;
     /* border-width: 1px; */
-}
-
-#zoomHover{
-    position: relative;
-    z-index: 1;
 }
 
 body {
     margin: 0;
     padding: 0;
-    background-color: var(--clr10); /* Default vscode dark theme */
+    background-color: var(--clr8);
 
+    overflow-x: hidden;
 }
 
-details {
+#workingFilesDetail{
     background-color: var(--clr7);
     padding: 5%;
 }
@@ -70,6 +77,8 @@ details {
 .parentLayout{
     width: match-parent;
     display: grid;
+    /* background-color: pink; *//*DEBUG COLOUR */
+    background-color: var(--clr8);
 }
 
 button {
@@ -100,11 +109,13 @@ button {
 
 #leftSideContainer{
     border: var(--clr5);
-    border-style: groove hidden hidden hidden;  
+    /* border-style: groove hidden hidden hidden;   */
 
     color: var(--primary_text);
-    background-color: var(--clr5);
+    background-color: var(--clr8);
     min-width: 150px;
+
+    margin-top: 20px;
 
     grid-column-start: 1;
     grid-column-end: 1;
@@ -141,7 +152,8 @@ button {
     grid-column-start: 1;
     grid-column-end: 1;
 }
-#iconOne > select{
+
+select{
     width: 60px;
 }
 

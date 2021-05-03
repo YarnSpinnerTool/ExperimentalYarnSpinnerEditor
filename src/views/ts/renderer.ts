@@ -5,27 +5,21 @@
 // Use preload.js to selectively enable features
 // needed in the renderer process.
 import * as monaco from 'monaco-editor';
+import * as yarnSpinner from '../../YarnSpinner/yarnSpinnerMonarch';
+
+let editor: monaco.editor.IStandaloneCodeEditor;
 if(document!) {
 
-    var value =   `
-title: EmptyTags
-tags: 
----
-In this test, the 'tags' header is provided, but has no value.
-===
-title: Tags
-tags: one two three
----
-In this test, the 'tags' header is provided, and has three values.
-===
-title: ArbitraryHeaderWithValue
-arbitraryheader: some-arbitrary-text
----
-In this test, an arbitrary header is defined with some text.
+	//Register our new custom language
+	monaco.languages.register({id: 'yarnSpinner'});
+	//set the tokeniser
+	monaco.languages.setMonarchTokensProvider('yarnSpinner', yarnSpinner.tokens);
+	//set the configuration
+	monaco.languages.setLanguageConfiguration('yarnSpinner', yarnSpinner.config);
+	//set the completions NOT WORKING CURRENTLY
+	monaco.languages.registerCompletionItemProvider('yarnSpinner', yarnSpinner.completions);
 
-(TODO: If the last header is an arbitrary header, and is empty, a parse error is thrown. This is a bug.)
-===`;
-
+	monaco.editor.defineTheme('yarnSpinnerTheme', yarnSpinner.theme);
 	// @ts-ignore
 	self.MonacoEnvironment = {
 		getWorkerUrl: function (moduleId: String, label: String) {
@@ -35,28 +29,31 @@ In this test, an arbitrary header is defined with some text.
 			return '../dist/editor.worker.js';
 		}
 	};
-	monaco.editor.defineTheme('yarnSpinnerTheme', {
-		base: 'vs',
-		inherit: true,
-		rules: [{ background: 'CFD8DC' }],
-		colors: {
-			'editor.foreground': '#000000',
-			'editor.background': '#CFD8DC',
-			'editorCursor.foreground': '#8B0000',
-			'editor.lineHighlightBackground': '#0000FF20',
-			'editorLineNumber.foreground': '#008800',
-			'editor.selectionBackground': '#88000030',
-			'editor.inactiveSelectionBackground': '#88000015'
-		}
-	});
-	monaco.editor.create(document.getElementById('container')!, {
+
+	editor = monaco.editor.create(document.getElementById('container')!, {
 		theme: 'yarnSpinnerTheme',
-		value: [value].join('\n'),
-		language: 'typescript',
+		value: [`
+Title: Node Collapse Test
+---
+woweeeeeeee
+===
+				
+Syntax Highlighting Test
+type a Yarn 2.0 keyword:
+		
+Auto-Closing Brackets Test
+try either <<, {, or (.
+		
+[b]Here is some bold text[\\b]
+[u]Here is some underlined text[\\u]
+[i]Here is some italicised text[\\i]
+`
+		].join('\n'),
+		language: 'yarnSpinner',
 		automaticLayout: true,
 		fontFamily: "Courier New",
 		fontSize: 14,
-        mouseWheelZoom: true,
+		mouseWheelZoom: true,
         wordWrap: "on"
 	});
 

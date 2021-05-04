@@ -36,7 +36,8 @@ SOFTWARE.
 <body>
     <div class='topBar'>
         <div id="iconOne" >
-            <p>Quick actions </p>
+            <p>Quick actions</p>
+            <br>
             <span class="material-icons md-48">&#xe8ad;</span ><!-- Printer? -->
             <span class="material-icons md-48">&#xe8ce;</span ><!-- Spell Check toggle? -->
             <span class="material-icons md-48">&#xe880;</span><!-- Find in page? -->
@@ -45,12 +46,14 @@ SOFTWARE.
         </div>
 
         <div id="iconTwo" horizontal layout>
-            <button>Bold</button>
-            <button>Italics</button>
-            <button>Underline</button>
-
-            <p>Text Colour: </p>
-            <input type="color">
+            <button id='boldButton'>Bold</button>
+            <button id='italicsButton'>Italics</button>
+            <button id='underlineButton'>Underline</button>
+            
+            <div class='psuedoButton'>
+                <p>Text Colour: </p>
+                <input type="color">
+            </div>
         </div>
 
         <div id="iconThree" horizontal layout>
@@ -74,6 +77,12 @@ SOFTWARE.
 
             <div class="outerOuterEditor">
                 <div class="outerEditor">
+                    <div class="tabNavigatorBar">
+                        <div class="tabItem">
+                            <p>samplefile.yarn </p>
+                            <button class="closeButton">x</button>
+                        </div>
+                    </div>
                     <div class='editorView' id='container'></div>
                 </div>
             </div>

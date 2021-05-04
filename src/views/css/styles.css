@@ -59,15 +59,60 @@ body {
 }
 
 
-button {
+#iconTwo > button {
     background-color: var(--topSideEdit);
     color: var(--primary_text);
 
-    border: var(--primary_text);
+    border: var(--dividerColour);
     border-style: solid;
     border-width: thin;
 
+
+    font-size: 12px;
+
+    width: 80px;
     padding: 5px;
+    margin-right: 10px;
+}
+
+.psuedoButton {
+    border: var(--dividerColour);
+    border-style: solid;
+    border-width: thin;
+    height: 24px; /* Match button height */
+    display: flex;
+    vertical-align: middle;
+}
+
+.psuedoButton > p {
+    vertical-align: middle;
+    margin-top: 5px;
+    margin-left: 2px;
+    font-size: 12px;
+}
+
+.psuedoButton > input {
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 0px;
+    margin-top: 1px;
+    height: 20px;
+    background-color: var(--topSideEdit);
+    border: hidden;
+}
+
+
+
+#boldButton{
+    font-weight: bold;
+}
+
+#italicsButton{
+    font-style:italic;
+}
+
+#underlineButton{
+    text-decoration: underline;
 }
 
 
@@ -196,7 +241,45 @@ select{
     margin-left: 15px;
     margin-top: 15px;
     padding-bottom: 20px;
-    padding-top: 5px;
+    /* padding-top: 5px; */
+}
+
+.tabNavigatorBar{
+    border-style: hidden hidden solid hidden;
+    border-width: thin;
+    border-color: var(--dividerColour);
+    display: flex;
+    margin-left: 10px;
+
+    height: 20px;
+}
+
+.tabItem{
+
+    margin-top: 2px;
+    padding-left: 10px;
+    margin-bottom: 2px;
+
+    border-style: hidden solid hidden hidden;
+    border-width: thin;
+    border-color: var(--dividerColour);
+
+    display: flex;
+    vertical-align: middle;
+}
+
+.closeButton {
+    margin-left: 5px;
+    margin-right: 5px;
+    border-style: hidden;
+
+    background-color: var(--editor);
+}
+
+.tabItem > p {
+    margin-left: 5px;
+    font-size: 12px;
+    margin-top: 1px;
 }
 
 .editorView {

@@ -134,7 +134,7 @@ const template = [
             label: 'Yarn Spinner Documentation',
             click: async () => {
                 const { shell } = require('electron')
-                await shell.openExternal('https://yarnspinner.dev/docs/syntax/') //TODO This will be changed to wherever the 2.0 docs are located 
+                await shell.openExternal('https://github.com/YarnSpinnerTool/YarnSpinner/blob/yarn-spec/Documentation/Yarn-Spec.md') //TODO This will be changed to wherever the 2.0 docs are located 
             }
         },
         { 

@@ -8,9 +8,9 @@
 // needed in the renderer process.
 import * as monaco from 'monaco-editor';
 import * as yarnSpinner from '../../YarnSpinner/yarnSpinnerMonarch';
+import * as fs from 'fs';
+import * as path from 'path';
 
-var loader = new Loader();
-var contents = loader.getContents();
 let editor: monaco.editor.IStandaloneCodeEditor;
 if(document!) {
 

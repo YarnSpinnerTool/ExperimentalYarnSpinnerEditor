@@ -1,3 +1,5 @@
+///<reference path="../../loader.ts" />
+
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // No Node.js APIs are available in this process unless
@@ -7,6 +9,8 @@
 import * as monaco from 'monaco-editor';
 import * as yarnSpinner from '../../YarnSpinner/yarnSpinnerMonarch';
 
+var loader = new Loader();
+var contents = loader.getContents();
 let editor: monaco.editor.IStandaloneCodeEditor;
 if(document!) {
 
@@ -32,23 +36,7 @@ if(document!) {
 
 	editor = monaco.editor.create(document.getElementById('container')!, {
 		theme: 'yarnSpinnerTheme',
-		value: [`
-Title: Node Collapse Test
----
-woweeeeeeee
-===
-				
-Syntax Highlighting Test
-type a Yarn 2.0 keyword:
-		
-Auto-Closing Brackets Test
-try either <<, {, or (.
-		
-[b]Here is some bold text[\\b]
-[u]Here is some underlined text[\\u]
-[i]Here is some italicised text[\\i]
-`
-		].join('\n'),
+		value: contents,
 		language: 'yarnSpinner',
 		automaticLayout: true,
 		fontFamily: "Courier New",
@@ -56,6 +44,4 @@ try either <<, {, or (.
 		mouseWheelZoom: true,
         wordWrap: "on"
 	});
-
-
 }

@@ -255,13 +255,16 @@ export const tokensWIP =
     {    
         file: 
         [
-            //comments, file tags
+            //file tags, comments
+            [ /\#.*$/, "file.tag" ],
             { include: 'comments' },
             { regex: /.*:.*/, action: { token: 'file.delimiter', next: '@header' } }
         ],
         header: 
         [
-            //header tags
+            //header tags, comments
+            [ /.*:.*/, 'header.tag' ],
+            { include: 'comments' },
 
             //When encountering the header delimiter, move to the body state
             { regex: /---/, action: { token: 'header.delimiter', next: '@body' } }
@@ -277,6 +280,7 @@ export const tokensWIP =
             //Commands can be either generic, or @commands
                 //They begin and end with << >>
                 //Needs to account for interpolation
+            { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
 
             //When encountering the body delimiter, move to the file state.
             [/\[b\].*\[\\b\]/,"body.bold"],
@@ -302,7 +306,7 @@ export const tokensWIP =
         ],
         interpolation:
         [
-
+            { regex: /.*}/, action: { token: 'interpolation.delimiter', next: '@pop' } }
         ],
         comments:
         [
@@ -358,7 +362,9 @@ export const theme = {
         { token: 'body.bold', fontStyle: 'bold' },
         { token: 'body.underline', fontStyle: 'underline' },
         { token: 'body.italic', fontStyle: 'italic' },
-        { token: 'body.commands', foreground : 'FF00FF' }
+        { token: 'body.commands', foreground : 'FF00FF' },
+        { token: 'file.tag', foreground : '719C70' },
+        { token: 'interpolation', foreground : 'CC8400' }
         ],
 
     colors: {

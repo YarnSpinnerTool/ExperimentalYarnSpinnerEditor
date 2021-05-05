@@ -258,6 +258,7 @@ export const tokensWIP =
             //file tags, comments
             [ /\#.*$/, "file.tag" ],
             { include: 'comments' },
+            { include: 'whitespace'},
             { regex: /.*:.*/, action: { token: 'file.delimiter', next: '@header' } }
         ],
         header: 
@@ -265,6 +266,8 @@ export const tokensWIP =
             //header tags, comments
             [ /.*:.*/, 'header.tag' ],
             { include: 'comments' },
+            { include: 'whitespace'},
+
 
             //When encountering the header delimiter, move to the body state
             { regex: /---/, action: { token: 'header.delimiter', next: '@body' } }
@@ -273,6 +276,7 @@ export const tokensWIP =
         [
             //dialogue, commands, options, hashtags
             { include: 'comments' },
+            { include: 'whitespace'},
             //Dialogue is the default token
                 //Needs to account for BB code
                 //Needs to account for interpolation
@@ -311,6 +315,10 @@ export const tokensWIP =
         comments:
         [
             [/\/\/.*$/, "comment"]
+        ],
+        whitespace:
+        [
+            [/[ \t\r\n]+/, ""]
         ]
     }
 };

@@ -7,314 +7,339 @@
  * Yarn Spinner Documentation: https://yarnspinner.dev/docs/syntax/
  * JS RegExp Documentation: https://www.w3schools.com/jsref/jsref_obj_regexp.asp
  */
-import { languages } from "monaco-editor";
+import * as monaco from 'monaco-editor';
 
 export const tokens = {
-    // Set defaultToken to invalid to see what you do not tokenize yet
-    defaultToken: "invalid",
-    tokenPostfix: ".ts",
+	// Set defaultToken to invalid to see what you do not tokenize yet
+	defaultToken: "invalid",
+	tokenPostfix: ".ts",
 
-    keywords: [
-        //Commands
-        "jump","stop","declare","set",
-        //Flow Control
-        "if", "else", "elseif","endif",
-        //Explicit Typing
-        "as",
-        //Miscellaneous
-        "Title:","true","false", "->"
-    ],
+	keywords: [
+		//Commands
+		"jump", "stop", "declare", "set",
+		//Flow Control
+		"if", "else", "elseif", "endif",
+		//Explicit Typing
+		"as",
+		//Miscellaneous
+		"Title:", "true", "false", "->"
+	],
 
-    typeKeywords: [
-        "boolean", "string", "number"
-    ],
+	typeKeywords: [
+		"boolean", "string", "number"
+	],
 
-    operators: [
-        //Equality
-        "is", "==",
-        //Inequality 
-        "!=",
-        //Greater than
-        ">",
-        //Less than
-        "<",
-        //Less than or equal to
-        "<=",
-        //Greater than or equal to
-        ">=",
-        //Boolean OR
-        "or", "||",
-        //Boolean XOR
-        "xor", "^",
-        //Boolean negation
-        "!",
-        //Boolean AND
-        "and", "&&",
-        //Mathematical Operators
-        "+", "-", "*", "/", "%"
-    ],
+	operators: [
+		//Equality
+		"is", "==",
+		//Inequality 
+		"!=",
+		//Greater than
+		">",
+		//Less than
+		"<",
+		//Less than or equal to
+		"<=",
+		//Greater than or equal to
+		">=",
+		//Boolean OR
+		"or", "||",
+		//Boolean XOR
+		"xor", "^",
+		//Boolean negation
+		"!",
+		//Boolean AND
+		"and", "&&",
+		//Mathematical Operators
+		"+", "-", "*", "/", "%"
+	],
 
-    // we include these common regular expressions
-    symbols: /[=><!~?:&|+\-*/^%]+/,
-    escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
-    digits: /\d+(_+\d+)*/,
-    octaldigits: /[0-7]+(_+[0-7]+)*/,
-    binarydigits: /[0-1]+(_+[0-1]+)*/,
-    hexdigits: /[[0-9a-fA-F]+(_+[0-9a-fA-F]+)*/,
+	// we include these common regular expressions
+	symbols: /[=><!~?:&|+\-*/^%]+/,
+	escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+	digits: /\d+(_+\d+)*/,
+	octaldigits: /[0-7]+(_+[0-7]+)*/,
+	binarydigits: /[0-1]+(_+[0-1]+)*/,
+	hexdigits: /[[0-9a-fA-F]+(_+[0-9a-fA-F]+)*/,
 
-    regexpctl: /[(){}[\]$^|\-*+?.]/,
-    regexpesc: /\\(?:[bBdDfnrstvwWn0\\/]|@regexpctl|c[A-Z]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})/,
+	regexpctl: /[(){}[\]$^|\-*+?.]/,
+	regexpesc: /\\(?:[bBdDfnrstvwWn0\\/]|@regexpctl|c[A-Z]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})/,
 
-    // The main tokenizer for our languages
-    tokenizer: {
-        root: [[/[{}]/, "delimiter.bracket"], { include: "common" }],
+	// The main tokenizer for our languages
+	tokenizer: {
+		root: [[/[{}]/, "delimiter.bracket"], { include: "common" }],
 
-        common: [
-            //Markup
-            [/\[b\].*\[\\b\]/,"bold-bbcode"],
-            [/\[i\].*\[\\i\]/,"italics-bbcode"],
-            [/\[u\].*\[\\u\]/,"underline-bbcode"],
-            // identifiers and keywords
-            [/[A-Z][\w$]*/, "identifier"],
-            [
-                /[a-z_$][\w$]*/,
-                {   
-                    cases: {
-                        "@typeKeywords": "type.identifier",
-                        "@keywords": "keyword",
-                        "@default": "identifier"
-                    }
-                }
+		common: [
+			//Markup
+			[/\[b\].*\[\\b\]/, "bold-bbcode"],
+			[/\[i\].*\[\\i\]/, "italics-bbcode"],
+			[/\[u\].*\[\\u\]/, "underline-bbcode"],
+			// identifiers and keywords
+			[/[A-Z][\w$]*/, "identifier"],
+			[
+				/[a-z_$][\w$]*/,
+				{
+					cases: {
+						"@typeKeywords": "type.identifier",
+						"@keywords": "keyword",
+						"@default": "identifier"
+					}
+				}
 
-            ],
-            
+			],
 
-            // whitespace
-            { include: "@whitespace" },
 
-            // regular expression: ensure it is terminated before beginning (otherwise it is an opeator)
-            [
-                /\/(?=([^\\/]|\\.)+\/([gimsuy]*)(\s*)(\.|;|,|\)|\]|\}|$))/,
-                { token: "regexp", bracket: "@open", next: "@regexp" }
-            ],
+			// whitespace
+			{ include: "@whitespace" },
 
-            // delimiters and operators
-            [/[()[\]]/, "@brackets"],
-            [/[<>](?!@symbols)/, "@brackets"],
-            [/!(?=([^=]|$))/, "delimiter"],
-            [
-                /@symbols/,
-                {
-                    cases: {
-                        "@operators": "delimiter",
-                        "@default": ""
-                    }
-                }
-            ],
+			// regular expression: ensure it is terminated before beginning (otherwise it is an opeator)
+			[
+				/\/(?=([^\\/]|\\.)+\/([gimsuy]*)(\s*)(\.|;|,|\)|\]|\}|$))/,
+				{ token: "regexp", bracket: "@open", next: "@regexp" }
+			],
 
-            // numbers
-            [/(@digits)[eE]([-+]?(@digits))?/, "number.float"],
-            [/(@digits)\.(@digits)([eE][-+]?(@digits))?/, "number.float"],
-            [/0[xX](@hexdigits)n?/, "number.hex"],
-            [/0[oO]?(@octaldigits)n?/, "number.octal"],
-            [/0[bB](@binarydigits)n?/, "number.binary"],
-            [/(@digits)n?/, "number"],
+			// delimiters and operators
+			[/[()[\]]/, "@brackets"],
+			[/[<>](?!@symbols)/, "@brackets"],
+			[/!(?=([^=]|$))/, "delimiter"],
+			[
+				/@symbols/,
+				{
+					cases: {
+						"@operators": "delimiter",
+						"@default": ""
+					}
+				}
+			],
 
-            // delimiter: after number because of .\d floats
-            [/[;,.]/, "delimiter"],
+			// numbers
+			[/(@digits)[eE]([-+]?(@digits))?/, "number.float"],
+			[/(@digits)\.(@digits)([eE][-+]?(@digits))?/, "number.float"],
+			[/0[xX](@hexdigits)n?/, "number.hex"],
+			[/0[oO]?(@octaldigits)n?/, "number.octal"],
+			[/0[bB](@binarydigits)n?/, "number.binary"],
+			[/(@digits)n?/, "number"],
 
-            // strings
-            [/"([^"\\]|\\.)*$/, "string.invalid"], // non-teminated string
-            [/'([^'\\]|\\.)*$/, "string.invalid"], // non-teminated string
-            [/"/, "string", "@string_double"],
-            [/'/, "string", "@string_single"],
-            [/`/, "string", "@string_backtick"]
-        ],
+			// delimiter: after number because of .\d floats
+			[/[;,.]/, "delimiter"],
 
-        whitespace: [
-            [/[ \t\r\n]+/, ""],
-            [/\/\*\*(?!\/)/, "comment.doc", "@jsdoc"],
-            [/\/\*/, "comment", "@comment"],
-            [/\/\/.*$/, "comment"]
-        ],
+			// strings
+			[/"([^"\\]|\\.)*$/, "string.invalid"], // non-teminated string
+			[/'([^'\\]|\\.)*$/, "string.invalid"], // non-teminated string
+			[/"/, "string", "@string_double"],
+			[/'/, "string", "@string_single"],
+			[/`/, "string", "@string_backtick"]
+		],
 
-        comment: [
-            [/[^/*]+/, "comment"],
-            [/\*\//, "comment", "@pop"],
-            [/[/*]/, "comment"]
-        ],
+		whitespace: [
+			[/[ \t\r\n]+/, ""],
+			[/\/\*\*(?!\/)/, "comment.doc", "@jsdoc"],
+			[/\/\*/, "comment", "@comment"],
+			[/\/\/.*$/, "comment"]
+		],
 
-        jsdoc: [
-            [/[^/*]+/, "comment.doc"],
-            [/\*\//, "comment.doc", "@pop"],
-            [/[/*]/, "comment.doc"]
-        ],
+		comment: [
+			[/[^/*]+/, "comment"],
+			[/\*\//, "comment", "@pop"],
+			[/[/*]/, "comment"]
+		],
 
-        // We match regular expression quite precisely
-        regexp: [
-            [
-                /(\{)(\d+(?:,\d*)?)(\})/,
-                ["regexp.escape.control", "regexp.escape.control", "regexp.escape.control"]
-            ],
-            [
-                /(\[)(\^?)(?=(?:[^\]\\/]|\\.)+)/,
-                ["regexp.escape.control", { token: "regexp.escape.control", next: "@regexrange" }]
-            ],
-            [/(\()(\?:|\?=|\?!)/, ["regexp.escape.control", "regexp.escape.control"]],
-            [/[()]/, "regexp.escape.control"],
-            [/@regexpctl/, "regexp.escape.control"],
-            [/[^\\/]/, "regexp"],
-            [/@regexpesc/, "regexp.escape"],
-            [/\\\./, "regexp.invalid"],
-            [
-                /(\/)([gimsuy]*)/,
-                [{ token: "regexp", bracket: "@close", next: "@pop" }, "keyword.other"]
-            ]
-        ],
+		jsdoc: [
+			[/[^/*]+/, "comment.doc"],
+			[/\*\//, "comment.doc", "@pop"],
+			[/[/*]/, "comment.doc"]
+		],
 
-        regexrange: [
-            [/-/, "regexp.escape.control"],
-            [/\^/, "regexp.invalid"],
-            [/@regexpesc/, "regexp.escape"],
-            [/[^\]]/, "regexp"],
-            [
-                /\]/,
-                {
-                    token: "regexp.escape.control",
-                    next: "@pop",
-                    bracket: "@close"
-                }
-            ]
-        ],
+		// We match regular expression quite precisely
+		regexp: [
+			[
+				/(\{)(\d+(?:,\d*)?)(\})/,
+				["regexp.escape.control", "regexp.escape.control", "regexp.escape.control"]
+			],
+			[
+				/(\[)(\^?)(?=(?:[^\]\\/]|\\.)+)/,
+				["regexp.escape.control", { token: "regexp.escape.control", next: "@regexrange" }]
+			],
+			[/(\()(\?:|\?=|\?!)/, ["regexp.escape.control", "regexp.escape.control"]],
+			[/[()]/, "regexp.escape.control"],
+			[/@regexpctl/, "regexp.escape.control"],
+			[/[^\\/]/, "regexp"],
+			[/@regexpesc/, "regexp.escape"],
+			[/\\\./, "regexp.invalid"],
+			[
+				/(\/)([gimsuy]*)/,
+				[{ token: "regexp", bracket: "@close", next: "@pop" }, "keyword.other"]
+			]
+		],
 
-        string_double: [
-            [/[^\\"]+/, "string"],
-            [/@escapes/, "string.escape"],
-            [/\\./, "string.escape.invalid"],
-            [/"/, "string", "@pop"]
-        ],
+		regexrange: [
+			[/-/, "regexp.escape.control"],
+			[/\^/, "regexp.invalid"],
+			[/@regexpesc/, "regexp.escape"],
+			[/[^\]]/, "regexp"],
+			[
+				/\]/,
+				{
+					token: "regexp.escape.control",
+					next: "@pop",
+					bracket: "@close"
+				}
+			]
+		],
 
-        string_single: [
-            [/[^\\']+/, "string"],
-            [/@escapes/, "string.escape"],
-            [/\\./, "string.escape.invalid"],
-            [/'/, "string", "@pop"]
-        ],
+		string_double: [
+			[/[^\\"]+/, "string"],
+			[/@escapes/, "string.escape"],
+			[/\\./, "string.escape.invalid"],
+			[/"/, "string", "@pop"]
+		],
 
-        string_backtick: [
-            [/\$\{/, { token: "delimiter.bracket", next: "@bracketCounting" }],
-            [/[^\\`$]+/, "string"],
-            [/@escapes/, "string.escape"],
-            [/\\./, "string.escape.invalid"],
-            [/`/, "string", "@pop"]
-        ],
+		string_single: [
+			[/[^\\']+/, "string"],
+			[/@escapes/, "string.escape"],
+			[/\\./, "string.escape.invalid"],
+			[/'/, "string", "@pop"]
+		],
 
-        bracketCounting: [
-            [/\{/, "delimiter.bracket", "@bracketCounting"],
-            [/\}/, "delimiter.bracket", "@pop"],
-            { include: "common" }
-        ]
-    }
+		string_backtick: [
+			[/\$\{/, { token: "delimiter.bracket", next: "@bracketCounting" }],
+			[/[^\\`$]+/, "string"],
+			[/@escapes/, "string.escape"],
+			[/\\./, "string.escape.invalid"],
+			[/`/, "string", "@pop"]
+		],
+
+		bracketCounting: [
+			[/\{/, "delimiter.bracket", "@bracketCounting"],
+			[/\}/, "delimiter.bracket", "@pop"],
+			{ include: "common" }
+		]
+	}
 };
 
 export const config = {
 
-    // Default typescript iLanguageDefinition
-    // Set defaultToken to invalid to see what you do not tokenize yet
-    defaultToken: "invalid",
-    wordPattern: /(-?\d*\.\d\w*)|([^`~!@#%^&*()\-=+[{\]}\\|;:'",.<>/?\s]+)/g,
+	// Default typescript iLanguageDefinition
+	// Set defaultToken to invalid to see what you do not tokenize yet
+	defaultToken: "invalid",
+	wordPattern: /(-?\d*\.\d\w*)|([^`~!@#%^&*()\-=+[{\]}\\|;:'",.<>/?\s]+)/g,
 
-    comments: {
-        lineComment: "//"
-    },
+	comments: {
+		lineComment: "//"
+	},
 
-    brackets: [
-        ['<<', '>>'],
-        ["[", "]"],
-        ["(", ")"]
-    ],
+	brackets: [
+		['<<', '>>'],
+		["[", "]"],
+		["(", ")"]
+	],
 
-    onEnterRules: [
-       
-    ],
+	onEnterRules: [
 
-    autoClosingPairs: [
-        //Command
-        { open: '<<', close: '>>' },
-        //Interpolation
+	],
+
+	autoClosingPairs: [
+		//Command
+		{ open: '<<', close: '>>' },
+		//Interpolation
 		{ open: '{', close: '}' },
-        //Mathematical 
+		//Mathematical 
 		{ open: '(', close: ')' },
-    ],
+	],
 
-    folding: {
-        markers: {
-            start: new RegExp('^Title:'),
+	folding: {
+		markers: {
+			start: new RegExp('^Title:'),
 			end: new RegExp('^===')
-        }
-    }
+		}
+	}
 };
 
 export const theme = {
-    base: 'vs',
-    inherit: true,
+	base: 'vs',
+	inherit: true,
 
-    rules: [
-        { background: 'CFD8DC'},
-        { token: 'bold-bbcode', fontStyle: 'bold' },
-        { token: 'underline-bbcode', fontStyle: 'underline' },
-        { token: 'italics-bbcode', fontStyle: 'italic' }
-        ],
-    colors: {
-        'editor.foreground': '#000000',
-        'editor.background': '#CFD8DC',
-        'editorCursor.foreground': '#8B0000',
-        'editor.lineHighlightBackground': '#0000FF20',
-        'editorLineNumber.foreground': '#008800',
-        'editor.selectionBackground': '#88000030',
-        'editor.inactiveSelectionBackground': '#88000015'
-    }
+	rules: [
+		{ background: 'CFD8DC' },
+		{ token: 'bold-bbcode', fontStyle: 'bold' },
+		{ token: 'underline-bbcode', fontStyle: 'underline' },
+		{ token: 'italics-bbcode', fontStyle: 'italic' }
+	],
+	colors: {
+		'editor.foreground': '#000000',
+		'editor.background': '#CFD8DC',
+		'editorCursor.foreground': '#8B0000',
+		'editor.lineHighlightBackground': '#0000FF20',
+		'editorLineNumber.foreground': '#008800',
+		'editor.selectionBackground': '#88000030',
+		'editor.inactiveSelectionBackground': '#88000015'
+	}
 };
 
 export const completions = {
-    provideCompletionItems: () => {
+	provideCompletionItems: () => {
 		var suggestions = [{
-			label: 'if',
-			kind: monaco.languages.CompletionItemKind.Text,
-			insertText: 'if'
+			label: 'jump',
+			kind: monaco.languages.CompletionItemKind.Snippet,
+			insertText: '<<jump $1>>',
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 		}, {
-            label: 'jump',
-			kind: monaco.languages.CompletionItemKind.Text,
-			insertText: 'jump'
+			label: 'stop',
+			kind: monaco.languages.CompletionItemKind.Snippet,
+			insertText: '<<stop>>',
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 		}, {
-            label: 'stop',
-			kind: monaco.languages.CompletionItemKind.Text,
-			insertText: 'stop'
+			label: 'set',
+			kind: monaco.languages.CompletionItemKind.Snippet,
+			insertText: '<<set \$$1 to $2>>',
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 		}, {
-            label: 'cullie',
-			kind: monaco.languages.CompletionItemKind.Text,
-			insertText: 'cullie'
+			label: 'declare',
+			kind: monaco.languages.CompletionItemKind.Snippet,
+			insertText: '<<declare \$$1 = $2>>',
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 		}, {
-            label: 'adam',
-			kind: monaco.languages.CompletionItemKind.Text,
-			insertText: 'adam'
+			label: 'declare-explicit',
+			kind: monaco.languages.CompletionItemKind.Snippet,
+			insertText: '<<declare \$$1 = $2 as $3>>',
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 		}, {
-			label: 'testing',
-			kind: monaco.languages.CompletionItemKind.Keyword,
-			insertText: 'testing(${1:condition})',
-			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
-		}, {
-			label: 'ifelse',
+			label: 'if-endif',
 			kind: monaco.languages.CompletionItemKind.Snippet,
 			insertText: [
-				'if (${1:condition}) {',
+				'<<if $1>>',
 				'\t$0',
-				'} else {',
-				'\t',
-				'}'
+				'<<endif>>'
 			].join('\n'),
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-			documentation: 'If-Else Statement'
+		}, {
+			label: 'elseif',
+			kind: monaco.languages.CompletionItemKind.Snippet,
+			insertText: [
+				'<<elseif $1>>',
+				'\t$0',
+			].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+		}, {
+			label: 'else',
+			kind: monaco.languages.CompletionItemKind.Snippet,
+			insertText: [
+				'<<else>>',
+				'\t$0',
+			].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+		}, {
+			label: 'New node',
+			filterText: 'Title',
+			kind: monaco.languages.CompletionItemKind.Snippet,
+			insertText: [
+				'Title: $1',
+				'---',
+				'$0',
+				'==='
+			].join('\n'),
+			documentation: 'Create new node',
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 		}];
 		return { suggestions: suggestions };
 	}

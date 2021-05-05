@@ -11,18 +11,7 @@
         FOR USE WITH
         https://davidwalsh.name/css-variables-javascript?__cf_chl_jschl_tk__=1173ddcdfb18d816eca6b7bb352bd7e26ea09bb6-1619762597-0-AV0wN_9mCGCFJbZCQw2qZQRw_E6hWY3uv-XKcHdIcuTriEY5dh7sI65ygYpW4rqmGbK-Eiq5IfQ-1z9FLf7zTXFZ7ftctl9rA9YHVUiBE8OMUJXBhO3gKey25UmyZKse30DzFYpMgVAK0V3jlq49VYyHsPlNpbHPD-yQqjZSnYkh49z3r0XbPLHi7E07N5kmOanvDYv6LlSi4vDyllmOxzRPAwN9Xj3PUA9IVWeiLDU0547GFYiSA7dDRh-VI-qUaEisTCgN8XnmQQ8T0mmdDfXVZM68wlq2-W3DpCCxF4TjOHPmeZP5D03XvsZ2X3VeHMDC4RGORytHxs07YHYJc0vaPLN8iUyBL0OOAD6ZCBpA2OzJarmnxjRJu1DhYzYqePM18rg6lOJAcjTsc7WoK_g
     */
-    --clr1: #ECEFF1;
-    --clr2: #CFD8DC;
-    --clr3: #B0BEC5;
-    --clr4: #90A4AE;
-    --clr5: #78909C;
-    --clr6: #607D8B;
-    --clr7: #546E7A;
-    --clr8: #455A64;
-    --clr9: #37474F;
-    --clr10: #263238;
-
-    /* Human readable colour theme */
+    /* Human readable colour theme - light theme*/
     --editor: #CFD8DC;
     --topSideEdit: #CFD8DC;
     --tabGap: #546E7A;
@@ -31,6 +20,7 @@
     /* ~~CONSTANT COLOURS~~ */
     --primary_text: #000000;
     --secondary_text: #FFFFFF;
+
 }
 
 /* BODY */

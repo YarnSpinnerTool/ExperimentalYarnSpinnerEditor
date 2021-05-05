@@ -217,6 +217,100 @@ export const tokens = {
     }
 };
 
+export const tokensWIP = 
+{
+    defaultToken: "dialogue",
+    tokenPostfix: ".yarn",
+
+    keywords: ["as","true","false"],
+    typeKeywords: [ "Boolean", "String", "Number"],
+    commands: ["jump","stop","declare","set","if", "else", "elseif","endif"],
+    operators: 
+    [
+        //Equality
+        "is", "==",
+        //Inequality 
+        "!=",
+        //Greater than
+        ">",
+        //Less than
+        "<",
+        //Less than or equal to
+        "<=",
+        //Greater than or equal to
+        ">=",
+        //Boolean OR
+        "or", "||",
+        //Boolean XOR
+        "xor", "^",
+        //Boolean negation
+        "!",
+        //Boolean AND
+        "and", "&&",
+        //Mathematical Operators
+        "+", "-", "*", "/", "%"
+    ],
+
+    tokenizer: 
+    {    
+        file: 
+        [
+            //comments, file tags
+            { include: 'comments' },
+            { regex: /.*:.*/, action: { token: 'file.delimiter', next: '@header' } }
+        ],
+        header: 
+        [
+            //header tags
+
+            //When encountering the header delimiter, move to the body state
+            { regex: /---/, action: { token: 'header.delimiter', next: '@body' } }
+        ],
+        body: 
+        [
+            //dialogue, commands, options, hashtags
+            { include: 'comments' },
+            //Dialogue is the default token
+                //Needs to account for BB code
+                //Needs to account for interpolation
+            [/<<.*>>/,'body.commands'],
+            //Commands can be either generic, or @commands
+                //They begin and end with << >>
+                //Needs to account for interpolation
+
+            //When encountering the body delimiter, move to the file state.
+            [/\[b\].*\[\\b\]/,"body.bold"],
+            [/\[i\].*\[\\i\]/,"body.italic"],
+            [/\[u\].*\[\\u\]/,"body.underline"],
+            { regex: /===/, action: { token: 'body.delimiter', next: '@popall' } }
+        ], 
+        strings:
+        [
+
+        ],
+        dialogue:
+        [
+
+        ],
+        commands:
+        [
+            
+        ],
+        options:
+        [
+
+        ],
+        interpolation:
+        [
+
+        ],
+        comments:
+        [
+            [/\/\/.*$/, "comment"]
+        ]
+    }
+};
+
 export const config = {
 
     // Default typescript iLanguageDefinition
@@ -229,7 +323,7 @@ export const config = {
     },
 
     brackets: [
-        ['<<', '>>'],
+        ['<', '>'],
         ["[", "]"],
         ["(", ")"]
     ],
@@ -240,7 +334,7 @@ export const config = {
 
     autoClosingPairs: [
         //Command
-        { open: '<<', close: '>>' },
+        { open: '<', close: '>' },
         //Interpolation
         { open: '{', close: '}' },
         //Mathematical 
@@ -249,7 +343,7 @@ export const config = {
 
     folding: {
         markers: {
-            start: new RegExp('^Title:'),
+            start: new RegExp('^---'),
             end: new RegExp('^===')
         }
     }
@@ -260,11 +354,13 @@ export const theme = {
     inherit: true,
 
     rules: [
-        { background: 'CFD8DC' },
-        { token: 'bold-bbcode', fontStyle: 'bold' },
-        { token: 'underline-bbcode', fontStyle: 'underline' },
-        { token: 'italics-bbcode', fontStyle: 'italic' }
-    ],
+        { background: 'CFD8DC'},
+        { token: 'body.bold', fontStyle: 'bold' },
+        { token: 'body.underline', fontStyle: 'underline' },
+        { token: 'body.italic', fontStyle: 'italic' },
+        { token: 'body.commands', foreground : 'FF00FF' }
+        ],
+
     colors: {
         'editor.foreground': '#000000',
         'editor.background': '#CFD8DC',

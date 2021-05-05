@@ -13,7 +13,7 @@ if(document!) {
 	//Register our new custom language
 	monaco.languages.register({id: 'yarnSpinner'});
 	//set the tokeniser
-	monaco.languages.setMonarchTokensProvider('yarnSpinner', yarnSpinner.tokens);
+	monaco.languages.setMonarchTokensProvider('yarnSpinner', yarnSpinner.tokensWIP);
 	//set the configuration
 	monaco.languages.setLanguageConfiguration('yarnSpinner', yarnSpinner.config);
 	//set the completions NOT WORKING CURRENTLY
@@ -32,21 +32,32 @@ if(document!) {
 
 	editor = monaco.editor.create(document.getElementById('container')!, {
 		theme: 'yarnSpinnerTheme',
-		value: [`
-Title: Node Collapse Test
+		value: [
+`#File tag
+//File Comment
+
+Title: GeneralTest
+Header: tagOne
+//Header comment
 ---
-woweeeeeeee
+//Body Comment
+#File tags are only available at the start of the file
+
+Cullie: This node is foldable to the left of "---"
+Cullie: So that large amounts of text can be hidden.
+
+Cullie: Interpolation is done like {$test} that.
+
+Cullie: You can use BBCode tags to stylise your text.
+Cullie: [b]Like this[\\b], [i]this[\\i], or [u]this[\\u]. 
 ===
-				
-Syntax Highlighting Test
-type a Yarn 2.0 keyword:
-		
-Auto-Closing Brackets Test
-try either <<, {, or (.
-		
-[b]Here is some bold text[\\b]
-[u]Here is some underlined text[\\u]
-[i]Here is some italicised text[\\i]
+
+Title: autoCompleteTest
+Header: tagTwo
+---
+Seth: Try typing out if... then press tab.
+
+===
 `
 		].join('\n'),
 		language: 'yarnSpinner',

@@ -33,18 +33,9 @@ if(document!) {
 		}
 	};
 
-	document.getElementById("fileSymbol")!.onclick = function openFileFromWindow() {
-		var selected = electron.remote.dialog.showOpenDialog(
-		electron.remote.getCurrentWindow(),	// io dialog dimensions
-		{ filters: [{ name: 'Yarn file', extensions: ['txt', 'yarn']}],
-		properties: ['openFile', 'createDirectory'] });
-
-		console.log(selected.then(result => result.filePaths[0]));
-	};
-
 	editor = monaco.editor.create(document.getElementById('container')!, {
 		theme: 'yarnSpinnerTheme',
-		value: [`eeba`].join('\n'),
+		value: "".toString(),
 		language: 'yarnSpinner',
 		automaticLayout: true,
 		fontFamily: "Courier New",
@@ -52,4 +43,19 @@ if(document!) {
 		mouseWheelZoom: true,
         wordWrap: "on"
 	});
+
+	document.getElementById("fileSymbol")!.onclick = function openFileFromWindow() {
+		var selected = electron.remote.dialog.showOpenDialog(
+		electron.remote.getCurrentWindow(),	// io dialog dimensions
+		{ 
+			filters: [{ name: 'Yarn file', extensions: ['txt', 'yarn']}],
+			properties: ['openFile', 'createDirectory'], 
+			defaultPath: path.join(__dirname, "/Test.txt")	//!change before release!
+		});
+		
+		selected.then(result => {
+			var contents = fs.readFileSync(result.filePaths[0]).toString();
+			editor.setValue(contents);
+		});
+	};
 }

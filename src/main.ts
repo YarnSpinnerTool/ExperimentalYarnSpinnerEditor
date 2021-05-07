@@ -8,8 +8,6 @@ let path = require("path");
  * @returns {null} No return
  */
 
-var contents = fs.readFileSync(path.join(__dirname, "/Test.txt")).toString();
-console.log(contents);
 function createWindow() {
     // Create the browser window.
     const mainWindow = new BrowserWindow({

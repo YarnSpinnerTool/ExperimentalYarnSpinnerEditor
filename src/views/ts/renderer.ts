@@ -1,5 +1,3 @@
-///<reference path="../../loader.ts" />
-
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // No Node.js APIs are available in this process unless
@@ -10,6 +8,7 @@ import * as monaco from 'monaco-editor';
 import * as yarnSpinner from '../../YarnSpinner/yarnSpinnerMonarch';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as electron from 'electron';
 
 let editor: monaco.editor.IStandaloneCodeEditor;
 if(document!) {
@@ -34,9 +33,18 @@ if(document!) {
 		}
 	};
 
+	document.getElementById("fileSymbol")!.onclick = function openFileFromWindow() {
+		var selected = electron.remote.dialog.showOpenDialog(
+		electron.remote.getCurrentWindow(),	// io dialog dimensions
+		{ filters: [{ name: 'Yarn file', extensions: ['txt', 'yarn']}],
+		properties: ['openFile', 'createDirectory'] });
+
+		console.log(selected.then(result => result.filePaths[0]));
+	};
+
 	editor = monaco.editor.create(document.getElementById('container')!, {
 		theme: 'yarnSpinnerTheme',
-		value: contents,
+		value: [`eeba`].join('\n'),
 		language: 'yarnSpinner',
 		automaticLayout: true,
 		fontFamily: "Courier New",

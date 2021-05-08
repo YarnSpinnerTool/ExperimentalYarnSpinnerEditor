@@ -45,17 +45,33 @@ if(document!) {
 	});
 
 	document.getElementById("fileSymbol")!.onclick = function openFileFromWindow() {
-		var selected = electron.remote.dialog.showOpenDialog(
-		electron.remote.getCurrentWindow(),	// io dialog dimensions
+		var openFileResult = electron.remote.dialog.showOpenDialog(
+		electron.remote.getCurrentWindow(),
 		{ 
 			filters: [{ name: 'Yarn file', extensions: ['txt', 'yarn']}],
 			properties: ['openFile', 'createDirectory'], 
 			defaultPath: path.join(__dirname, "/Test.txt")	//!change before release!
 		});
 		
-		selected.then(result => {
+		openFileResult.then(result => {
 			var contents = fs.readFileSync(result.filePaths[0]).toString();
 			editor.setValue(contents);
 		});
+	};
+
+	document.getElementById("refreshZoomSymbol")!.onclick = function saveAs() { //!if you use this remember to delete file from repo before push!
+		var saveFileResult = electron.remote.dialog.showSaveDialog(
+			electron.remote.getCurrentWindow(),
+			{
+				filters: [{ name: 'Yarn file', extensions: ['yarn']},
+				{name: 'Text file', extensions: ['txt']}],
+				defaultPath: __dirname
+			});
+
+			saveFileResult.then(result => {
+				if(!result.canceled){
+					fs.writeFileSync(result.filePath!, editor.getValue());
+				}
+			});
 	};
 }

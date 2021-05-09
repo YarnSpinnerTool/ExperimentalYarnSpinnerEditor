@@ -37,10 +37,18 @@ SOFTWARE.
             <p>Quick Actions</p>
             <!-- Icons taken from https://github.com/tabler/tabler-icons -->
             <div>
-                <img src="models/icons/file-plus.svg" alt="new file">
-                <img src="models/icons/device-floppy.svg" alt="save file">
-                <img src="models/icons/folders.svg" alt="open folder">
-                <img src="models/icons/list-search.svg" alt="search file">
+                <div text-hover="New file">
+                    <object type="image/svg+xml" data="models/icons/file-plus.svg" id="newFileIcon"></object>
+                </div>
+                <div text-hover="Save file">
+                    <object type="image/svg+xml"  data="models/icons/device-floppy.svg"id="saveFileIcon"></object>
+                </div>
+                <div text-hover="Open folder">
+                    <object type="image/svg+xml"  data="models/icons/folders.svg"id="openFolderIcon"></object>
+                </div>
+                <div text-hover="Search files">
+                    <object type="image/svg+xml"  data="models/icons/list-search.svg" id="searchIcon"></object>
+                </div>
             </div>
 
 
@@ -49,16 +57,21 @@ SOFTWARE.
         <div id="iconTwo">
             <p>Text Options</p>
             <div id="textOptions">
-                    <img src="models/icons/bold.svg" alt="Bold">
- 
-                    <img src="models/icons/italic.svg" alt="Italics">
-
-                    <img src="models/icons/underline.svg" alt="Underline">
-
-                    <div class='psuedoButton'>
-                        <p>Text Colour: </p>
+                <div text-hover="Bold text">
+                    <object type="image/svg+xml"  data="models/icons/bold.svg" alt="Bold" id="boldIcon"></object>
+                </div>
+                <div text-hover="Italicise text">
+                    <object type="image/svg+xml"  data="models/icons/italic.svg" alt="Italics" id="italicsIcon"></object>
+                </div>
+                <div text-hover="Underline text">
+                    <object type="image/svg+xml"  data="models/icons/underline.svg" alt="Underline" id="underlineIcon"></object>
+                </div>
+                <div class='psuedoButton'>
+                    <div text-hover="Text colour">
+                        <object type="image/svg+xml" data="models/icons/palette.svg" alt="Colour Picker" id="paletteIcon"></object>
                         <input type="color" id="colourPicker">
                     </div>
+                </div>
             </div>
         </div>
 

@@ -5,6 +5,8 @@
 }
 
 
+
+
 /* ROOT */
 :root{
     /* ~~COLOUR INFORMATION~~ */
@@ -22,6 +24,24 @@
     --primary_text: #000000;
     --secondary_text: #FFFFFF;
 
+}
+
+[text-hover]:before {
+    position: absolute;
+    top: 60px;
+    content: attr(text-hover);
+    opacity: 0;
+    z-index: 1;
+}
+
+[text-hover]:hover:before {
+    opacity: 1;
+    background-color: var(--secondary_text);
+    padding:2px;
+    border: var(--primary_text);
+    border-style: solid;
+    border-width: thin;
+    transition: 0.2s;
 }
 
 /* BODY */
@@ -148,26 +168,15 @@ select{
 }
 
 .psuedoButton {
-    /* border: var(--dividerColour);
-    border-style: solid;
-    border-width: thin; */
+    margin-top: 0px;
+    padding-top: 0px;
     height: 24px; /* Match button height */
     display: flex;
-    vertical-align: middle;
 }
 
-.psuedoButton > p {
-    vertical-align: middle;
-    margin-top: 5px;
-    margin-left: 2px;
-    font-size: 12px;
-}
-
-.psuedoButton > input {
+#colourPicker {
     margin-left: 5px;
     margin-right: 5px;
-    margin-bottom: 0px;
-    margin-top: 1px;
     height: 20px;
     background-color: var(--topSideEdit);
     border: hidden;

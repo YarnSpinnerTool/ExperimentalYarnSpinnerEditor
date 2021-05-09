@@ -4,6 +4,7 @@
     width: 0px;
 }
 
+
 /* ROOT */
 :root{
     /* ~~COLOUR INFORMATION~~ */
@@ -35,13 +36,13 @@ body {
 }
 
 
-
 /* TOP BAR */
 .topBar{
     color: var(--primary_text);
     background-color: var(--topSideEdit);
     display: grid;
-    padding-top: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 
     min-height: 15%;
     height: 25%;
@@ -49,65 +50,7 @@ body {
 }
 
 
-#iconTwo > button {
-    background-color: var(--topSideEdit);
-    color: var(--primary_text);
-
-    border: var(--dividerColour);
-    border-style: solid;
-    border-width: thin;
-
-
-    font-size: 12px;
-
-    width: 80px;
-    padding: 5px;
-    margin-right: 10px;
-}
-
-.psuedoButton {
-    border: var(--dividerColour);
-    border-style: solid;
-    border-width: thin;
-    height: 24px; /* Match button height */
-    display: flex;
-    vertical-align: middle;
-}
-
-.psuedoButton > p {
-    vertical-align: middle;
-    margin-top: 5px;
-    margin-left: 2px;
-    font-size: 12px;
-}
-
-.psuedoButton > input {
-    margin-left: 5px;
-    margin-right: 5px;
-    margin-bottom: 0px;
-    margin-top: 1px;
-    height: 20px;
-    background-color: var(--topSideEdit);
-    border: hidden;
-}
-
-
-
-#boldButton{
-    font-weight: bold;
-}
-
-#italicsButton{
-    font-style:italic;
-}
-
-#underlineButton{
-    text-decoration: underline;
-}
-
-
 .topBar > div{
-    display: flex;
     justify-content: center;
     align-items: center;
 
@@ -137,8 +80,22 @@ body {
 #iconOne{
     grid-column-start: 1;
     grid-column-end: 1;
-
+    align-items: center;
+    text-align: center;
 }
+
+#iconOne > div {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 25px;
+    margin-right: 25px;
+}
+
+#iconOne > p {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
 
 select{
     width: 60px;
@@ -148,17 +105,95 @@ select{
     grid-column-start: 2;
     grid-column-end: 2;
 
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
-#iconTwo > select{
-    width: 100px;
+
+#iconTwo > p {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+#textOptions {
+    display: flex;
+    align-items: center;
+
+    justify-content: space-between;
+    margin-left: 25px;
+    margin-right: 25px;
+}
+
+#textOptions > input {
+    width: 0px;
+    background: var(--topSideEdit);
+    border: 0px;
+    color: var(--topSideEdit);
+}
+
+
+#textOptions > button {
+    background-color: var(--topSideEdit);
+    color: var(--primary_text);
+
+    border: var(--dividerColour);
+    border-style: solid;
+    border-width: thin;
+
+    font-size: 12px;
+
+    width: 80px;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+.psuedoButton {
+    /* border: var(--dividerColour);
+    border-style: solid;
+    border-width: thin; */
+    height: 24px; /* Match button height */
+    display: flex;
+    vertical-align: middle;
+}
+
+.psuedoButton > p {
+    vertical-align: middle;
+    margin-top: 5px;
+    margin-left: 2px;
+    font-size: 12px;
+}
+
+.psuedoButton > input {
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 0px;
+    margin-top: 1px;
+    height: 20px;
+    background-color: var(--topSideEdit);
+    border: hidden;
+    outline-style: none;
+}
+
+#boldButton{
+    font-weight: bold;
+}
+
+#italicsButton{
+    font-style:italic;
+}
+
+#underlineButton{
+    text-decoration: underline;
 }
 
 #iconThree{
+    display: flex;
     grid-column-start: 3;
     grid-column-end: 3;
     border-style: hidden;
 }
 #iconFour{
+    display: flex;
     grid-column-start: 4;
     grid-column-end: 4;
 }

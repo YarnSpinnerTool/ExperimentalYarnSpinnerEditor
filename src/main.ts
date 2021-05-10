@@ -1,5 +1,4 @@
 const { app, BrowserWindow, Menu } = require("electron");
-const { os } = require("os");
 const path = require("path");
 
 /**
@@ -11,18 +10,18 @@ function createWindow()
 {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-	    height: 540,
-	    width: 960,
+        height: 540,
+        width: 960,
         minHeight: 480,
         minWidth: 480,
-		webPreferences: {
-			nodeIntegration: true,
-			contextIsolation: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
             enableRemoteModule: true,
-		}	
+        }
     });
-	
-    
+
+
     // and load the index.html of the app.
     mainWindow.loadFile(path.join(__dirname, "../src/index.html"));
 }
@@ -50,12 +49,12 @@ const template = [
     {
         label: "File",
         submenu: [
-            { label : "new" },
-            { label : "open" },
-            { label : "save" },
-            { label : "save as" },
-            { label : "import" },
-            { label : "export" },
+            { label: "new" },
+            { label: "open" },
+            { label: "save" },
+            { label: "save as" },
+            { label: "import" },
+            { label: "export" },
             isMac ? { role: "close" } : { role: "quit" },
         ]
     },
@@ -66,13 +65,13 @@ const template = [
             { role: "undo" },
             { role: "redo" },
             { type: "separator" },
-            { role: "copy"},
+            { role: "copy" },
             { role: "cut" },
             { role: "paste" },
             { type: "separator" },
             { label: "find" },
             { label: "replace" },
-            ...(isMac ? 
+            ...(isMac ?
                 [
                     { role: "pasteAndMatchStyle" },
                     { role: "delete" },
@@ -85,7 +84,7 @@ const template = [
                             { role: "stopSpeaking" }
                         ]
                     }
-                ] : 
+                ] :
                 [
                     { role: "delete" },
                     { type: "separator" },
@@ -136,7 +135,7 @@ const template = [
     {
         label: "Help",
         submenu: [
-            { 
+            {
                 label: "Yarn Spinner Documentation",
                 click: async () => 
                 {
@@ -144,9 +143,9 @@ const template = [
                     await shell.openExternal("https://github.com/YarnSpinnerTool/YarnSpinner/blob/yarn-spec/Documentation/Yarn-Spec.md"); //TODO This will be changed to wherever the 2.0 docs are located 
                 }
             },
-            { 
+            {
                 label: "Editor bug?",
-                click: async() => 
+                click: async () => 
                 {
                     const { shell } = require("electron");
                     await shell.openExternal("https://github.com/setho246/YarnSpinnerEditor/issues"); //TODO will need to change once ownership changes
@@ -155,7 +154,7 @@ const template = [
         ]
     }
 ];
-  
+
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
 

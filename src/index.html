@@ -29,30 +29,49 @@ SOFTWARE.
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
 	<link rel="stylesheet" href="views/css/styles.css">
 
-    <!-- TODO: This is licensed under the apache license 2.0, and is only here for reference until we design our own icons-->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 
 <body>
     <div class='topBar'>
         <div id="iconOne" >
-            <p>Quick actions</p>
-            <br>
-            <span class="material-icons md-48">&#xe8ad;</span ><!-- Printer? -->
-            <span class="material-icons md-48">&#xe8ce;</span ><!-- Spell Check toggle? -->
-            <span class="material-icons md-48">&#xe880;</span><!-- Find in page? -->
-            <span class="material-icons md-48">&#xe881;</span><!-- Find/Replace in page? -->
-            <span class="material-icons md-48">&#xe2c7;</span><!-- Open working folder? -->
+            <p>Quick Actions</p>
+            <!-- Icons taken from https://github.com/tabler/tabler-icons -->
+            <div>
+                <div text-hover="New file">
+                    <object type="image/svg+xml" data="models/icons/file-plus.svg" id="newFileIcon"></object>
+                </div>
+                <div text-hover="Save file">
+                    <object type="image/svg+xml"  data="models/icons/device-floppy.svg"id="saveFileIcon"></object>
+                </div>
+                <div text-hover="Open folder">
+                    <object type="image/svg+xml"  data="models/icons/folders.svg"id="openFolderIcon"></object>
+                </div>
+                <div text-hover="Search files">
+                    <object type="image/svg+xml"  data="models/icons/list-search.svg" id="searchIcon"></object>
+                </div>
+            </div>
+
+
         </div>
 
-        <div id="iconTwo" horizontal layout>
-            <button id='boldButton'>Bold</button>
-            <button id='italicsButton'>Italics</button>
-            <button id='underlineButton'>Underline</button>
-            
-            <div class='psuedoButton'>
-                <p>Text Colour: </p>
-                <input type="color">
+        <div id="iconTwo">
+            <p>Text Options</p>
+            <div id="textOptions">
+                <div text-hover="Bold text">
+                    <object type="image/svg+xml"  data="models/icons/bold.svg" alt="Bold" id="boldIcon"></object>
+                </div>
+                <div text-hover="Italicise text">
+                    <object type="image/svg+xml"  data="models/icons/italic.svg" alt="Italics" id="italicsIcon"></object>
+                </div>
+                <div text-hover="Underline text">
+                    <object type="image/svg+xml"  data="models/icons/underline.svg" alt="Underline" id="underlineIcon"></object>
+                </div>
+                <div class='psuedoButton'>
+                    <div text-hover="Text colour">
+                        <object type="image/svg+xml" data="models/icons/palette.svg" alt="Colour Picker" id="paletteIcon"></object>
+                        <input type="color" id="colourPicker">
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -92,4 +111,5 @@ SOFTWARE.
     <!-- You can also require other files to run in this process -->
 </body>
 <script src='../dist/render.render.js'></script>
+
 </html>

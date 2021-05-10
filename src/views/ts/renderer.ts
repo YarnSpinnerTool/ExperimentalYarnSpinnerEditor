@@ -11,27 +11,17 @@ import * as path from 'path';
 import * as electron from 'electron';
 
 let editor: monaco.editor.IStandaloneCodeEditor;
-if(document!) {
 
-	//Register our new custom language
-	monaco.languages.register({id: 'yarnSpinner'});
-	//set the tokeniser
-	monaco.languages.setMonarchTokensProvider('yarnSpinner', yarnSpinner.tokensWIP);
-	//set the configuration
-	monaco.languages.setLanguageConfiguration('yarnSpinner', yarnSpinner.config);
-	//set the completions NOT WORKING CURRENTLY
-	monaco.languages.registerCompletionItemProvider('yarnSpinner', yarnSpinner.completions);
+//Register our new custom language
+monaco.languages.register({ id: "yarnSpinner" });
+//set the tokeniser
+monaco.languages.setMonarchTokensProvider("yarnSpinner", yarnSpinner.tokensWIP);
+//set the configuration
+monaco.languages.setLanguageConfiguration("yarnSpinner", yarnSpinner.config);
+//set the completions NOT WORKING CURRENTLY
+monaco.languages.registerCompletionItemProvider("yarnSpinner", yarnSpinner.completions);
 
-	monaco.editor.defineTheme('yarnSpinnerTheme', yarnSpinner.theme);
-	// @ts-ignore
-	self.MonacoEnvironment = {
-		getWorkerUrl: function (moduleId: String, label: String) {
-			if (label === 'typescript' || label === 'javascript') {
-				return '../dist/ts.worker.render.js';
-			}
-			return '../dist/editor.worker.js';
-		}
-	};
+monaco.editor.defineTheme("yarnSpinnerTheme", yarnSpinner.theme);
 
 	editor = monaco.editor.create(document.getElementById('container')!, {
 		theme: 'yarnSpinnerTheme',

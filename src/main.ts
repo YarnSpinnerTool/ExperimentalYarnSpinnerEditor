@@ -7,13 +7,19 @@ let path = require("path");
  * 
  * @returns {null} No return
  */
+
 function createWindow() {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
 	    height: 540,
 	    width: 960,
         minHeight: 480,
-        minWidth: 480
+        minWidth: 480,
+		webPreferences: {
+			nodeIntegration: true,
+			contextIsolation: false,
+            enableRemoteModule: true,
+		}	
     });
 	
     

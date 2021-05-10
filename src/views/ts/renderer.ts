@@ -6,6 +6,9 @@
 // needed in the renderer process.
 import * as monaco from 'monaco-editor';
 import * as yarnSpinner from '../../YarnSpinner/yarnSpinnerMonarch';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as electron from 'electron';
 
 let editor: monaco.editor.IStandaloneCodeEditor;
 if(document!) {
@@ -32,34 +35,7 @@ if(document!) {
 
 	editor = monaco.editor.create(document.getElementById('container')!, {
 		theme: 'yarnSpinnerTheme',
-		value: [
-`#File tag
-//File Comment
-
-Title: GeneralTest
-Header: tagOne
-//Header comment
----
-//Body Comment
-#File tags are only available at the start of the file
-
-Cullie: This node is foldable to the left of "---"
-Cullie: So that large amounts of text can be hidden.
-
-Cullie: Interpolation is done like {$test} that.
-
-Cullie: You can use BBCode tags to stylise your text.
-Cullie: [b]Like this[\\b], [i]this[\\i], or [u]this[\\u]. 
-===
-
-Title: autoCompleteTest
-Header: tagTwo
----
-Seth: Try typing out if... then press tab.
-
-===
-`
-		].join('\n'),
+		value: "".toString(),
 		language: 'yarnSpinner',
 		automaticLayout: true,
 		fontFamily: "Courier New",
@@ -68,5 +44,40 @@ Seth: Try typing out if... then press tab.
         wordWrap: "on"
 	});
 
+	document.getElementById("openFolderIcon")!.onclick = function openFileFromWindow() {
+		alert("Tester");
+		
+		
+		var openFileResult = electron.remote.dialog.showOpenDialog(
+		electron.remote.getCurrentWindow(),
+		{ 
+			filters: [{ name: 'Yarn file', extensions: ['txt', 'yarn']}],
+			properties: ['openFile', 'createDirectory'], 
+			defaultPath: path.join(__dirname, "/Test.txt")	//!change before release!
+		});
+		
+		openFileResult.then(result => {
+			var contents = fs.readFileSync(result.filePaths[0]).toString();
+			editor.setValue(contents);
+		});
+	};
 
+	document.getElementById("saveFileIcon")!.onclick = function saveAs() { //!if you use this remember to delete file from repo before push!
+		
+		
+		
+		var saveFileResult = electron.remote.dialog.showSaveDialog(
+			electron.remote.getCurrentWindow(),
+			{
+				filters: [{ name: 'Yarn file', extensions: ['yarn']},
+				{name: 'Text file', extensions: ['txt']}],
+				defaultPath: __dirname
+			});
+
+			saveFileResult.then(result => {
+				if(!result.canceled){
+					fs.writeFileSync(result.filePath!, editor.getValue());
+				}
+			});
+	};
 }

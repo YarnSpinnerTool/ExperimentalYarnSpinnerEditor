@@ -21,8 +21,9 @@ SOFTWARE.
 */
 
 
-const { app, BrowserWindow, Menu } = require("electron");
+const { app, BrowserWindow, Menu, ipcMain } = require("electron");
 const path = require("path");
+const fileOpen = require("./controllers/fileOpenController.js")
 
 /**
  * Creates the main window. This is a change.
@@ -40,7 +41,6 @@ function createWindow()
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-            enableRemoteModule: true,
         }
     });
 

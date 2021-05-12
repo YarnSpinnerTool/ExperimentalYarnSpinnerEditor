@@ -21,9 +21,9 @@ SOFTWARE.
 */
 
 
-const { app, BrowserWindow, Menu, ipcMain } = require("electron");
-const path = require("path");
-const fileOpen = require("./controllers/fileOpenController.js")
+import { app, BrowserWindow, Menu, ipcMain } from "electron";
+import * as path from "path";
+import { FileOpenController } from "@fileSystem/fileOpenController";
 
 /**
  * Creates the main window. This is a change.
@@ -47,6 +47,7 @@ function createWindow()
 
     // and load the index.html of the app.
     mainWindow.loadFile(path.join(__dirname, "../src/index.html"));
+    
 }
 
 //https://www.electronjs.org/docs/api/menu

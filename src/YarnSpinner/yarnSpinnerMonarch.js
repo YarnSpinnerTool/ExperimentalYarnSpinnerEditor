@@ -37,6 +37,7 @@ export const tokensWIP =
 {
     defaultToken: "dialogue",
     tokenPostfix: ".yarn",
+    includeLF: true, //Adds \n to end of each line
 
     keywords: ["as","true","false"],
     typeKeywords: [ "Boolean", "String", "Number"],
@@ -123,21 +124,24 @@ export const tokensWIP =
         [
             { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
             { regex: /"/, action: { token: 'string', next: '@strings'} },
-            [/.+?(?={)/, 'commands'],   //Interpolation
-            [/.+?(?=")/, 'commands'],   //Strings
-            { regex: /.*?>>$/, action: {token: 'commands', next: '@pop'} }
+            // [/.+?(?=(?:"|{))/, 'commands'],   //Matches up until String or Interpolation
+
+            [/[a-z_$][\w$]*/, 'commands'],
+            [/[A-Z][\w\$]*/, 'commands'],
+
+            { regex: />>/, action: {token: 'commands', next: '@pop'} }
         ],
         options:
         [
             { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
             { regex: /<</, action: { token: 'commands', next: '@commands'} },
-            //[/<<.*>>/,'body.commands'],
+            { regex: /"/, action: { token: 'string', next: '@strings'} },
+            // [/.+?(?=(?:{|<<))/, 'options'], //Matches up until Interpolation or Command
 
-            [/.+?(?={)/, 'options'], //Interpolation
-            [/.+?(?=<<)/, 'options'], //Commands
-            // [/^(.*?)<</, 'options'],
-            
-            { regex: /.*$/, action: {token: 'options', next: '@pop'}}
+            [/[a-z_$][\w$]*/, 'options'],
+            [/[A-Z][\w\$]*/, 'options'],
+           
+            { regex: /\n/, action: {token: 'options', next: '@pop'}}
         ],
         interpolation:
         [
@@ -207,7 +211,7 @@ export const theme = {
         { token: 'commands', foreground : 'FF00AA' },
         { token: 'file.tag', foreground : '719C70' },
         { token: 'interpolation', foreground : 'CC8400' },
-        { token: 'options', foreground : '6A008A'}
+        { token: 'options', foreground : 'AD00C4'}
         ],
 
     colors: {

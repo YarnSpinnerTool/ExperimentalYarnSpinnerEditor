@@ -102,6 +102,7 @@ export const tokensWIP =
                 //Needs to account for interpolation
             { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
             { regex: /"/, action: { token: 'string', next: '@strings'} },
+            { regex: /->/, action: { token: 'options', next: '@options'} },
             //When encountering the body delimiter, move to the file state.
             [/\[b\].*\[\\b\]/,"body.bold"],
             [/\[i\].*\[\\i\]/,"body.italic"],
@@ -110,7 +111,6 @@ export const tokensWIP =
         ], 
         strings:
         [
-
             [/[^\"]+/, "string"],
             [/"/, "string", "@pop"]
         ],
@@ -124,7 +124,14 @@ export const tokensWIP =
         ],
         options:
         [
+            { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
+            [/<<.*>>/,'body.commands'],
 
+            [/.+?(?={)/, 'options'],
+            [/.+?(?=<<)/, 'options'],
+            // [/^(.*?)<</, 'options'],
+            
+            { regex: /.*$/, action: {token: 'options', next: '@pop'}}
         ],
         interpolation:
         [
@@ -192,7 +199,8 @@ export const theme = {
         { token: 'body.italic', fontStyle: 'italic' },
         { token: 'body.commands', foreground : 'FF00FF' },
         { token: 'file.tag', foreground : '719C70' },
-        { token: 'interpolation', foreground : 'CC8400' }
+        { token: 'interpolation', foreground : 'CC8400' },
+        { token: 'options', foreground : '6A008A'}
         ],
 
     colors: {

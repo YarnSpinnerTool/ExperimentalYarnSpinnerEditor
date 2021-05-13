@@ -17,32 +17,39 @@ header
 
 body
 	commands
-		strings
-		keywords
-		variables
-		numbers
-		operators
+x		strings
+x		keywords
+x		variables
+x		numbers 
+x		operators
 		>> pop
 	options
-		text
-		interpolation
-		commands
+x		text
+x		interpolation
+x		commands
 		3
 	dialogue
-		commands
-		escaping
-		interpolation
+x		commands
+x		interpolation
 */
+
 export const tokensWIP = 
 {
     defaultToken: "dialogue",
     tokenPostfix: ".yarn",
     includeLF: true, //Adds \n to end of each line
 
-    keywords: ["as","true","false"],
-    typeKeywords: [ "Boolean", "String", "Number"],
-    commands: ["jump","stop","declare","set","if", "else", "elseif","endif"],
-    operators: 
+    //From section identifiers in the yarn spec.
+    //A-Z, a-z, _, followed by an optional period, and then an optional second string of A-Z, a-z, _. '$' are not allowed
+    yarnIdentifier: /[a-z_]+[\.]*[a-z_]*/i,
+  
+    yarnFloat: /-?[\d]\.[\d]+/,
+    yarnInteger: /-?\d/,
+
+    yarnKeywords: ["as","true","false"],
+    yarnTypeKeywords: [ "Boolean", "String", "Number"],
+    yarnCommands: ["jump","stop","declare","set","if", "else", "elseif","endif"],
+    yarnOperators: 
     [
         //Equality
         "is", "==",
@@ -70,45 +77,46 @@ export const tokensWIP =
 
     tokenizer: 
     {    
-        file: 
+        fileheader: 
         [
-            //file tags, comments
-            [ /\#.*$/, "file.tag" ],
-            { include: 'comments' },
-            { include: 'whitespace'},
-            { regex: /.*:.*/, action: { token: 'file.delimiter', next: '@header' } }
-        ],
-        header: 
-        [
-            //header tags, comments
-            [ /.*:.*/, 'header.tag' ],
+            //File tags, comments
+            [ /\#.*\n/, "file.tag" ],
             { include: 'comments' },
             { include: 'whitespace'},
 
-
-            //When encountering the header delimiter, move to the body state
+            //Per Yarn Spec: Title's tag text must follow identifier rules, and other header tags' names must follow identifier rules.
+            [ /Title:@yarnIdentifier/, 'title.tag'],
+            [ /@yarnIdentifier:.*\n/, 'header.tag' ],
+            
+            //Move to body once encountering the ---
             { regex: /---/, action: { token: 'header.delimiter', next: '@body' } }
         ],
         body: 
         [
-            //dialogue, commands, options, hashtags
             { include: 'comments' },
             { include: 'whitespace'},
-            //Dialogue is the default token
-                //Needs to account for BB code
-                //Needs to account for interpolation
-            //[/<<.*>>/,'body.commands'],
-            //Commands can be either generic, or @commands
-                //They begin and end with << >>
-                //Needs to account for interpolation
+            
+            //Interpolation
             { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
+            //Strings
             { regex: /"/, action: { token: 'string', next: '@strings'} },
+            //Options
             { regex: /->/, action: { token: 'options', next: '@options'} },
+            //Commands
             { regex: /<</, action: { token: 'commands', next: '@commands'} },
+            //Variables
+            { regex: /\$/, action: { token: 'variables', next: '@variables'} },
+            
             //When encountering the body delimiter, move to the file state.
             [/\[b\].*\[\\b\]/,"body.bold"],
             [/\[i\].*\[\\i\]/,"body.italic"],
             [/\[u\].*\[\\u\]/,"body.underline"],
+            
+            //numbers, uncoloured in dialogue
+            [/@yarnFloat/,"float"],
+            [/@yarnInteger/,"number"],
+            
+            //End of node
             { regex: /===/, action: { token: 'body.delimiter', next: '@popall' } }
         ], 
         strings:
@@ -116,46 +124,71 @@ export const tokensWIP =
             [/[^\"]+/, "string"],
             [/"/, "string", "@pop"]
         ],
-        dialogue:
-        [
-
-        ],
         commands:
         [
+            //Embedded Interpolation, Strings, & Variables.
             { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
             { regex: /"/, action: { token: 'string', next: '@strings'} },
-            // [/.+?(?=(?:"|{))/, 'commands'],   //Matches up until String or Interpolation
-
-            [/[a-z_$][\w$]*/, 'commands'],
-            [/[A-Z][\w\$]*/, 'commands'],
-
-            { regex: />>/, action: {token: 'commands', next: '@pop'} }
+            { regex: /\$/, action: { token: 'variables', next: '@variables'} },
+            
+            //Numbers, coloured dark pink in commands.
+            [/@yarnFloat/,"commands.float"],
+            [/@yarnInteger/,"commands.number"],
+            
+            //Words, can be specified commands, keywords, or types. (Dark pink)
+            [/[A-Za-z_$][\w$]*/, { 
+                cases: 
+                {
+                "@yarnCommands": "yarn.commands",
+                "@yarnKeywords": "yarn.commands",
+                "@yarnTypeKeywords": "yarn.commands",
+                "@default": "commands"
+                }
+            }
         ],
+            //Pop when reaching close >> bracket.
+            { regex: />>/, action: {token: "commands", next: "@pop"} }
+        ],
+
         options:
         [
+            //Embedded interpolation, strings, commands, variables.
             { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
             { regex: /<</, action: { token: 'commands', next: '@commands'} },
             { regex: /"/, action: { token: 'string', next: '@strings'} },
-            // [/.+?(?=(?:{|<<))/, 'options'], //Matches up until Interpolation or Command
+            { regex: /\$/, action: { token: 'variables', next: '@variables'} },
 
-            [/[a-z_$][\w$]*/, 'options'],
-            [/[A-Z][\w\$]*/, 'options'],
-           
+            //Any text
+            [/[A-Za-z_$][\w$]*/, "options"],
+            
+            //Pop at new line character.
             { regex: /\n/, action: {token: 'options', next: '@pop'}}
         ],
+
         interpolation:
         [
-            [/[a-z_$][\w$]*/, 'interpolation'],
-            [/[A-Z][\w\$]*/, 'interpolation'],
-            { regex: /}/, action: { token: 'interpolation', next: '@pop' } }
+            //Embedded variables.
+            { regex: /\$/, action: { token: 'variables', next: '@variables'} },
+            
+            //Any text
+            [/[A-Za-z][\w$]*/, "interpolation"],
+            
+            //Pop
+            { regex: /}/, action: { token: "interpolation", next: "@pop" } }
         ],
         comments:
         [
-            [/\/\/.*$/, "comment"]
+            [/\/\/.*\n/, "comment"]
         ],
         whitespace:
         [
             [/[ \t\r\n]+/, ""]
+        ],
+        variables:
+        [
+            //Variables can only be one word, so they pop at the end.
+            { regex: /@yarnIdentifier/, action: { token: "variables", next: "@pop" } },
+            { regex: / /, action: { token: "variables", next: "@pop" } }
         ]
     }
 };
@@ -211,7 +244,13 @@ export const theme = {
         { token: 'commands', foreground : 'FF00AA' },
         { token: 'file.tag', foreground : '719C70' },
         { token: 'interpolation', foreground : 'CC8400' },
-        { token: 'options', foreground : 'AD00C4'}
+        { token: 'options', foreground : 'AD00C4'},
+        { token: 'variables', foreground : '347F36'},
+        { token: 'float', foreground : '063B0E'},
+        { token: 'number', foreground : '063B0E'},
+        { token: 'yarn.commands', foreground : 'A30A70'},
+        { token: 'commands.float', foreground : 'A30A70'},
+        { token: 'commands.number', foreground : 'A30A70'}
         ],
 
     colors: {

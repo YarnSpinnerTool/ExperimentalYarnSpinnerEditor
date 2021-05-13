@@ -96,13 +96,14 @@ export const tokensWIP =
             //Dialogue is the default token
                 //Needs to account for BB code
                 //Needs to account for interpolation
-            [/<<.*>>/,'body.commands'],
+            //[/<<.*>>/,'body.commands'],
             //Commands can be either generic, or @commands
                 //They begin and end with << >>
                 //Needs to account for interpolation
             { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
             { regex: /"/, action: { token: 'string', next: '@strings'} },
             { regex: /->/, action: { token: 'options', next: '@options'} },
+            { regex: /<</, action: { token: 'commands', next: '@commands'} },
             //When encountering the body delimiter, move to the file state.
             [/\[b\].*\[\\b\]/,"body.bold"],
             [/\[i\].*\[\\i\]/,"body.italic"],
@@ -120,15 +121,20 @@ export const tokensWIP =
         ],
         commands:
         [
-            
+            { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
+            { regex: /"/, action: { token: 'string', next: '@strings'} },
+            [/.+?(?={)/, 'commands'],   //Interpolation
+            [/.+?(?=")/, 'commands'],   //Strings
+            { regex: /.*?>>$/, action: {token: 'commands', next: '@pop'} }
         ],
         options:
         [
             { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
-            [/<<.*>>/,'body.commands'],
+            { regex: /<</, action: { token: 'commands', next: '@commands'} },
+            //[/<<.*>>/,'body.commands'],
 
-            [/.+?(?={)/, 'options'],
-            [/.+?(?=<<)/, 'options'],
+            [/.+?(?={)/, 'options'], //Interpolation
+            [/.+?(?=<<)/, 'options'], //Commands
             // [/^(.*?)<</, 'options'],
             
             { regex: /.*$/, action: {token: 'options', next: '@pop'}}
@@ -198,6 +204,7 @@ export const theme = {
         { token: 'body.underline', fontStyle: 'underline' },
         { token: 'body.italic', fontStyle: 'italic' },
         { token: 'body.commands', foreground : 'FF00FF' },
+        { token: 'commands', foreground : 'FF00AA' },
         { token: 'file.tag', foreground : '719C70' },
         { token: 'interpolation', foreground : 'CC8400' },
         { token: 'options', foreground : '6A008A'}

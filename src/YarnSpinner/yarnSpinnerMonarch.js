@@ -45,6 +45,7 @@ export const tokensWIP =
   
     yarnFloat: /-?[\d]\.[\d]+/,
     yarnInteger: /-?\d/,
+    yarnOperator: /-?(is|==|!=|>(?!>)|<|<=|>=|or|\|\||xor|\^|!|and|&&|\+|-|\*|\/|%)/,
 
     yarnKeywords: ["as","true","false"],
     yarnTypeKeywords: [ "Boolean", "String", "Number"],
@@ -106,6 +107,9 @@ export const tokensWIP =
             { regex: /<</, action: { token: 'commands', next: '@commands'} },
             //Variables
             { regex: /\$/, action: { token: 'variables', next: '@variables'} },
+            //Hashtags - TODO move to dialogue
+            { regex: /\#/, action: {token: 'hashtag', next: '@hashtags'} },
+
             
             //When encountering the body delimiter, move to the file state.
             [/\[b\].*\[\\b\]/,"body.bold"],
@@ -115,6 +119,7 @@ export const tokensWIP =
             //numbers, uncoloured in dialogue
             [/@yarnFloat/,"float"],
             [/@yarnInteger/,"number"],
+            //[/@yarnOperator/, "operator"],//Does operator belong in body / dialogue?
             
             //End of node
             { regex: /===/, action: { token: 'body.delimiter', next: '@popall' } }
@@ -134,6 +139,8 @@ export const tokensWIP =
             //Numbers, coloured dark pink in commands.
             [/@yarnFloat/,"commands.float"],
             [/@yarnInteger/,"commands.number"],
+            [/@yarnOperator/, "commands.operator"],
+
             
             //Words, can be specified commands, keywords, or types. (Dark pink)
             [/[A-Za-z_$][\w$]*/, { 
@@ -189,7 +196,16 @@ export const tokensWIP =
             //Variables can only be one word, so they pop at the end.
             { regex: /@yarnIdentifier/, action: { token: "variables", next: "@pop" } },
             { regex: / /, action: { token: "variables", next: "@pop" } }
+        ],
+        hashtags:
+        [
+            { include: 'comments' },//include the rules for comments
+
+            //Any text that's not newline character
+            [/[^\n]/, "hashtag"],
+            { regex: /\n/, action: {token: 'hashtag', next: '@pop'}}
         ]
+
     }
 };
 
@@ -205,8 +221,8 @@ export const config = {
     },
 
     brackets: [
-        ['<', '>'],
-        ["[", "]"],
+        ['<<', '>>'], // Command brackets
+        ["[", "]"], 
         ["(", ")"]
     ],
 
@@ -216,7 +232,7 @@ export const config = {
 
     autoClosingPairs: [
         //Command
-        { open: '<', close: '>' },
+        { open: '<<', close: '>>' },
         //Interpolation
         { open: '{', close: '}' },
         //Mathematical 
@@ -250,7 +266,9 @@ export const theme = {
         { token: 'number', foreground : '063B0E'},
         { token: 'yarn.commands', foreground : 'A30A70'},
         { token: 'commands.float', foreground : 'A30A70'},
-        { token: 'commands.number', foreground : 'A30A70'}
+        { token: 'commands.number', foreground : 'A30A70'},
+        { token: 'commands.operator', foreground: 'AAAFFF'},
+        { token: 'hashtag', foreground: '#AAAAAA'}
         ],
 
     colors: {

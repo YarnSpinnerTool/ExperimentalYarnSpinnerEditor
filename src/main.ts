@@ -20,10 +20,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-import { app, BrowserWindow, Menu, ipcMain } from "electron";
+import { app, BrowserWindow, Menu, ipcMain, shell } from "electron";
 import * as path from "path";
-import { FileOpenController } from "@fileSystem/fileOpenController";
+import { openFile as YarnOpenFile } from "./controllers/fileSystem/fileOpenController";
+import { writeFile as YarnWriteFile } from "./controllers/fileSystem/fileWriteController";
+
 
 /**
  * Creates the main window. This is a change.
@@ -47,7 +48,7 @@ function createWindow()
 
     // and load the index.html of the app.
     mainWindow.loadFile(path.join(__dirname, "../src/index.html"));
-    
+
 }
 
 //https://www.electronjs.org/docs/api/menu
@@ -74,7 +75,13 @@ const template = [
         label: "File",
         submenu: [
             { label: "new" },
-            { label: "open" },
+            {
+                label: "Open",
+                click: async () => 
+                {
+                    handleFileOpen();
+                }
+            },
             { label: "save" },
             { label: "save as" },
             { label: "import" },
@@ -163,7 +170,6 @@ const template = [
                 label: "Yarn Spinner Documentation",
                 click: async () => 
                 {
-                    const { shell } = require("electron");
                     await shell.openExternal("https://github.com/YarnSpinnerTool/YarnSpinner/blob/yarn-spec/Documentation/Yarn-Spec.md"); //TODO This will be changed to wherever the 2.0 docs are located 
                 }
             },
@@ -171,7 +177,6 @@ const template = [
                 label: "Editor bug?",
                 click: async () => 
                 {
-                    const { shell } = require("electron");
                     await shell.openExternal("https://github.com/setho246/YarnSpinnerEditor/issues"); //TODO will need to change once ownership changes
                 }
             },
@@ -199,3 +204,65 @@ app.on("activate", () =>
         createWindow();
     }
 });
+
+
+/*
+	******************************************************************************************************************
+										IPCMain Listeners and Emitters
+	******************************************************************************************************************
+*/
+
+/*
+	------------------------------------
+				LISTENERS
+	------------------------------------
+*/
+
+ipcMain.on("getPing", (event) => 
+{
+    //console.log(arg);
+    event.reply("gotPing", "You're a curious one");
+});
+
+ipcMain.on("fileOpenToMain", () => 
+{
+
+    // var file = handleFileOpen()
+    // event.reply('fileToRenderer', file)
+
+});
+
+ipcMain.on("fileSaveAsToMain", (event, filePath, contents) => 
+{
+    YarnWriteFile(filePath, contents);
+});
+
+// ipcMain.on("fileSaveToMain", (event, arg) => 
+// {
+
+// });
+
+/*
+	------------------------------------
+				EMITTERS
+	------------------------------------
+*/
+//Sends message from Main to Renderer
+//BrowserWindow.getFocusedWindow()?.webContents.send("ChannelMessage", args);
+//This should ONLY be used for menu interaction
+
+/**
+ * Handles the opening of a file and returns the contents to the focused window.
+ * 
+ * @returns {void}
+ */
+function handleFileOpen() 
+{
+    //Sends message from main to renderer
+    const fileContent = YarnOpenFile();
+    BrowserWindow.getFocusedWindow()?.webContents.send("fileToRenderer", fileContent); //Pass the result to renderer
+}
+
+
+
+

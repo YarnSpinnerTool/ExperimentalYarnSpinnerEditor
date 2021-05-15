@@ -1,32 +1,26 @@
-import { dialog, BrowserWindow } from "electron";
+import { dialog } from "electron";
 import * as path from "path";
 import * as fs from "fs";
 
-
-export class FileOpenController 
+/**
+ * Function for opening a file and returning the contents as a string.
+ * 
+ * @return {string} The string contents of the file selected to open or null if the user cancels the dialog.
+ */
+export function openFile(): string | null 
 {
-
-    public openFile() : any
-    {
-
-        const currentFocused = BrowserWindow.getFocusedWindow();
-
-        if (currentFocused) 
+    const openFileResult = dialog.showOpenDialogSync(
         {
-            const openFileResult = dialog.showOpenDialog(
-                currentFocused,
-                {
-                    filters: [{ name: "Yarn file", extensions: ["txt", "yarn"] }],
-                    properties: ["openFile", "createDirectory"],
-                    defaultPath: path.join(__dirname, "/Test.txt")	//!change before release!
-                });
+            filters: [{ name: "Yarn file", extensions: ["txt", "yarn"] }],
+            properties: ["openFile", "createDirectory"],
+            defaultPath: path.join(__dirname, "../src/Test.txt")	//!change before release!
+        });
 
-            openFileResult.then(result => 
-            {
-                const contents = fs.readFileSync(result.filePaths[0]).toString();
-                return contents;
-            });
-        }
+    if (openFileResult && openFileResult[0]) 
+    {
+        return fs.readFileSync(openFileResult[0]).toString();
 
     }
+
+    return null;
 }

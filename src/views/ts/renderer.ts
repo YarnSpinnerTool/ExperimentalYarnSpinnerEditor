@@ -20,6 +20,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/*  ~~IMPORTANT~~
+	IPC Main console.log output will be in the VSCode terminal
+	IPC Renderer console.log output will be in the developer tools window in the actual Electron client
+*/
+
+
+
+/*
+TODO
+
+SENDERS
+- File read
+- File write
+
+
+LISTENERS
+- File read
+- File write (save / save as)
+- Menu events
+
+
+
+
+
+
+*/
+
+
 
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
@@ -31,7 +59,8 @@ import * as monaco from "monaco-editor";
 import * as yarnSpinner from "../../YarnSpinner/yarnSpinnerMonarch";
 import * as fs from "fs";
 import * as path from "path";
-import * as electron from "electron";
+import { ipcRenderer } from "electron";
+import { ECONNRESET } from "node:constants";
 
 let editor: monaco.editor.IStandaloneCodeEditor;
 
@@ -62,53 +91,85 @@ if (containerElement)
     });
 }
 
-const folderIcon = document.getElementById("openFolderIcon");
-
-if (folderIcon) 
-{
-    folderIcon.onclick = function () 
-    {
-        alert("Tester");
-
-        const openFileResult = electron.remote.dialog.showOpenDialog(
-            electron.remote.getCurrentWindow(),
-            {
-                filters: [{ name: "Yarn file", extensions: ["txt", "yarn"] }],
-                properties: ["openFile", "createDirectory"],
-                defaultPath: path.join(__dirname, "/Test.txt")	//!change before release!
-            });
-
-        openFileResult.then(result => 
-        {
-            const contents = fs.readFileSync(result.filePaths[0]).toString();
-            editor.setValue(contents);
-        });
-    };
-}
-
-
 const saveFileIcon = document.getElementById("saveFileIcon");
 
 if (saveFileIcon) 
 {
-    saveFileIcon.onclick = function () 
-    { //!if you use this remember to delete file from repo before push!
-
-        const saveFileResult = electron.remote.dialog.showSaveDialog(
-            electron.remote.getCurrentWindow(),
-            {
-                filters: [{ name: "Yarn file", extensions: ["yarn"] },
-                    { name: "Text file", extensions: ["txt"] }],
-                defaultPath: __dirname
-            });
-
-        saveFileResult.then(result => 
-        {
-            // Make sure user didn't cancel.
-            if (result.filePath) 
-            {
-                fs.writeFileSync(result.filePath, editor.getValue());
-            }
-        });
-    };
+    saveFileIcon.onclick = () => {saveAsEmiter();};
 }
+
+
+
+/*
+	******************************************************************************************************************
+										IPCRenderer Listeners and Emitters                                                                                                                                                                                            
+	******************************************************************************************************************
+*/
+
+/*
+	------------------------------------
+				LISTENERS
+	------------------------------------
+*/
+
+ipcRenderer.on("fileToRenderer", (event, arg) => 
+{
+    console.log("Got file contents");
+    editor.setValue(arg);
+});
+
+
+ipcRenderer.on("fileSaveResponse", (event, arg) => 
+{
+    if (arg) 
+    {
+        alert("File successfully");
+    }
+    else 
+    {
+        alert("File save error occured");
+    }
+});
+
+ipcRenderer.on("mainRequestSaveAs", (event, arg) => 
+{
+    saveAsEmiter();
+});
+
+ipcRenderer.on("gotPing", (event, arg) => 
+{
+    console.log("RESPONSE RECIEVED");
+    console.log(arg);//Should be pong
+});
+
+
+
+/*
+	------------------------------------
+				EMITTERS
+	------------------------------------
+*/
+
+/*
+	FORMAT:
+		EVENT LISTENER (EVENT, => {
+			ipcRenderer.send(CHANNEL, ARGS)
+		})
+*/
+
+/**
+ * Emits an event containing the contents of the editor, instructing the main process to perform the Save As function.
+ * 
+ * @returns {void}
+ */
+function saveAsEmiter() 
+{
+    ipcRenderer.send("fileSaveAsToMain", null, editor.getValue().toString());
+	
+}
+
+// ipcRenderer.send('fileOpenToMain', 'ping');
+// ipcRenderer.send('fileSaveAsToMain', 'ping');
+// ipcRenderer.send('fileSaveToMain', 'ping');
+
+// ipcRenderer.send('getPing','ping');

@@ -45,7 +45,8 @@ export const tokensWIP =
   
     yarnFloat: /-?[\d]\.[\d]+/,
     yarnInteger: /-?\d/,
-    yarnOperator: /-?(is|==|!=|>(?!>)|<|<=|>=|or|\|\||xor|\^|!|and|&&|\+|-|\*|\/|%)/,
+    
+    yarnOperator: /(is|==|!=|<=|>=|>(?!>)|<|or|\|\||xor|\^|!|and|&&|\+|-|\*|\/|%)/,
 
     yarnKeywords: ["as","true","false"],
     yarnTypeKeywords: [ "Boolean", "String", "Number"],

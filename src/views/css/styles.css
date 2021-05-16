@@ -49,23 +49,32 @@ SOFTWARE.
 
 }
 
-[text-hover]:before {
-    position: absolute;
-    top: 60px;
-    content: attr(text-hover);
-    opacity: 0;
-    z-index: 1;
-}
-
-[text-hover]:hover:before {
-    opacity: 1;
-    background-color: var(--secondary_text);
-    padding:2px;
-    border: var(--primary_text);
-    border-style: solid;
-    border-width: thin;
-    transition: 0.2s;
-}
+.tooltip {
+	position: relative;
+	display: inline-block;
+	/* border-bottom: 1px hidden var(--dividerColour); */
+  }
+  
+  .tooltip .tooltiptext {
+	visibility: hidden;
+	width: 120px;
+	background-color: black;
+	color: #fff;
+	text-align: center;
+	border-radius: 6px;
+	padding: 5px 0;
+	
+	/* Position the tooltip */
+	position: absolute;
+	z-index: 1;
+	top: 100%;
+	left: 50%;
+	margin-left: -60px;
+  }
+  
+  .tooltip:hover .tooltiptext {
+	visibility: visible;
+  }
 
 /* BODY */
 
@@ -250,7 +259,7 @@ select{
 
 #leftSideContainer{
     border: var(--dividerColour);
-    border-style: solid hidden hidden hidden;
+    border-style: hidden hidden hidden hidden;
     border-width: thin;
 
     color: var(--primary_text);
@@ -353,32 +362,7 @@ select{
     /* border-width: 1px; */
 }
 
-.tooltip {
-	position: relative;
-	display: inline-block;
-	border-bottom: 1px dotted black;
-  }
-  
-  .tooltip .tooltiptext {
-	visibility: hidden;
-	width: 120px;
-	background-color: black;
-	color: #fff;
-	text-align: center;
-	border-radius: 6px;
-	padding: 5px 0;
-	
-	/* Position the tooltip */
-	position: absolute;
-	z-index: 1;
-	top: 100%;
-	left: 50%;
-	margin-left: -60px;
-  }
-  
-  .tooltip:hover .tooltiptext {
-	visibility: visible;
-  }
+
 
 
 

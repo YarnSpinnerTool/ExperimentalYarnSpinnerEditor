@@ -57,11 +57,9 @@ LISTENERS
 // needed in the renderer process.
 import * as monaco from "monaco-editor";
 import * as yarnSpinner from "../../YarnSpinner/yarnSpinnerMonarch";
-import * as fs from "fs";
-import * as path from "path";
 import { ipcRenderer } from "electron";
-import { ECONNRESET } from "node:constants";
 
+const openFiles: FileClass[] = [];
 let editor: monaco.editor.IStandaloneCodeEditor;
 
 //Register our new custom language
@@ -95,9 +93,65 @@ const saveFileIcon = document.getElementById("saveFileIcon");
 
 if (saveFileIcon) 
 {
-    saveFileIcon.onclick = () => {saveAsEmiter();};
+    saveFileIcon.onclick = () => {saveAsEmitter();};
 }
 
+const newFileIcon = document.getElementById("newFileIcon");
+if (newFileIcon)
+{
+    newFileIcon.onclick = function ()
+    {
+        createNewFile();
+    };
+}
+
+const openFolderIcon = document.getElementById("openFolderIcon");
+if (openFolderIcon)
+{
+    openFolderIcon.onclick = function ()
+    {
+        openFileEmitter();
+    };
+}
+
+/**
+ * Creates a new file and shows it in the display.
+ * 
+ * @returns {void}
+ */
+function createNewFile() 
+{
+    console.log("IN CREATE NEW FILE");
+    const newFile:FileClass = new FileClass(null, null, null, false);
+    openFiles.push(newFile);
+    addFileToDisplay(newFile);
+    editor.setValue(newFile.contents);
+}
+
+/**
+ * Creates and appends the HTML required for showing a new file.
+ * 
+ * @param {FIleClass} file The file to add to the display.
+ * 
+ * @returns {void}
+ */
+function addFileToDisplay(file: FileClass) : void 
+{
+    console.log("ADDING FILE TO DISPLAY");
+    const para = document.createElement("p");
+    para.textContent = file.getName();
+    const fileListElement = document.getElementById("workingFilesDetail");
+	
+    if(fileListElement) 
+    {	
+        fileListElement.appendChild(para);
+        console.log("JUST APPENED");
+    }
+    else 
+    {
+        console.error("OpenFileError: Cannot append file to display list");
+    }
+}
 
 
 /*
@@ -112,10 +166,17 @@ if (saveFileIcon)
 	------------------------------------
 */
 
-ipcRenderer.on("fileToRenderer", (event, arg) => 
+ipcRenderer.on("openFile", (event, path, contents, name) => 
 {
-    console.log("Got file contents");
-    editor.setValue(arg);
+    if(!name) 
+    {
+        name = "New File";
+    }
+	
+    const openedFile = new FileClass(path, contents, name, true);
+    openFiles.push(openedFile);
+    addFileToDisplay(openedFile);
+    editor.setValue(openedFile.getContents());
 });
 
 
@@ -131,9 +192,15 @@ ipcRenderer.on("fileSaveResponse", (event, arg) =>
     }
 });
 
-ipcRenderer.on("mainRequestSaveAs", (event, arg) => 
+ipcRenderer.on("mainRequestSaveAs", () => 
 {
-    saveAsEmiter();
+    saveAsEmitter();
+});
+
+ipcRenderer.on("mainRequestNewFile", () => 
+{
+    console.log("REQUEST RECIEVED FROM MAIN");
+    createNewFile();
 });
 
 ipcRenderer.on("gotPing", (event, arg) => 
@@ -162,10 +229,19 @@ ipcRenderer.on("gotPing", (event, arg) =>
  * 
  * @returns {void}
  */
-function saveAsEmiter() 
+function saveAsEmitter() 
 {
     ipcRenderer.send("fileSaveAsToMain", null, editor.getValue().toString());
-	
+}
+
+/**
+ * Emits an event to request that main opens a file.
+ * 
+ * @returns {void}
+ */
+function openFileEmitter() 
+{
+    ipcRenderer.send("fileOpenToMain");
 }
 
 // ipcRenderer.send('fileOpenToMain', 'ping');
@@ -173,3 +249,67 @@ function saveAsEmiter()
 // ipcRenderer.send('fileSaveToMain', 'ping');
 
 // ipcRenderer.send('getPing','ping');
+
+
+
+
+
+
+
+
+
+/*
+	--------------------------------------------------
+		THIS NEEDS TO BE MOVED TO ANOTHER FILE
+		STAYING HERE FOR NOW BC WEBPACK ISSUES
+	--------------------------------------------------
+*/
+
+export interface YarnFile
+{
+    filePath: string | null;
+    fileName: string;
+    contents: string;
+    isSaved: boolean;
+    getName(): string;
+    getSaved(): boolean;
+}
+
+export class FileClass implements YarnFile
+{
+    filePath: string | null;
+    fileName: string;
+    contents: string;
+    isSaved: boolean;
+	
+    constructor(filePath: string | null, contents:string|null, name: string|null, isSaved: boolean|null)
+    {
+        this.filePath = filePath ? filePath : null;
+        this.fileName = name ? name : "New File";
+        this.contents = contents ? contents : "";
+        this.isSaved = isSaved ? true : false;
+    }
+
+    getName():string
+    {
+        return this.fileName;
+    }
+	
+    getContents():string
+    {
+        return this.contents;
+    }
+
+    getSaved():boolean
+    {
+        if(this.isSaved != undefined)
+        {
+            return this.isSaved;
+        }
+        else
+        {
+            alert("Failed to get saved.  Does file not exist?");
+            return false;
+        }
+    }
+}

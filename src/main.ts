@@ -74,7 +74,13 @@ const template = [
     {
         label: "File",
         submenu: [
-            { label: "new" },
+            { 
+                label: "New",
+                click: async () =>
+                {
+                    handleNewFile();
+                } 
+            },
             {
                 label: "Open",
                 click: async () => 
@@ -226,10 +232,7 @@ ipcMain.on("getPing", (event) =>
 
 ipcMain.on("fileOpenToMain", () => 
 {
-
-    // var file = handleFileOpen()
-    // event.reply('fileToRenderer', file)
-
+    handleFileOpen();
 });
 
 ipcMain.on("fileSaveAsToMain", (event, filePath, contents) => 
@@ -252,6 +255,16 @@ ipcMain.on("fileSaveAsToMain", (event, filePath, contents) =>
 //This should ONLY be used for menu interaction
 
 /**
+ * Emits message to renderer to create new file.
+ * 
+ * @returns {void}
+ */
+function handleNewFile() 
+{
+    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestNewFile"); //Pass the result to renderer
+}
+
+/**
  * Handles the opening of a file and returns the contents to the focused window.
  * 
  * @returns {void}
@@ -260,9 +273,8 @@ function handleFileOpen()
 {
     //Sends message from main to renderer
     const fileContent = YarnOpenFile();
-    BrowserWindow.getFocusedWindow()?.webContents.send("fileToRenderer", fileContent); //Pass the result to renderer
+    if(fileContent) 
+    {
+        BrowserWindow.getFocusedWindow()?.webContents.send("openFile", fileContent.path, fileContent.contents, fileContent.name); //Pass the result to renderer
+    }
 }
-
-
-
-

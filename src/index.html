@@ -76,21 +76,25 @@
 		<div id="iconTwo">
 			<p>Text Options</p>
 			<div id="textOptions">
-				<div text-hover="Bold text">
+				<div class="tooltip">
 					<object type="image/svg+xml" data="models/icons/bold.svg" alt="Bold" id="boldIcon"></object>
+                    <span class="tooltiptext">Bold text</span>
 				</div>
-				<div text-hover="Italicise text">
+				<div  class="tooltip">
 					<object type="image/svg+xml" data="models/icons/italic.svg" alt="Italics" id="italicsIcon"></object>
+                    <span class="tooltiptext">Italicise text</span>
 				</div>
-				<div text-hover="Underline text">
+				<div  class="tooltip">
 					<object type="image/svg+xml" data="models/icons/underline.svg" alt="Underline"
 						id="underlineIcon"></object>
+                        <span class="tooltiptext">Underline text</span>
 				</div>
 				<div class='psuedoButton'>
-					<div text-hover="Text colour">
+					<div class="tooltip">
 						<object type="image/svg+xml" data="models/icons/palette.svg" alt="Colour Picker"
 							id="paletteIcon"></object>
 						<input type="color" id="colourPicker">
+                        <span class="tooltiptext">Colour text</span>
 					</div>
 				</div>
 			</div>
@@ -109,9 +113,10 @@
 			<div id="leftSideContainer">
 				<details id="workingFilesDetail">
 					<summary>Working files</summary>
-					<p>Samplefile.yarn</p>
-					<p>Samplefile2.yarn</p>
-				</details>
+                    <div><p>Samplefile.yarn</p><button class="closeButton">x</button></div>
+                    <div><p>Samplefile.yarn</p><button class="closeButton">x</button></div>
+                    <div><p>Samplefile.yarn</p><button class="closeButton">x</button></div>        
+                </details>
 			</div>
 		</div>
 
@@ -119,6 +124,10 @@
 			<div class="outerEditor">
 				<div class="tabNavigatorBar">
 					<div class="tabItem">
+						<p>samplefile.yarn </p>
+						<button class="closeButton">x</button>
+					</div>
+                    <div class="tabItem">
 						<p>samplefile.yarn </p>
 						<button class="closeButton">x</button>
 					</div>

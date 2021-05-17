@@ -25,8 +25,9 @@
     /* Human readable colour theme - light theme*/
     --editor: #CFD8DC;
     --topSideEdit: #CFD8DC;
+    --workingFile: #d5dee2;
     --tabGap: #546E7A;
-    --dividerColour: #90A4AE;
+    --dividerColour: #9eb5c0;
     
     /* ~~CONSTANT COLOURS~~ */
     --primary_text: #000000;
@@ -250,8 +251,10 @@ select{
     color: var(--primary_text);
     background-color: var(--topSideEdit);
     min-width: 150px;
-
+    max-height: 85vh;
     padding-top: 10px;
+    
+    overflow-y: auto;
 
     grid-column-start: 1;
     grid-column-end: 1;
@@ -259,13 +262,41 @@ select{
 
 #workingFilesDetail{
     background-color: var(--topSideEdit);
-    padding: 5%;
 }
 
-#workingFilesDetail > p {
+#workingFilesDetail > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding-left: 5px;
+    height: 30px;
+
+    border-radius: 2px;
+
+    background-color: var(--workingFile);
+    border: var(--dividerColour);
+    border-style: solid hidden hidden solid;
+    border-width: thin;
+}
+
+#workingFilesDetail > div:last-of-type {
+    border: var(--dividerColour);
+    border-style: solid hidden solid solid;
+    border-width: thin;
+}
+
+#workingFilesDetail > div > p {
     text-align: justify;
     word-wrap: break-word;
     font-size: smaller;
+    margin: auto 0px auto 0px; 
+}
+
+#workingFilesDetail > div > button {
+    margin: auto 0px auto 0px; 
+    background-color: var(--workingFile);
+    border-style: hidden;
 }
 
 

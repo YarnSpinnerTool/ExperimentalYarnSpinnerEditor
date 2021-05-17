@@ -1,3 +1,10 @@
+/*
+ *---------------------------------------------------------------------------------------------
+ *  Copyright (c) Yarn Spinner Editor Team. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *---------------------------------------------------------------------------------------------
+ */
+
 import * as path from "path";
 
 export interface File

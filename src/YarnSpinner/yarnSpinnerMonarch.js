@@ -1,7 +1,10 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
+/*
+ *---------------------------------------------------------------------------------------------
+ *  Copyright (c) Yarn Spinner Editor Team. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+ *---------------------------------------------------------------------------------------------
+ */
+
 /* Currently unable to import .ts file into renderer, likely a webpack issue. https://webpack.js.org/guides/typescript/
  * Monaco Custom Language Documentation: https://microsoft.github.io/monaco-editor/playground.html#extending-language-services-custom-languages
  * Yarn Spinner Documentation: https://yarnspinner.dev/docs/syntax/
@@ -33,6 +36,7 @@ x		commands
 x		interpolation
 */
 
+//Exports configuration monaco/monarch tokenisation for Yarn Spinner
 export const tokensWIP = 
 {
     defaultToken: "dialogue",

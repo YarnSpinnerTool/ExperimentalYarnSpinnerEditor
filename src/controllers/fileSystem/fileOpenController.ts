@@ -1,3 +1,13 @@
+/*
+ *---------------------------------------------------------------------------------------------
+ *  Copyright (c) Yarn Spinner Editor Team. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *---------------------------------------------------------------------------------------------
+ */
+
+
+
+
 import { dialog } from "electron";
 import * as path from "path";
 import * as fs from "fs";

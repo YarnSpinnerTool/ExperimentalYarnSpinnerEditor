@@ -17,7 +17,6 @@
         "@typescript-eslint"
     ],
     "rules": {
-        "@typescript-eslint/no-var-requires": "off",
         "valid-jsdoc": "error",
         "require-jsdoc": "error",
         "no-mixed-spaces-and-tabs": 0,

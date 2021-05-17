@@ -2,7 +2,7 @@
     "name": "yarnspinnereditor",
     "version": "1.0.0",
     "description": "A new editor for Yarn Spinner",
-    "main": "./src/main.ts",
+    "main": "./dist/main.main.js",
     "scripts": {
         "start": "npm run build && electron-forge start",
         "build": "webpack --config ./webpack.config.js",

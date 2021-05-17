@@ -1,5 +1,30 @@
-const { app, BrowserWindow, Menu } = require("electron");
-const path = require("path");
+/*
+Copyright (c) 2021 Yarn Spinner Editor Team
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+import { app, BrowserWindow, Menu, ipcMain, shell } from "electron";
+import * as path from "path";
+import { openFile as YarnOpenFile } from "./controllers/fileSystem/fileOpenController";
+import { writeFile as YarnWriteFile } from "./controllers/fileSystem/fileWriteController";
+
 
 /**
  * Creates the main window. This is a change.
@@ -17,13 +42,13 @@ function createWindow()
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-            enableRemoteModule: true,
         }
     });
 
 
     // and load the index.html of the app.
     mainWindow.loadFile(path.join(__dirname, "../src/index.html"));
+
 }
 
 //https://www.electronjs.org/docs/api/menu
@@ -49,8 +74,20 @@ const template = [
     {
         label: "File",
         submenu: [
-            { label: "new" },
-            { label: "open" },
+            { 
+                label: "New",
+                click: async () =>
+                {
+                    handleNewFile();
+                } 
+            },
+            {
+                label: "Open",
+                click: async () => 
+                {
+                    handleFileOpen();
+                }
+            },
             { label: "save" },
             { label: "save as" },
             { label: "import" },
@@ -139,7 +176,6 @@ const template = [
                 label: "Yarn Spinner Documentation",
                 click: async () => 
                 {
-                    const { shell } = require("electron");
                     await shell.openExternal("https://github.com/YarnSpinnerTool/YarnSpinner/blob/yarn-spec/Documentation/Yarn-Spec.md"); //TODO This will be changed to wherever the 2.0 docs are located 
                 }
             },
@@ -147,7 +183,6 @@ const template = [
                 label: "Editor bug?",
                 click: async () => 
                 {
-                    const { shell } = require("electron");
                     await shell.openExternal("https://github.com/setho246/YarnSpinnerEditor/issues"); //TODO will need to change once ownership changes
                 }
             },
@@ -175,3 +210,71 @@ app.on("activate", () =>
         createWindow();
     }
 });
+
+
+/*
+	******************************************************************************************************************
+										IPCMain Listeners and Emitters
+	******************************************************************************************************************
+*/
+
+/*
+	------------------------------------
+				LISTENERS
+	------------------------------------
+*/
+
+ipcMain.on("getPing", (event) => 
+{
+    //console.log(arg);
+    event.reply("gotPing", "You're a curious one");
+});
+
+ipcMain.on("fileOpenToMain", () => 
+{
+    handleFileOpen();
+});
+
+ipcMain.on("fileSaveAsToMain", (event, filePath, contents) => 
+{
+    YarnWriteFile(filePath, contents);
+});
+
+// ipcMain.on("fileSaveToMain", (event, arg) => 
+// {
+
+// });
+
+/*
+	------------------------------------
+				EMITTERS
+	------------------------------------
+*/
+//Sends message from Main to Renderer
+//BrowserWindow.getFocusedWindow()?.webContents.send("ChannelMessage", args);
+//This should ONLY be used for menu interaction
+
+/**
+ * Emits message to renderer to create new file.
+ * 
+ * @returns {void}
+ */
+function handleNewFile() 
+{
+    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestNewFile"); //Pass the result to renderer
+}
+
+/**
+ * Handles the opening of a file and returns the contents to the focused window.
+ * 
+ * @returns {void}
+ */
+function handleFileOpen() 
+{
+    //Sends message from main to renderer
+    const fileContent = YarnOpenFile();
+    if(fileContent) 
+    {
+        BrowserWindow.getFocusedWindow()?.webContents.send("openFile", fileContent.path, fileContent.contents, fileContent.name); //Pass the result to renderer
+    }
+}

@@ -23,92 +23,128 @@ SOFTWARE.
 
 
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Yarn Spinner Editor</title>
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Yarn Spinner Editor</title>
+	<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
 	<link rel="stylesheet" href="views/css/styles.css">
 
 </head>
 
 <body>
-    <div class='topBar'>
-        <div id="iconOne" >
-            <p>Quick Actions</p>
-            <!-- Icons taken from https://github.com/tabler/tabler-icons -->
-            <div>
-                <div text-hover="New file">
-                    <object type="image/svg+xml" data="models/icons/file-plus.svg" id="newFileIcon"></object>
-                </div>
-                <div text-hover="Save file">
-                    <object type="image/svg+xml"  data="models/icons/device-floppy.svg" id="saveFileIcon"></object>
-                </div>
-                <div text-hover="Open folder" id="openFolderIcon">
-                    <object type="image/svg+xml"  data="models/icons/folders.svg" ></object>
-                </div>
-                <div text-hover="Search files">
-                    <object type="image/svg+xml"  data="models/icons/list-search.svg" id="searchIcon"></object>
-                </div>
-            </div>
+	<div class='topBar'>
+		<div id="iconOne">
+			<p>Quick Actions</p>
+			<!-- Icons taken from https://github.com/tabler/tabler-icons -->
+			<div>
+				<div id="newFileIcon" class="tooltip">
+					<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-plus" width="24"
+						height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+						stroke-linecap="round" stroke-linejoin="round">
+						<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+						<path d="M14 3v4a1 1 0 0 0 1 1h4" />
+						<path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+						<line x1="12" y1="11" x2="12" y2="17" />
+						<line x1="9" y1="14" x2="15" y2="14" />
+					</svg>
+					<span class="tooltiptext">New file</span>
+				</div>
+				<div id=saveFileIcon class="tooltip">
+					<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy"
+						width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+						stroke-linecap="round" stroke-linejoin="round">
+						<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+						<path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
+						<circle cx="12" cy="14" r="2" />
+						<polyline points="14 4 14 8 8 8 8 4" />
+					</svg>
+					<span class="tooltiptext">Save As</span>
+				</div>
+				<div id="openFolderIcon" class="tooltip">
+					<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder" width="24"
+						height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+						stroke-linecap="round" stroke-linejoin="round">
+						<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+						<path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2" />
+					</svg>
+					<span class="tooltiptext">Open File</span>
+				</div>
+				<div class="tooltip">
+					<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-search" width="24"
+						height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+						stroke-linecap="round" stroke-linejoin="round">
+						<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+						<circle cx="15" cy="15" r="4" />
+						<path d="M18.5 18.5l2.5 2.5" />
+						<path d="M4 6h16" />
+						<path d="M4 12h4" />
+						<path d="M4 18h4" />
+					</svg>
+					<span class="tooltiptext">Search in file</span>
+				</div>
+			</div>
 
 
-        </div>
+		</div>
 
-        <div id="iconTwo">
-            <p>Text Options</p>
-            <div id="textOptions">
-                <div text-hover="Bold text">
-                    <object type="image/svg+xml"  data="models/icons/bold.svg" alt="Bold" id="boldIcon"></object>
-                </div>
-                <div text-hover="Italicise text">
-                    <object type="image/svg+xml"  data="models/icons/italic.svg" alt="Italics" id="italicsIcon"></object>
-                </div>
-                <div text-hover="Underline text">
-                    <object type="image/svg+xml"  data="models/icons/underline.svg" alt="Underline" id="underlineIcon"></object>
-                </div>
-                <div class='psuedoButton'>
-                    <div text-hover="Text colour">
-                        <object type="image/svg+xml" data="models/icons/palette.svg" alt="Colour Picker" id="paletteIcon"></object>
-                        <input type="color" id="colourPicker">
-                    </div>
-                </div>
-            </div>
-        </div>
+		<div id="iconTwo">
+			<p>Text Options</p>
+			<div id="textOptions">
+				<div text-hover="Bold text">
+					<object type="image/svg+xml" data="models/icons/bold.svg" alt="Bold" id="boldIcon"></object>
+				</div>
+				<div text-hover="Italicise text">
+					<object type="image/svg+xml" data="models/icons/italic.svg" alt="Italics" id="italicsIcon"></object>
+				</div>
+				<div text-hover="Underline text">
+					<object type="image/svg+xml" data="models/icons/underline.svg" alt="Underline"
+						id="underlineIcon"></object>
+				</div>
+				<div class='psuedoButton'>
+					<div text-hover="Text colour">
+						<object type="image/svg+xml" data="models/icons/palette.svg" alt="Colour Picker"
+							id="paletteIcon"></object>
+						<input type="color" id="colourPicker">
+					</div>
+				</div>
+			</div>
+		</div>
 
-        <div id="iconThree" horizontal layout>
+		<div id="iconThree" horizontal layout>
 
-        </div>
+		</div>
 
-        <div id="iconFour" horizontal layout>
+		<div id="iconFour" horizontal layout>
 
-        </div>
-    </div>
-        <div class="parentLayout">
-            <div id="leftCont">
-                <div id="leftSideContainer">
-                    <details id="workingFilesDetail">
-                        <summary>Working files</summary>
-                        <p>Samplefile.yarn</p>
-                        <p>Samplefile2.yarn</p>
-                    </details>
-                </div>
-            </div>
+		</div>
+	</div>
+	<div class="parentLayout">
+		<div id="leftCont">
+			<div id="leftSideContainer">
+				<details id="workingFilesDetail">
+					<summary>Working files</summary>
+					<p>Samplefile.yarn</p>
+					<p>Samplefile2.yarn</p>
+				</details>
+			</div>
+		</div>
 
-            <div class="outerOuterEditor">
-                <div class="outerEditor">
-                    <div class="tabNavigatorBar">
-                        <div class="tabItem">
-                            <p>samplefile.yarn </p>
-                            <button class="closeButton">x</button>
-                        </div>
-                    </div>
-                    <div class='editorView' id='container'></div>
-                </div>
-            </div>
+		<div class="outerOuterEditor">
+			<div class="outerEditor">
+				<div class="tabNavigatorBar">
+					<div class="tabItem">
+						<p>samplefile.yarn </p>
+						<button class="closeButton">x</button>
+					</div>
+				</div>
+				<div class='editorView' id='container'></div>
+			</div>
+		</div>
 
-        </div> 
-    
-    <!-- You can also require other files to run in this process -->
+	</div>
+
+	<!-- You can also require other files to run in this process -->
 </body>
 <script src='../dist/render.render.js'></script>
 

@@ -6,226 +6,51 @@
  * Monaco Custom Language Documentation: https://microsoft.github.io/monaco-editor/playground.html#extending-language-services-custom-languages
  * Yarn Spinner Documentation: https://yarnspinner.dev/docs/syntax/
  * JS RegExp Documentation: https://www.w3schools.com/jsref/jsref_obj_regexp.asp
+ * Typescript TokensProvider: https://github.com/microsoft/monaco-languages/blob/main/src/typescript/typescript.ts
  */
 import * as monaco from 'monaco-editor';
 
-export const tokens = {
-    // Set defaultToken to invalid to see what you do not tokenize yet
-    defaultToken: "invalid",
-    tokenPostfix: ".ts",
+/*
+file
 
-    keywords: [
-        //Commands
-        "jump", "stop", "declare", "set",
-        //Flow Control
-        "if", "else", "elseif", "endif",
-        //Explicit Typing
-        "as",
-        //Miscellaneous
-        "Title:", "true", "false", "->"
-    ],
+header
 
-    typeKeywords: [
-        "boolean", "string", "number"
-    ],
-
-    operators: [
-        //Equality
-        "is", "==",
-        //Inequality 
-        "!=",
-        //Greater than
-        ">",
-        //Less than
-        "<",
-        //Less than or equal to
-        "<=",
-        //Greater than or equal to
-        ">=",
-        //Boolean OR
-        "or", "||",
-        //Boolean XOR
-        "xor", "^",
-        //Boolean negation
-        "!",
-        //Boolean AND
-        "and", "&&",
-        //Mathematical Operators
-        "+", "-", "*", "/", "%"
-    ],
-
-    // we include these common regular expressions
-    symbols: /[=><!~?:&|+\-*/^%]+/,
-    escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
-    digits: /\d+(_+\d+)*/,
-    octaldigits: /[0-7]+(_+[0-7]+)*/,
-    binarydigits: /[0-1]+(_+[0-1]+)*/,
-    hexdigits: /[[0-9a-fA-F]+(_+[0-9a-fA-F]+)*/,
-
-    regexpctl: /[(){}[\]$^|\-*+?.]/,
-    regexpesc: /\\(?:[bBdDfnrstvwWn0\\/]|@regexpctl|c[A-Z]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})/,
-
-    // The main tokenizer for our languages
-    tokenizer: {
-        root: [[/[{}]/, "delimiter.bracket"], { include: "common" }],
-
-        common: [
-            //Markup
-            [/\[b\].*\[\\b\]/, "bold-bbcode"],
-            [/\[i\].*\[\\i\]/, "italics-bbcode"],
-            [/\[u\].*\[\\u\]/, "underline-bbcode"],
-            // identifiers and keywords
-            [/[A-Z][\w$]*/, "identifier"],
-            [
-                /[a-z_$][\w$]*/,
-                {
-                    cases: {
-                        "@typeKeywords": "type.identifier",
-                        "@keywords": "keyword",
-                        "@default": "identifier"
-                    }
-                }
-
-            ],
-
-
-            // whitespace
-            { include: "@whitespace" },
-
-            // regular expression: ensure it is terminated before beginning (otherwise it is an opeator)
-            [
-                /\/(?=([^\\/]|\\.)+\/([gimsuy]*)(\s*)(\.|;|,|\)|\]|\}|$))/,
-                { token: "regexp", bracket: "@open", next: "@regexp" }
-            ],
-
-            // delimiters and operators
-            [/[()[\]]/, "@brackets"],
-            [/[<>](?!@symbols)/, "@brackets"],
-            [/!(?=([^=]|$))/, "delimiter"],
-            [
-                /@symbols/,
-                {
-                    cases: {
-                        "@operators": "delimiter",
-                        "@default": ""
-                    }
-                }
-            ],
-
-            // numbers
-            [/(@digits)[eE]([-+]?(@digits))?/, "number.float"],
-            [/(@digits)\.(@digits)([eE][-+]?(@digits))?/, "number.float"],
-            [/0[xX](@hexdigits)n?/, "number.hex"],
-            [/0[oO]?(@octaldigits)n?/, "number.octal"],
-            [/0[bB](@binarydigits)n?/, "number.binary"],
-            [/(@digits)n?/, "number"],
-
-            // delimiter: after number because of .\d floats
-            [/[;,.]/, "delimiter"],
-
-            // strings
-            [/"([^"\\]|\\.)*$/, "string.invalid"], // non-teminated string
-            [/'([^'\\]|\\.)*$/, "string.invalid"], // non-teminated string
-            [/"/, "string", "@string_double"],
-            [/'/, "string", "@string_single"],
-            [/`/, "string", "@string_backtick"]
-        ],
-
-        whitespace: [
-            [/[ \t\r\n]+/, ""],
-            [/\/\*\*(?!\/)/, "comment.doc", "@jsdoc"],
-            [/\/\*/, "comment", "@comment"],
-            [/\/\/.*$/, "comment"]
-        ],
-
-        comment: [
-            [/[^/*]+/, "comment"],
-            [/\*\//, "comment", "@pop"],
-            [/[/*]/, "comment"]
-        ],
-
-        jsdoc: [
-            [/[^/*]+/, "comment.doc"],
-            [/\*\//, "comment.doc", "@pop"],
-            [/[/*]/, "comment.doc"]
-        ],
-
-        // We match regular expression quite precisely
-        regexp: [
-            [
-                /(\{)(\d+(?:,\d*)?)(\})/,
-                ["regexp.escape.control", "regexp.escape.control", "regexp.escape.control"]
-            ],
-            [
-                /(\[)(\^?)(?=(?:[^\]\\/]|\\.)+)/,
-                ["regexp.escape.control", { token: "regexp.escape.control", next: "@regexrange" }]
-            ],
-            [/(\()(\?:|\?=|\?!)/, ["regexp.escape.control", "regexp.escape.control"]],
-            [/[()]/, "regexp.escape.control"],
-            [/@regexpctl/, "regexp.escape.control"],
-            [/[^\\/]/, "regexp"],
-            [/@regexpesc/, "regexp.escape"],
-            [/\\\./, "regexp.invalid"],
-            [
-                /(\/)([gimsuy]*)/,
-                [{ token: "regexp", bracket: "@close", next: "@pop" }, "keyword.other"]
-            ]
-        ],
-
-        regexrange: [
-            [/-/, "regexp.escape.control"],
-            [/\^/, "regexp.invalid"],
-            [/@regexpesc/, "regexp.escape"],
-            [/[^\]]/, "regexp"],
-            [
-                /\]/,
-                {
-                    token: "regexp.escape.control",
-                    next: "@pop",
-                    bracket: "@close"
-                }
-            ]
-        ],
-
-        string_double: [
-            [/[^\\"]+/, "string"],
-            [/@escapes/, "string.escape"],
-            [/\\./, "string.escape.invalid"],
-            [/"/, "string", "@pop"]
-        ],
-
-        string_single: [
-            [/[^\\']+/, "string"],
-            [/@escapes/, "string.escape"],
-            [/\\./, "string.escape.invalid"],
-            [/'/, "string", "@pop"]
-        ],
-
-        string_backtick: [
-            [/\$\{/, { token: "delimiter.bracket", next: "@bracketCounting" }],
-            [/[^\\`$]+/, "string"],
-            [/@escapes/, "string.escape"],
-            [/\\./, "string.escape.invalid"],
-            [/`/, "string", "@pop"]
-        ],
-
-        bracketCounting: [
-            [/\{/, "delimiter.bracket", "@bracketCounting"],
-            [/\}/, "delimiter.bracket", "@pop"],
-            { include: "common" }
-        ]
-    }
-};
+body
+	commands
+x		strings
+x		keywords
+x		variables
+x		numbers 
+x		operators
+		>> pop
+	options
+x		text
+x		interpolation
+x		commands
+		3
+	dialogue
+x		commands
+x		interpolation
+*/
 
 export const tokensWIP = 
 {
     defaultToken: "dialogue",
     tokenPostfix: ".yarn",
+    includeLF: true, //Adds \n to end of each line
 
-    keywords: ["as","true","false"],
-    typeKeywords: [ "Boolean", "String", "Number"],
-    commands: ["jump","stop","declare","set","if", "else", "elseif","endif"],
-    operators: 
+    //From section identifiers in the yarn spec.
+    //A-Z, a-z, _, followed by an optional period, and then an optional second string of A-Z, a-z, _. '$' are not allowed
+    yarnIdentifier: /[a-z_]+[\.]*[a-z_]*/i,
+  
+    yarnFloat: /-?[\d]+\.[\d]+/,
+    yarnInteger: /-?\d+/,
+    yarnOperator: /(is|==|!=|<=|>=|>(?!>)|<|or|\|\||xor|\^|!|and|&&|\+|-|\*|\/|%)/,
+
+    yarnKeywords: ["as","true","false"],
+    yarnTypeKeywords: [ "Boolean", "String", "Number"],
+    yarnCommands: ["jump","stop","declare","set","if", "else", "elseif","endif"],
+    yarnOperators: 
     [
         //Equality
         "is", "==",
@@ -253,73 +78,134 @@ export const tokensWIP =
 
     tokenizer: 
     {    
-        file: 
+        fileheader: 
         [
-            //file tags, comments
-            [ /\#.*$/, "file.tag" ],
-            { include: 'comments' },
-            { include: 'whitespace'},
-            { regex: /.*:.*/, action: { token: 'file.delimiter', next: '@header' } }
-        ],
-        header: 
-        [
-            //header tags, comments
-            [ /.*:.*/, 'header.tag' ],
+            //File tags, comments
+            [ /\#.*\n/, "file.tag" ],
             { include: 'comments' },
             { include: 'whitespace'},
 
-
-            //When encountering the header delimiter, move to the body state
+            //Per Yarn Spec: Title's tag text must follow identifier rules, and other header tags' names must follow identifier rules.
+            [ /Title:@yarnIdentifier/, 'title.tag'],
+            [ /@yarnIdentifier:.*\n/, 'header.tag' ],
+            
+            //Move to body once encountering the ---
             { regex: /---/, action: { token: 'header.delimiter', next: '@body' } }
         ],
         body: 
         [
-            //dialogue, commands, options, hashtags
             { include: 'comments' },
             { include: 'whitespace'},
-            //Dialogue is the default token
-                //Needs to account for BB code
-                //Needs to account for interpolation
-            [/<<.*>>/,'body.commands'],
-            //Commands can be either generic, or @commands
-                //They begin and end with << >>
-                //Needs to account for interpolation
+            
+            //Interpolation
             { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
+            //Strings
+            { regex: /"/, action: { token: 'string', next: '@strings'} },
+            //Options
+            { regex: /->/, action: { token: 'options', next: '@options'} },
+            //Commands
+            { regex: /<</, action: { token: 'commands', next: '@commands'} },
+            //Variables
+            { regex: /\$/, action: { token: 'variables', next: '@variables'} },
+            //Hashtags - TODO move to dialogue
+            { regex: /\#/, action: {token: 'hashtag', next: '@hashtags'} },
 
+            
             //When encountering the body delimiter, move to the file state.
             [/\[b\].*\[\\b\]/,"body.bold"],
             [/\[i\].*\[\\i\]/,"body.italic"],
             [/\[u\].*\[\\u\]/,"body.underline"],
+            
+            //numbers, uncoloured in dialogue
+            [/@yarnFloat/,"float"],
+            [/@yarnInteger/,"number"],
+            //[/@yarnOperator/, "operator"],//Does operator belong in body / dialogue?
+            
+            //End of node
             { regex: /===/, action: { token: 'body.delimiter', next: '@popall' } }
         ], 
         strings:
         [
-
-        ],
-        dialogue:
-        [
-
+            [/[^\"]+/, "string"],
+            [/"/, "string", "@pop"]
         ],
         commands:
         [
+            //Embedded Interpolation, Strings, & Variables.
+            { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
+            { regex: /"/, action: { token: 'string', next: '@strings'} },
+            { regex: /\$/, action: { token: 'variables', next: '@variables'} },
             
+            //Numbers, coloured dark pink in commands.
+            [/@yarnFloat/,"commands.float"],
+            [/@yarnInteger/,"commands.number"],
+            [/@yarnOperator/, "commands.operator"],
+
+            
+            //Words, can be specified commands, keywords, or types. (Dark pink)
+            [/[A-Za-z_$][\w$]*/, { 
+                cases: 
+                {
+                "@yarnCommands": "yarn.commands",
+                "@yarnKeywords": "yarn.commands",
+                "@yarnTypeKeywords": "yarn.commands",
+                "@default": "commands"
+                }
+            }
         ],
+            //Pop when reaching close >> bracket.
+            { regex: />>/, action: {token: "commands", next: "@pop"} }
+        ],
+
         options:
         [
+            //Embedded interpolation, strings, commands, variables.
+            { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
+            { regex: /<</, action: { token: 'commands', next: '@commands'} },
+            { regex: /"/, action: { token: 'string', next: '@strings'} },
+            { regex: /\$/, action: { token: 'variables', next: '@variables'} },
 
+            //Any text
+            [/[A-Za-z_$][\w$]*/, "options"],
+            
+            //Pop at new line character.
+            { regex: /\n/, action: {token: 'options', next: '@pop'}}
         ],
+
         interpolation:
         [
-            { regex: /.*}/, action: { token: 'interpolation.delimiter', next: '@pop' } }
+            //Embedded variables.
+            { regex: /\$/, action: { token: 'variables', next: '@variables'} },
+            
+            //Any text
+            [/[A-Za-z][\w$]*/, "interpolation"],
+            
+            //Pop
+            { regex: /}/, action: { token: "interpolation", next: "@pop" } }
         ],
         comments:
         [
-            [/\/\/.*$/, "comment"]
+            [/\/\/.*\n/, "comment"]
         ],
         whitespace:
         [
             [/[ \t\r\n]+/, ""]
+        ],
+        variables:
+        [
+            //Variables can only be one word, so they pop at the end.
+            { regex: /@yarnIdentifier/, action: { token: "variables", next: "@pop" } },
+            { regex: / /, action: { token: "variables", next: "@pop" } }
+        ],
+        hashtags:
+        [
+            { include: 'comments' },//include the rules for comments
+
+            //Any text that's not newline character
+            [/[^\n]/, "hashtag"],
+            { regex: /\n/, action: {token: 'hashtag', next: '@pop'}}
         ]
+
     }
 };
 
@@ -335,8 +221,8 @@ export const config = {
     },
 
     brackets: [
-        ['<', '>'],
-        ["[", "]"],
+        ['<<', '>>'], // Command brackets
+        ["[", "]"], 
         ["(", ")"]
     ],
 
@@ -346,7 +232,7 @@ export const config = {
 
     autoClosingPairs: [
         //Command
-        { open: '<', close: '>' },
+        { open: '<<', close: '>>' },
         //Interpolation
         { open: '{', close: '}' },
         //Mathematical 
@@ -371,8 +257,18 @@ export const theme = {
         { token: 'body.underline', fontStyle: 'underline' },
         { token: 'body.italic', fontStyle: 'italic' },
         { token: 'body.commands', foreground : 'FF00FF' },
+        { token: 'commands', foreground : 'FF00AA' },
         { token: 'file.tag', foreground : '719C70' },
-        { token: 'interpolation', foreground : 'CC8400' }
+        { token: 'interpolation', foreground : 'CC8400' },
+        { token: 'options', foreground : 'AD00C4'},
+        { token: 'variables', foreground : '347F36'},
+        { token: 'float', foreground : '063B0E'},
+        { token: 'number', foreground : '063B0E'},
+        { token: 'yarn.commands', foreground : 'A30A70'},
+        { token: 'commands.float', foreground : 'A30A70'},
+        { token: 'commands.number', foreground : 'A30A70'},
+        { token: 'commands.operator', foreground: 'AAAFFF'},
+        { token: 'hashtag', foreground: '#AAAAAA'}
         ],
 
     colors: {

@@ -63,7 +63,13 @@ const mainConfig = merge(commonConfig, {
 	  path: path.resolve(__dirname, 'dist'),
 	  pathinfo: false
 	},
-	module: loaders
+	module: loaders,
+	resolve: {
+		extensions: [".ts"],
+		alias: {
+		  "@fileSystem": path.resolve(__dirname, "src/controllers/fileSystem"),
+		},
+	}
   });
   
   module.exports = [renderConfig, mainConfig]

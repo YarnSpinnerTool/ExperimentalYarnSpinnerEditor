@@ -12,7 +12,10 @@
     width: 0px;
 }
 
-
+img {
+    width: 65px;
+    height: 65px;
+}
 
 
 /* ROOT */

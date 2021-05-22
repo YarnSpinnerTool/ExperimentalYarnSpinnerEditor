@@ -43,6 +43,7 @@ LISTENERS
 import * as monaco from "monaco-editor";
 import * as yarnSpinner from "../../YarnSpinner/yarnSpinnerMonarch";
 import { ipcRenderer } from "electron";
+import exports from "../../controllers/themeReader.ts";
 
 const openFiles: FileClass[] = [];
 let editor: monaco.editor.IStandaloneCodeEditor;
@@ -56,14 +57,65 @@ monaco.languages.setLanguageConfiguration("yarnSpinner", yarnSpinner.config);
 //set the completions NOT WORKING CURRENTLY
 monaco.languages.registerCompletionItemProvider("yarnSpinner", yarnSpinner.completions);
 
-monaco.editor.defineTheme("yarnSpinnerTheme", yarnSpinner.theme);
+//monaco.editor.defineTheme("yarnSpinnerTheme", yarnSpinner.theme);
+
+//Utilising exports we can get the variable information from themeReader
+
+monaco.editor.defineTheme('customTheme', {
+	base: 'vs',
+    inherit: true,
+    rules: [
+        //{ background: 'CFD8DC'},
+        
+        { token: 'body.bold', fontStyle: 'bold' },
+        { token: 'body.underline', fontStyle: 'underline' },
+        { token: 'body.italic', fontStyle: 'italic' },
+        { token: 'body.commands', foreground : exports.commands },
+        { token: 'commands', foreground : exports.commands },
+        { token: 'file.tag', foreground : exports.fileTag },
+        { token: 'interpolation', foreground : exports.interpolation },
+        { token: 'options', foreground : exports.option },
+        { token: 'variables', foreground : exports.variables },
+        { token: 'float', foreground : exports.float },
+        { token: 'number', foreground : exports.number },
+        { token: 'yarn.commands', foreground : exports.yarnCommands },
+        { token: 'commands.float', foreground : exports.commands },
+        { token: 'commands.number', foreground : exports.commands },
+        { token: 'commands.operator', foreground: exports.operator },
+        { token: 'hashtag', foreground: exports.hashtag },
+        { token: 'dialogue', foreground : exports.primary_text }
+        ],
+
+    colors: {
+        'editor.foreground': exports.primary_text,
+        'editor.background': exports.editor,
+        'editorCursor.foreground': exports.workingFile,
+        'editor.lineHighlightBackground': exports.lineSelection,
+        'editorLineNumber.foreground': exports.primary_text,
+        'editor.selectionBackground': exports.lineSelection,
+        'editor.inactiveSelectionBackground': exports.editor,
+        'minimap.background': exports.lineSelection
+    }
+});
+
+//set css variables
+document.documentElement.style.setProperty(`--editor`, exports.editor);
+document.documentElement.style.setProperty(`--topSideEdit`, exports.editor);
+document.documentElement.style.setProperty(`--workingFile`, exports.workingFile);
+document.documentElement.style.setProperty(`--tabGap`, exports.tabGap);
+document.documentElement.style.setProperty(`--dividerColour`, exports.divideColour);
+document.documentElement.style.setProperty(`--primary_text`, exports.primary_text);
+document.documentElement.style.setProperty(`--secondary_text`, exports.secondary_text);
+
 
 const containerElement = document.getElementById("container");
+
 
 if (containerElement) 
 {
     editor = monaco.editor.create(containerElement, {
-        theme: "yarnSpinnerTheme",
+        //theme: "yarnSpinnerTheme",
+        theme: "customTheme",
         value: "".toString(),
         language: "yarnSpinner",
         automaticLayout: true,

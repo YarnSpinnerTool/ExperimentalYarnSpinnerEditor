@@ -45,7 +45,7 @@ import * as yarnSpinner from "../../YarnSpinner/yarnSpinnerMonarch";
 import { ipcRenderer } from "electron";
 import exports from "../../controllers/themeReader.ts";
 
-const openFiles: FileClass[] = [];
+const openFiles = new Map<number, YarnFileClass>();
 let editor: monaco.editor.IStandaloneCodeEditor;
 
 //Register our new custom language
@@ -126,17 +126,110 @@ if (containerElement)
     });
 }
 
-
-
 const workingFiles = document.getElementById("workingFilesDetail");
 
 if (workingFiles){
-    
-    var childrenOfWF = workingFiles.children;
+	console.log("workingFilesExists");
+    workingFiles.addEventListener('click', (event) => {
+		if(event && event.target && (event.target as HTMLButtonElement).tagName === "BUTTON"){
+
+            //Get file ID information and HTML elements
+            var button = (event.target as HTMLButtonElement);
+            var parentDiv = button.parentElement;
+			var fileIdentifier = Number(parentDiv?.id);
+			
+			if(Number.isNaN(fileIdentifier) || !parentDiv) {
+				console.error("Attempted to remove broken file instance, please file a bug at https://github.com/setho246/YarnSpinnerEditor/issues");
+				return;
+			}
+
+            //alert("Before delete".concat(openFiles.toString())); //Debug information
+
+            //Remove file from array
+			openFiles.delete(fileIdentifier);
+			
+
+            //Remove the HTML elements from working files
+			parentDiv.parentElement?.removeChild(parentDiv);
+
+            //alert("post delete".concat(openFiles.toString())); //Debug information
+        }
+
+        else if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY"){
+            var fileIdentifier: number;
+
+            if ((event.target as HTMLElement).tagName === "P") {
+				fileIdentifier = Number((event.target as HTMLParagraphElement).parentElement?.id)
+			}
+            else{
+                var divElement = (event.target as HTMLDivElement);
+                fileIdentifier = Number(divElement.id);
+            }
+
+            // alert(fileIdentifier);
+
+            //Bug checking
+            var currentValue = editor.getValue()
+			
+			var openedFile = openFiles.get(fileIdentifier);
+			
+			if(openedFile){	
+				editor.setValue(openedFile.contents); // Swap to push edit operations? https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.itextmodel.html#pusheditoperations
+				editor.updateOptions({readOnly: false});
+			}
+                
+
+            // if (currentValue == editor.getValue()){
+            //     alert("Didn't work or was same file or is empty file anyway");
+            //     //console.log("File not found in working files");
+            // }
+        }
+
+
+    });
 
 
 }
 
+function updateFileObjectContent(file: YarnFileClass) {
+	// file = editor.getValue()
+
+    /*
+        SETH ----->
+                Possibly follow the modelModel class structure of having the array of files be stored within a class
+
+                e.g. yarnFolderModel 
+                        arrayOfFiles = something
+                        currentFile = file that's in the editor
+                    
+                        ****Maybe further variable to get the editor for when we split views***
+
+                        getters and setters for stuff
+
+                        method to find matching ID and return matched one?
+
+    */
+
+
+
+    /*
+        Store current file (current editor value) into current open file (maybe also make into variable itself?)
+            Note: This is different to save, it's storing the value as rn we lose all data
+
+        pushEditOperations of new content into the editor (rather than using direct setValue, microsoft says no ewwie yucky)
+            range would be entire document
+            text would be contents of new file
+        
+        Set current file, to the file that was changed
+
+
+
+
+    */
+
+
+
+}
 
 
 /*
@@ -195,19 +288,18 @@ if (colourPick){
 }
 
 //Listen for editor commands
-window.addEventListener("keydown", (e) =>{
-    if (e.ctrlKey && e.key === "b"){
-        boldText?.click();//send bold click event
-    }
-
+window.addEventListener("IModelContentChangedEvent", (e) =>{
+	console.log("TEAEWQWRASD");
     //TODO remove the monaco commands that use these command combinations
     // if (e.ctrlKey && e.key === "i"){
     //     italicText?.click();
     // }
-
+    
     // if (e.ctrlKey && e.key === "u"){
     //     underlineText?.click();
     // }
+
+    // if filestate is unsaved { then check } 
 });
 
 
@@ -245,8 +337,8 @@ if (openFolderIcon)
 function createNewFile() 
 {
     console.log("IN CREATE NEW FILE");
-    const newFile:FileClass = new FileClass(null, null, null, false);
-    openFiles.push(newFile);
+    const newFile:YarnFileClass = new YarnFileClass(null, null, null, false, Date.now());
+    openFiles.set(newFile.getUniqueIdentifier(), newFile);
     addFileToDisplay(newFile);
     editor.setValue(newFile.contents);
 }
@@ -254,20 +346,31 @@ function createNewFile()
 /**
  * Creates and appends the HTML required for showing a new file.
  * 
- * @param {FIleClass} file The file to add to the display.
+ * @param {YarnFIleClass} file The file to add to the display.
  * 
  * @returns {void}
  */
-function addFileToDisplay(file: FileClass) : void 
+function addFileToDisplay(file: YarnFileClass) : void 
 {
-    console.log("ADDING FILE TO DISPLAY");
+	const div = document.createElement("div");
+	div.setAttribute("id", file.uniqueIdentifier.toString());
+	
+	const closeButton = document.createElement("button");
+    closeButton.setAttribute("id", file.uniqueIdentifier.toString());
+	closeButton.textContent = "x";
+	
     const para = document.createElement("p");
     para.textContent = file.getName();
-    const fileListElement = document.getElementById("workingFilesDetail");
+	
+	div.appendChild(para);
+	div.appendChild(closeButton);
+    
+	
+	const fileListElement = document.getElementById("workingFilesDetail");
 	
     if(fileListElement) 
     {	
-        fileListElement.appendChild(para);
+        fileListElement.appendChild(div);
         console.log("JUST APPENED");
     }
     else 
@@ -296,8 +399,10 @@ ipcRenderer.on("openFile", (event, path, contents, name) =>
         name = "New File";
     }
 	
-    const openedFile = new FileClass(path, contents, name, true);
-    openFiles.push(openedFile);
+	
+	
+    const openedFile = new YarnFileClass(path, contents, name, true, Date.now());
+    openFiles.set(openedFile.getUniqueIdentifier(), openedFile);
     addFileToDisplay(openedFile);
     editor.setValue(openedFile.getContents());
 });
@@ -394,23 +499,26 @@ export interface YarnFile
     fileName: string;
     contents: string;
     isSaved: boolean;
+	uniqueIdentifier: number;
     getName(): string;
     getSaved(): boolean;
 }
 
-export class FileClass implements YarnFile
+export class YarnFileClass implements YarnFile
 {
     filePath: string | null;
     fileName: string;
     contents: string;
     isSaved: boolean;
+	uniqueIdentifier: number;
 	
-    constructor(filePath: string | null, contents:string|null, name: string|null, isSaved: boolean|null)
+    constructor(filePath: string | null, contents:string|null, name: string|null, isSaved: boolean|null, uniqueIdentifier: number)
     {
         this.filePath = filePath ? filePath : null;
         this.fileName = name ? name : "New File";
         this.contents = contents ? contents : "";
         this.isSaved = isSaved ? true : false;
+		this.uniqueIdentifier = uniqueIdentifier;
     }
 
     getName():string
@@ -434,5 +542,9 @@ export class FileClass implements YarnFile
             alert("Failed to get saved.  Does file not exist?");
             return false;
         }
+    }
+
+    getUniqueIdentifier():number {
+        return this.uniqueIdentifier;
     }
 }

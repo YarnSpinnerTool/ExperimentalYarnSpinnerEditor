@@ -76,42 +76,66 @@
 		<div id="iconTwo">
 			<p>Text Options</p>
 			<div id="textOptions">
-				<div text-hover="Bold text">
-					<object type="image/svg+xml" data="models/icons/bold.svg" alt="Bold" id="boldIcon"></object>
+				<div class="tooltip">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bold" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M7 5h6a3.5 3.5 0 0 1 0 7h-6z" />
+                        <path d="M13 12h1a3.5 3.5 0 0 1 0 7h-7v-7" />
+                      </svg>
+                    <span class="tooltiptext">Bold text</span>
 				</div>
-				<div text-hover="Italicise text">
-					<object type="image/svg+xml" data="models/icons/italic.svg" alt="Italics" id="italicsIcon"></object>
+				<div  class="tooltip">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-italic" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <line x1="11" y1="5" x2="17" y2="5" />
+                        <line x1="7" y1="19" x2="13" y2="19" />
+                        <line x1="14" y1="5" x2="10" y2="19" />
+                      </svg>
+                    <span class="tooltiptext">Italicise text</span>
 				</div>
-				<div text-hover="Underline text">
-					<object type="image/svg+xml" data="models/icons/underline.svg" alt="Underline"
-						id="underlineIcon"></object>
+				<div  class="tooltip">
+					<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-underline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M7 5v5a5 5 0 0 0 10 0v-5" />
+                        <path d="M5 19h14" />
+                      </svg>
+                        <span class="tooltiptext">Underline text</span>
 				</div>
 				<div class='psuedoButton'>
-					<div text-hover="Text colour">
-						<object type="image/svg+xml" data="models/icons/palette.svg" alt="Colour Picker"
-							id="paletteIcon"></object>
-						<input type="color" id="colourPicker">
+					<div class="tooltip">
+						<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-palette" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M12 21a9 9 0 1 1 0 -18a9 8 0 0 1 9 8a4.5 4 0 0 1 -4.5 4h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25" />
+                            <circle cx="7.5" cy="10.5" r=".5" fill="currentColor" />
+                            <circle cx="12" cy="7.5" r=".5" fill="currentColor" />
+                            <circle cx="16.5" cy="10.5" r=".5" fill="currentColor" />
+                          </svg>
+                          
+						<input type="color" id="colourPicker" value="currentColor">
+                        <span class="tooltiptext">Colour text</span>
 					</div>
 				</div>
 			</div>
 		</div>
 
 		<div id="iconThree" horizontal layout>
-
+            <p>An editor for Yarn Spinner, lorem ipsum dolor sit</p>
+            <div><img src="views/YSLogo.png"></div>
 		</div>
 
-		<div id="iconFour" horizontal layout>
+		<!-- <div id="iconFour" horizontal layout>
 
-		</div>
+		</div> -->
 	</div>
 	<div class="parentLayout">
 		<div id="leftCont">
 			<div id="leftSideContainer">
 				<details id="workingFilesDetail">
 					<summary>Working files</summary>
-					<p>Samplefile.yarn</p>
-					<p>Samplefile2.yarn</p>
-				</details>
+                    <div><p>Samplefile.yarn</p><button>x</button></div>
+                    <div><p>Samplefile.yarn</p><button>x</button></div>
+                    <div><p>Samplefile.yarn</p><button>x</button></div>        
+                </details>
 			</div>
 		</div>
 
@@ -119,6 +143,10 @@
 			<div class="outerEditor">
 				<div class="tabNavigatorBar">
 					<div class="tabItem">
+						<p>samplefile.yarn </p>
+						<button class="closeButton">x</button>
+					</div>
+                    <div class="tabItem">
 						<p>samplefile.yarn </p>
 						<button class="closeButton">x</button>
 					</div>

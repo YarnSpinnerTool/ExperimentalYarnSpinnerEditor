@@ -124,6 +124,21 @@ if (containerElement)
         mouseWheelZoom: true,
         wordWrap: "on"
     });
+
+
+    //Override monaco's default commands to add our own
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_I, () => {
+        italicText?.click();
+    } );
+
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_U, () => {
+        underlineText?.click();
+    } );
+
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_B, () => {
+        boldText?.click();
+    } );
+
 }
 
 const workingFiles = document.getElementById("workingFilesDetail");
@@ -288,18 +303,19 @@ if (colourPick){
 }
 
 //Listen for editor commands
-window.addEventListener("IModelContentChangedEvent", (e) =>{
-	console.log("TEAEWQWRASD");
+window.addEventListener("keydown", (e) =>{
+    if (e.ctrlKey && e.key === "b"){
+        boldText?.click();//send bold click event
+    }
+
     //TODO remove the monaco commands that use these command combinations
     // if (e.ctrlKey && e.key === "i"){
     //     italicText?.click();
     // }
-    
+
     // if (e.ctrlKey && e.key === "u"){
     //     underlineText?.click();
     // }
-
-    // if filestate is unsaved { then check } 
 });
 
 

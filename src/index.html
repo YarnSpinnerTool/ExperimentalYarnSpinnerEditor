@@ -55,7 +55,7 @@
 					</svg>
 					<span class="tooltiptext">Open File</span>
 				</div>
-				<div class="tooltip">
+				<div id="searchFolderIcon" class="tooltip">
 					<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-search" width="24"
 						height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
 						stroke-linecap="round" stroke-linejoin="round">
@@ -76,15 +76,15 @@
 		<div id="iconTwo">
 			<p>Text Options</p>
 			<div id="textOptions">
-				<div class="tooltip">
+				<div id="boldTextIcon" class="tooltip">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bold" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                         <path d="M7 5h6a3.5 3.5 0 0 1 0 7h-6z" />
                         <path d="M13 12h1a3.5 3.5 0 0 1 0 7h-7v-7" />
                       </svg>
-                    <span class="tooltiptext">Bold text</span>
+                    <span class="tooltiptext">Bold text (ctrl + b)</span>
 				</div>
-				<div  class="tooltip">
+				<div id="italicTextIcon" class="tooltip">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-italic" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                         <line x1="11" y1="5" x2="17" y2="5" />
@@ -93,7 +93,7 @@
                       </svg>
                     <span class="tooltiptext">Italicise text</span>
 				</div>
-				<div  class="tooltip">
+				<div id="underlineTextIcon"  class="tooltip">
 					<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-underline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                         <path d="M7 5v5a5 5 0 0 0 10 0v-5" />
@@ -102,6 +102,8 @@
                         <span class="tooltiptext">Underline text</span>
 				</div>
 				<div class='psuedoButton'>
+                    <!-- TODO MAKE THIS ENTIRE SECTION A FORM POPUP, SO WE CAN ADD A CONFIRM BUTTON TO THE COLOUR  -->
+                    
 					<div class="tooltip">
 						<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-palette" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -110,7 +112,6 @@
                             <circle cx="12" cy="7.5" r=".5" fill="currentColor" />
                             <circle cx="16.5" cy="10.5" r=".5" fill="currentColor" />
                           </svg>
-                          
 						<input type="color" id="colourPicker" value="currentColor">
                         <span class="tooltiptext">Colour text</span>
 					</div>
@@ -132,9 +133,7 @@
 			<div id="leftSideContainer">
 				<details id="workingFilesDetail">
 					<summary>Working files</summary>
-                    <div><p>Samplefile.yarn</p><button>x</button></div>
-                    <div><p>Samplefile.yarn</p><button>x</button></div>
-                    <div><p>Samplefile.yarn</p><button>x</button></div>        
+                    <!-- <div><p>Samplefile.yarn</p><button id="0">x</button></div>      -->
                 </details>
 			</div>
 		</div>

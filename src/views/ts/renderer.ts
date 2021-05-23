@@ -126,6 +126,92 @@ if (containerElement)
     });
 }
 
+
+
+const workingFiles = document.getElementById("workingFilesDetail");
+
+if (workingFiles){
+    
+    var childrenOfWF = workingFiles.children;
+
+
+}
+
+
+
+/*
+    Generic function for inserting at the front and the end of a selection
+*/
+function wrapTextWithTag(textFront: String, textBack: String){
+
+        var selection = editor.getSelection() as monaco.IRange;
+        var selectFront = new monaco.Selection(selection.startLineNumber, selection.startColumn, selection.startLineNumber, selection.startColumn);
+        var selectBack = new monaco.Selection(selection.endLineNumber, selection.endColumn, selection.endLineNumber, selection.endColumn);
+
+
+        var frontString = textFront.concat("");//Needs to concat an empty character in order to set the cursor properly
+
+        //In this order, so when nothing is selected, textFront is prepended after textBack is inserted
+        editor.focus();//Set focus back to editor
+
+        editor.executeEdits("", [{range: selectBack, text: textBack as string}]);//Set textBack
+        editor.setPosition(new monaco.Position(selectFront.startLineNumber, selectFront.startColumn));//reset cursor to behind textFront input
+        editor.executeEdits("", [{range: selectFront, text: frontString as string}]);//Set textFront
+        editor.setSelection(new monaco.Selection(selection.startLineNumber, selection.startColumn + frontString.length, selection.startLineNumber, selection.startColumn + frontString.length));
+        //Reset collection to an empty range
+}
+
+
+//Set selection to BOLD
+const boldText = document.getElementById("boldTextIcon");
+if (boldText){
+    boldText.onclick = () => { wrapTextWithTag("[b]", "[\\b]"); };
+}
+
+//Set selection to Italics
+const italicText = document.getElementById("italicTextIcon");
+if (italicText){
+    italicText.onclick = () => { wrapTextWithTag("[i]", "[\\i]"); };
+}
+
+//Set selection to Underline
+const underlineText = document.getElementById("underlineTextIcon");
+if (underlineText){
+    underlineText.onclick = () => { wrapTextWithTag("[u]", "[\\u]"); };
+}
+
+//TODO Set selection to selected colour 
+const colourPick = document.getElementById("colourPicker");
+if (colourPick){
+    colourPick.onchange = () => {
+        var value = (colourPick as HTMLInputElement).value;
+
+        var startText = "[col=\'".concat(value.substr(1)).concat("\']");
+        var endText = "[\\col]";
+
+        wrapTextWithTag(startText, endText);
+        editor.focus();
+    }
+}
+
+//Listen for editor commands
+window.addEventListener("keydown", (e) =>{
+    if (e.ctrlKey && e.key === "b"){
+        boldText?.click();//send bold click event
+    }
+
+    //TODO remove the monaco commands that use these command combinations
+    // if (e.ctrlKey && e.key === "i"){
+    //     italicText?.click();
+    // }
+
+    // if (e.ctrlKey && e.key === "u"){
+    //     underlineText?.click();
+    // }
+});
+
+
+
 const saveFileIcon = document.getElementById("saveFileIcon");
 
 if (saveFileIcon) 

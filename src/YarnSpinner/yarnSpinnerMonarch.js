@@ -45,7 +45,7 @@ export const tokensWIP =
 
     //From section identifiers in the yarn spec.
     //A-Z, a-z, _, followed by an optional period, and then an optional second string of A-Z, a-z, _. '$' are not allowed
-    yarnIdentifier: /[a-z_]+[\.]*[a-z_]*/i,
+    yarnIdentifier: /[A-Za-z_]+[\.]*[A-Za-z_]*/,
   
     yarnFloat: /-?[\d]+\.[\d]+/,
     yarnInteger: /-?\d+/,

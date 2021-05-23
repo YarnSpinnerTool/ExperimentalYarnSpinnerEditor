@@ -39,7 +39,7 @@ x		interpolation
 //Exports configuration monaco/monarch tokenisation for Yarn Spinner
 export const tokensWIP = 
 {
-    defaultToken: "dialogue",
+    defaultToken: "invalid",
     tokenPostfix: ".yarn",
     includeLF: true, //Adds \n to end of each line
 
@@ -50,6 +50,7 @@ export const tokensWIP =
     yarnFloat: /-?[\d]+\.[\d]+/,
     yarnInteger: /-?\d+/,
     yarnOperator: /(is|==|!=|<=|>=|>(?!>)|<|or|\|\||xor|\^|!|and|&&|\+|-|\*|\/|%)/,
+    dialogueSymbols: /[!@#%^&*\()\{}\\\|<>?/~`]/,
 
     yarnKeywords: ["as","true","false"],
     yarnTypeKeywords: [ "Boolean", "String", "Number"],
@@ -90,11 +91,11 @@ export const tokensWIP =
             { include: 'whitespace'},
 
             //Per Yarn Spec: Title's tag text must follow identifier rules, and other header tags' names must follow identifier rules.
-            [ /Title:@yarnIdentifier/, 'title.tag'],
+            [ /Title:\s?@yarnIdentifier/, 'title.tag'],
             [ /@yarnIdentifier:.*\n/, 'header.tag' ],
             
             //Move to body once encountering the ---
-            { regex: /---/, action: { token: 'header.delimiter', next: '@body' } }
+            { regex: /^---\n/, action: { token: 'header.delimiter', next: '@body' } }
         ],
         body: 
         [
@@ -123,10 +124,11 @@ export const tokensWIP =
             //numbers, uncoloured in dialogue
             [/@yarnFloat/,"float"],
             [/@yarnInteger/,"number"],
+            [/@dialogueSymbols/,"symbol"],
             //[/@yarnOperator/, "operator"],//Does operator belong in body / dialogue?
             
             //End of node
-            { regex: /===/, action: { token: 'body.delimiter', next: '@popall' } }
+            { regex: /^===\n/, action: { token: 'body.delimiter', next: '@popall' } }
         ], 
         strings:
         [
@@ -170,10 +172,13 @@ export const tokensWIP =
             { regex: /\$/, action: { token: 'variables', next: '@variables'} },
 
             //Any text
-            [/[A-Za-z_$][\w$]*/, "options"],
+            [/[A-Za-z_$][\w$]*/, "dialogue"],
+            [/@yarnFloat/,"dialogue"],
+            [/@yarnInteger/,"dialogue"],
+            [/@dialogueSymbols/, "dialogue"],
             
             //Pop at new line character.
-            { regex: /\n/, action: {token: 'options', next: '@pop'}}
+            { regex: /\n/, action: {token: 'dialogue', next: '@pop'}}
         ],
 
         interpolation:
@@ -183,7 +188,10 @@ export const tokensWIP =
             
             //Any text
             [/[A-Za-z][\w$]*/, "interpolation"],
-            
+            [/@yarnFloat/,"options"],
+            [/@yarnInteger/,"options"],
+            [/@dialogueSymbols/, "options"],
+
             //Pop
             { regex: /}/, action: { token: "interpolation", next: "@pop" } }
         ],
@@ -217,7 +225,6 @@ export const config = {
 
     // Default typescript iLanguageDefinition
     // Set defaultToken to invalid to see what you do not tokenize yet
-    defaultToken: "invalid",
     wordPattern: /(-?\d*\.\d\w*)|([^`~!@#%^&*()\-=+[{\]}\\|;:'",.<>/?\s]+)/g,
 
     comments: {

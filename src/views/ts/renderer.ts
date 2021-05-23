@@ -46,6 +46,8 @@ import { ipcRenderer } from "electron";
 import exports from "../../controllers/themeReader.ts";
 
 const openFiles = new Map<number, YarnFileClass>();
+var currentOpenYarnFile: YarnFileClass;
+
 let editor: monaco.editor.IStandaloneCodeEditor;
 
 //Register our new custom language
@@ -139,12 +141,31 @@ if (containerElement)
         boldText?.click();
     } );
 
+
+    //Editor specific events
+    editor.onDidChangeModelContent(e => {
+
+        //Check the currentOpenYarnFile against the editor's value
+        if (currentOpenYarnFile.contents == editor.getValue()){
+            console.log("they are the same");
+            currentOpenYarnFile.isSaved = true;
+        }
+
+        else{
+            console.log("they are not the same");
+            currentOpenYarnFile.isSaved = false;
+        }
+
+    });
 }
 
+//Working file details specific events
 const workingFiles = document.getElementById("workingFilesDetail");
 
 if (workingFiles){
-	console.log("workingFilesExists");
+
+	//console.log("workingFilesExists");
+
     workingFiles.addEventListener('click', (event) => {
 		if(event && event.target && (event.target as HTMLButtonElement).tagName === "BUTTON"){
 
@@ -303,20 +324,9 @@ if (colourPick){
 }
 
 //Listen for editor commands
-window.addEventListener("keydown", (e) =>{
-    if (e.ctrlKey && e.key === "b"){
-        boldText?.click();//send bold click event
-    }
-
-    //TODO remove the monaco commands that use these command combinations
-    // if (e.ctrlKey && e.key === "i"){
-    //     italicText?.click();
-    // }
-
-    // if (e.ctrlKey && e.key === "u"){
-    //     underlineText?.click();
-    // }
-});
+// window.addEventListener("keydown", (e) =>{
+     //No more need for this at this stage
+// });
 
 
 
@@ -355,6 +365,9 @@ function createNewFile()
     console.log("IN CREATE NEW FILE");
     const newFile:YarnFileClass = new YarnFileClass(null, null, null, false, Date.now());
     openFiles.set(newFile.getUniqueIdentifier(), newFile);
+
+    currentOpenYarnFile = newFile;
+
     addFileToDisplay(newFile);
     editor.setValue(newFile.contents);
 }

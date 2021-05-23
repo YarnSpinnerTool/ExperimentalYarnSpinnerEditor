@@ -223,6 +223,8 @@ select{
     grid-column-start: 3;
     grid-column-end: 3;
     border-style: hidden;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 #iconFour{
     display: flex;

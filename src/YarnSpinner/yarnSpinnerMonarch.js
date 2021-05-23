@@ -50,7 +50,7 @@ export const tokensWIP =
     yarnFloat: /-?[\d]+\.[\d]+/,
     yarnInteger: /-?\d+/,
     yarnOperator: /(is|==|!=|<=|>=|>(?!>)|<|or|\|\||xor|\^|!|and|&&|\+|-|\*|\/|%)/,
-    dialogueSymbols: /[!@#%^&*\()\{}\\\|<>?/~`]/,
+    dialogueSymbols: /[:!@#%^&*\()\\\|<>?/~`]/,
 
     yarnKeywords: ["as","true","false"],
     yarnTypeKeywords: [ "Boolean", "String", "Number"],
@@ -122,9 +122,10 @@ export const tokensWIP =
             [/\[u\].*\[\\u\]/,"body.underline"],
             
             //numbers, uncoloured in dialogue
-            [/@yarnFloat/,"float"],
-            [/@yarnInteger/,"number"],
-            [/@dialogueSymbols/,"symbol"],
+            [/[A-Za-z_$][\w$]*/, "dialogue"],
+            [/@yarnFloat/,"dialogue"],
+            [/@yarnInteger/,"dialogue"],
+            [/@dialogueSymbols/,"dialogue"],
             //[/@yarnOperator/, "operator"],//Does operator belong in body / dialogue?
             
             //End of node
@@ -170,6 +171,7 @@ export const tokensWIP =
             { regex: /<</, action: { token: 'commands', next: '@commands'} },
             { regex: /"/, action: { token: 'string', next: '@strings'} },
             { regex: /\$/, action: { token: 'variables', next: '@variables'} },
+            { regex: /\#/, action: {token: 'hashtag', next: '@hashtags'} },
 
             //Any text
             [/[A-Za-z_$][\w$]*/, "dialogue"],
@@ -214,7 +216,11 @@ export const tokensWIP =
             { include: 'comments' },//include the rules for comments
 
             //Any text that's not newline character
-            [/[^\n]/, "hashtag"],
+            [/[A-Za-z][\w$]*/, "hashtag"],
+            [/@yarnFloat/,"hashtag"],
+            [/@yarnInteger/,"hashtag"],
+            [/@dialogueSymbols/, "hashtag"],
+            
             { regex: /\n/, action: {token: 'hashtag', next: '@pop'}}
         ]
 

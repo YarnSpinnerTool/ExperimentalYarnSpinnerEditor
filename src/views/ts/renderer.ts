@@ -115,7 +115,7 @@ export class YarnFileManager {
 	}
 
 	createEmptyFile(): YarnFile {
-		const newFile: YarnFile = new YarnFile(null, null, null, false, Date.now());
+		const newFile: YarnFile = new YarnFile(null, null, null, Date.now());
 		this.addToFiles(newFile);
 		this.setCurrentOpenYarnFile(newFile.getUniqueIdentifier());
 
@@ -234,34 +234,31 @@ if (containerElement) {
 		boldText?.click();
 	});
 
-
 	//Editor specific events
 	editor.onDidChangeModelContent(e => {
+        
 
-		var workingDetailDiv = document.getElementById(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString()); //TODO change to ID
+		var workingDetailDiv = document.getElementById(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString()); 
 
-		var unsavedIdentifier = "*";
+        syncCurrentFile();//Update the contents at each point
+		var unsavedIdentifier = "*";//Can change to anything
 
 		if (workingDetailDiv) {
-			var paraElementContent = workingDetailDiv.children[0].innerHTML
-
-			//Check the currentOpenYarnFile against the editor's value
-
-			//Then appends the unsaved identifier if the file is not saved, and set's it to false
-			if (yarnFileManager.getCurrentOpenFile().getContents() === editor.getValue()) {
-				yarnFileManager.getCurrentOpenFile().setSaved(true);
-
-				if (paraElementContent.substr(paraElementContent.length - unsavedIdentifier.length) === unsavedIdentifier) {
+			var paraElementContent = workingDetailDiv.children[0].innerHTML//Access the paragraph text
+            
+            //Checks if it is not saved
+            if (yarnFileManager.getCurrentOpenFile().getSaved() === false){
+                if (paraElementContent.substr(paraElementContent.length - unsavedIdentifier.length) !== unsavedIdentifier) {
+                    workingDetailDiv.children[0].innerHTML = paraElementContent.concat(unsavedIdentifier); 
+				}
+            }
+            //Checks if it is saved
+            else if (yarnFileManager.getCurrentOpenFile().getSaved()) {
+                //check if it is saved, but still has the *
+                if (paraElementContent.substr(paraElementContent.length - unsavedIdentifier.length) === unsavedIdentifier) {
 					workingDetailDiv.children[0].innerHTML = paraElementContent.slice(0, - unsavedIdentifier.length);
 				}
-			}
-
-			else {
-				if (yarnFileManager.getCurrentOpenFile().getSaved()) {
-					yarnFileManager.getCurrentOpenFile().setSaved(false);
-					workingDetailDiv.children[0].innerHTML = paraElementContent.concat(unsavedIdentifier);
-				}
-			}
+            }
 		}
 	});
 
@@ -291,7 +288,13 @@ if (workingFiles) {
 
 			//Remove file from array
 			if (yarnFileManager.getFiles().size === 1) {
-				alert("Cannot delete the only file in work space.");
+				//TODO
+
+                /*
+                    Delete the current file, create a new one, because alerts break
+                    the window focus and half an hour of documentation searching
+                    resulting in nothing
+                */
 			}
 			else {
 				//TODO update currentOpenFile if deleted file is/was currentOpenFile
@@ -300,20 +303,15 @@ if (workingFiles) {
 				
 				var openfile = yarnFileManager.getCurrentOpenFile().getUniqueIdentifier();
 
-				console.log("Open file is: " + openfile + typeof openfile);
-				console.log("closing file is: " + fileIdentifier + typeof fileIdentifier);
-				
 				if (fileIdentifier === yarnFileManager.getCurrentOpenFile().getUniqueIdentifier()) {
-					console.log("removing current file")
-					//Remove file
+                    
 					yarnFileManager.removeFromFiles(fileIdentifier);
-					var arrayOfFiles = Array.from(yarnFileManager.getFiles().keys());
-					console.log(arrayOfFiles);
+					var arrayOfFiles = Array.from(yarnFileManager.getFiles().keys());//Get new list of files
 					yarnFileManager.setCurrentOpenYarnFile(arrayOfFiles[0]);
+
 					editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
 				}
 				else {
-					console.log("removing another file that shouldn't be the editor's content");
 					yarnFileManager.removeFromFiles(fileIdentifier);
 					editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
 				}
@@ -503,7 +501,7 @@ ipcRenderer.on("openFile", (event, path, contents, name) => {
 		name = "New File";
 	}
 
-	const openedFile = new YarnFile(path, contents, name, true, Date.now());
+	const openedFile = new YarnFile(path, contents, name, Date.now());
 	yarnFileManager.addToFiles(openedFile);
 	addFileToDisplay(openedFile);
 	yarnFileManager.setCurrentOpenYarnFile(openedFile.getUniqueIdentifier());

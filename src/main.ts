@@ -20,10 +20,10 @@ function createWindow()
 {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-        height: 540,
+        height: 545,
         width: 960,
         minHeight: 480,
-        minWidth: 480,
+        minWidth: 540,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -61,6 +61,7 @@ const template = [
         submenu: [
             { 
                 label: "New",
+                accelerator: "CmdOrCtrl+N",
                 click: async () =>
                 {
                     handleNewFile();
@@ -68,15 +69,28 @@ const template = [
             },
             {
                 label: "Open",
+                accelerator: "CmdOrCtrl+O",
                 click: async () => 
                 {
                     handleFileOpen();
                 }
             },
-            { label: "save" },
-            { label: "save as" },
-            { label: "import" },
-            { label: "export" },
+            { 
+                label: "save",
+                accelerator: "CmdOrCtrl+S",
+                click: async () =>
+                {
+                    handleFileSave();
+                }
+            },
+            { 
+                label: "save as",
+                accelerator: "CmdOrCtrl+Shift+S",
+                click: async () =>
+                {
+                    handleFileSaveAs();
+                }
+            },
             isMac ? { role: "close" } : { role: "quit" },
         ]
     },
@@ -91,8 +105,22 @@ const template = [
             { role: "cut" },
             { role: "paste" },
             { type: "separator" },
-            { label: "find" },
-            { label: "replace" },
+            { 
+                label: "find",
+                accelerator: "CmdOrCtrl+F",
+                click: async () =>
+                {
+                    handleFind();
+                } 
+            },
+            { 
+                label: "replace",
+                accelerator: "CmdOrCtrl+R",
+                click: async () =>
+                {
+                    handleReplace();
+                } 
+            },
             ...(isMac ?
                 [
                     { role: "pasteAndMatchStyle" },
@@ -145,6 +173,7 @@ const template = [
             ])
         ]
     },
+    // optionsMenu
     {
         label: "Options",
         submenu: [
@@ -239,6 +268,9 @@ ipcMain.on("fileSaveAsToMain", (event, filePath, contents) =>
 //BrowserWindow.getFocusedWindow()?.webContents.send("ChannelMessage", args);
 //This should ONLY be used for menu interaction
 
+//File Options
+//----------------------------
+
 /**
  * Emits message to renderer to create new file.
  * 
@@ -262,4 +294,48 @@ function handleFileOpen()
     {
         BrowserWindow.getFocusedWindow()?.webContents.send("openFile", fileContent.path, fileContent.contents, fileContent.name); //Pass the result to renderer
     }
+} 
+
+/**
+ * Emits message to renderer to save the file.
+ * 
+ * @returns {void}
+ */
+function handleFileSave() 
+{
+    BrowserWindow.getFocusedWindow()?.webContents.send("saveFile"); 
 }
+
+/**
+ * Emits message to renderer to saveAs the file.
+ * 
+ * @returns {void}
+ */
+function handleFileSaveAs() 
+{
+    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestSaveAs"); 
+}
+
+//Edit Options
+//----------------------------
+
+/**
+ * Emits message to renderer to find the selected code within the file.
+ * 
+ * @returns {void}
+ */
+function handleFind() 
+{
+    BrowserWindow.getFocusedWindow()?.webContents.send("findInFile"); 
+}
+
+/**
+ * Emits message to renderer to replace the selected code within the file.
+ * 
+ * @returns {void}
+ */
+function handleReplace() 
+{
+    BrowserWindow.getFocusedWindow()?.webContents.send("ReplceInFile"); 
+}
+

@@ -180,9 +180,9 @@ monaco.editor.defineTheme("customTheme", {
     inherit: true,
     rules: [
         //{ background: 'CFD8DC'},
-        { token: "body.bold", fontStyle: "bold" },
-        { token: "body.underline", fontStyle: "underline" },
-        { token: "body.italic", fontStyle: "italic" },
+        { token: "body.bold", foreground: exports.default, fontStyle: "bold" },
+        { token: "body.underline", foreground: exports.default,  fontStyle: "underline" },
+        { token: "body.italic", foreground: exports.default,  fontStyle: "italic" },
 
         { token: "Commands", foreground: exports.commands},
         { token: "CommandsInternals", foreground: exports.commandsInternal },
@@ -194,7 +194,7 @@ monaco.editor.defineTheme("customTheme", {
         { token: "Comments", foreground: exports.comments },
         { token: "Default", foreground: exports.default },
         
-        { token: "Invalid", foreground: "000000", fontStyle: "italic" }
+        { token: "Invalid", foreground: "#931621"}
 
     ],
 
@@ -202,11 +202,11 @@ monaco.editor.defineTheme("customTheme", {
         "editor.foreground": exports.default,
         "editor.background": exports.editor,
         "editorCursor.foreground": exports.invertDefault,
-        "editor.lineHighlightBackground": exports.invertDefault,
+        //"editor.lineHighlightBackground": exports.invertDefault, //Removed from parameter
         "editorLineNumber.foreground": exports.default,
         "editor.selectionBackground": exports.invertDefault,
         "editor.inactiveSelectionBackground": exports.editor,
-        "minimap.background": exports.default
+        "minimap.background": exports.editorMinimap
     }
 });
 
@@ -233,7 +233,7 @@ const editor = monaco.editor.create(containerElement, {
     language: "yarnSpinner",
     automaticLayout: true,
     fontFamily: "Courier New",
-    fontSize: 14,
+    fontSize: 20,
     mouseWheelZoom: true,
     wordWrap: "on",
     renderLineHighlight: "none"

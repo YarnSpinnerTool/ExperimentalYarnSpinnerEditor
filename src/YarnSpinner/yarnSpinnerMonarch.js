@@ -119,10 +119,19 @@ export const tokensWIP =
 
             
             //When encountering the body delimiter, move to the file state.
-            [/\[b\].*\[\\b\]/,"body.bold"],
-            [/\[i\].*\[\\i\]/,"body.italic"],
-            [/\[u\].*\[\\u\]/,"body.underline"],
-            
+            //[/\[b\].*\[\\b\] /,"body.bold"],
+            [/\[b\](.*?)\[\\b\] /, "body.bold"],
+            [/\[i\](.*?)\[\\i\]/, "body.italic"],
+            [/\[u\](.*?)\[\\u\]/, "body.underline"],
+
+            /*
+                So had to make it non greedy, as if there was a single like with [b]BOLD[/b] notBold [b]BOLD[/b], it would be all be BOLD
+                This was due to the greedy .* (match any character, as many times as you can before closing bracket)
+                whilst adding ? to the greedy character, it makes it less greedy (or lazy depending on how you look at it)
+                Because of this, it is going to match the MINIMUM amount of characters needed to complete the match
+                    i.e., until the first closing bracket it finds, not the final one it can match
+            */
+
             //Words
             [/[A-Za-z_$][\w$]*/, "Default"],
             //Floats

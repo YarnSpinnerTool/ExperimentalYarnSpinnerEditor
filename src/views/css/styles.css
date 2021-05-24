@@ -41,7 +41,7 @@ img {
 }
 
 /* ! Hacky semantic fix, might be changed through changes to token provider */
-.mtki {
+.mtk7 {
     text-decoration-line: underline;
     text-decoration-style: wavy;
     text-decoration-color: red;

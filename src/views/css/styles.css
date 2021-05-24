@@ -41,12 +41,12 @@ img {
 }
 
 /* ! Hacky semantic fix, might be changed through changes to token provider */
-.mtk7 {
+/* .mtk8 {
     text-decoration-line: underline;
     text-decoration-style: wavy;
     text-decoration-color: red;
     text-decoration-thickness: 1px;
-}
+} */
 
 .tooltip {
 	position: relative;

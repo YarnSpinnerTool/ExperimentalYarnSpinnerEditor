@@ -216,7 +216,7 @@ document.documentElement.style.setProperty("--topSideEdit", exports.editor);
 document.documentElement.style.setProperty("--workingFile", exports.workingFile);
 document.documentElement.style.setProperty("--tabGap", exports.tabGap);
 document.documentElement.style.setProperty("--dividerColour", exports.invertDefault);
-document.documentElement.style.setProperty("--primary_text", exports.primary_text);
+document.documentElement.style.setProperty("--primary_text", exports.default);
 document.documentElement.style.setProperty("--secondary_text", exports.invertDefault);
 
 const containerElement = document.getElementById("container");

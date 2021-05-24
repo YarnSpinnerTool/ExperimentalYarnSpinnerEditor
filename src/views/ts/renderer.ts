@@ -89,7 +89,7 @@ export class YarnFile
 
 export class YarnFileManager 
 {
-	private openFiles = new Map<number, YarnFile>();
+	private openFiles = new Map<number, YarnFile>(); //Number is the representation of the uniqueIdentifier
 	private currentOpenYarnFile: YarnFile;
 
 	constructor() 
@@ -180,35 +180,33 @@ monaco.editor.defineTheme("customTheme", {
     inherit: true,
     rules: [
         //{ background: 'CFD8DC'},
-
         { token: "body.bold", fontStyle: "bold" },
         { token: "body.underline", fontStyle: "underline" },
         { token: "body.italic", fontStyle: "italic" },
-        { token: "body.commands", foreground: exports.commands },
-        { token: "commands", foreground: exports.commands },
-        { token: "file.tag", foreground: exports.fileTag },
-        { token: "interpolation", foreground: exports.interpolation },
-        { token: "options", foreground: exports.option },
-        { token: "variables", foreground: exports.variables },
-        { token: "float", foreground: exports.float },
-        { token: "number", foreground: exports.number },
-        { token: "yarn.commands", foreground: exports.yarnCommands },
-        { token: "commands.float", foreground: exports.commands },
-        { token: "commands.number", foreground: exports.commands },
-        { token: "commands.operator", foreground: exports.operator },
-        { token: "hashtag", foreground: exports.hashtag },
-        { token: "dialogue", foreground: exports.primary_text }
+
+        { token: "Commands", foreground: exports.commands},
+        { token: "CommandsInternal", foreground: exports.commandsInternal },
+        { token: "VarAndNum", foreground: exports.varAndNum },
+        { token: "Options", foreground: exports.options },
+        { token: "Interpolation", foreground: exports.interpolation },
+        { token: "Strings", foreground: exports.strings },
+        { token: "Metadata", foreground: exports.metadata },
+        { token: "Comments", foreground: exports.comments },
+        { token: "Default", foreground: exports.default },
+        
+        { token: "Invalid", foreground: "000000", fontStyle: "italic" }
+
     ],
 
     colors: {
-        "editor.foreground": exports.primary_text,
+        "editor.foreground": exports.default,
         "editor.background": exports.editor,
-        "editorCursor.foreground": exports.workingFile,
-        "editor.lineHighlightBackground": exports.lineSelection,
-        "editorLineNumber.foreground": exports.primary_text,
-        "editor.selectionBackground": exports.lineSelection,
+        "editorCursor.foreground": exports.default,
+        "editor.lineHighlightBackground": exports.default,
+        "editorLineNumber.foreground": exports.default,
+        "editor.selectionBackground": exports.invertDefault,
         "editor.inactiveSelectionBackground": exports.editor,
-        "minimap.background": exports.lineSelection
+        "minimap.background": exports.default
     }
 });
 
@@ -217,9 +215,9 @@ document.documentElement.style.setProperty("--editor", exports.editor);
 document.documentElement.style.setProperty("--topSideEdit", exports.editor);
 document.documentElement.style.setProperty("--workingFile", exports.workingFile);
 document.documentElement.style.setProperty("--tabGap", exports.tabGap);
-document.documentElement.style.setProperty("--dividerColour", exports.divideColour);
+document.documentElement.style.setProperty("--dividerColour", exports.invertDefault);
 document.documentElement.style.setProperty("--primary_text", exports.primary_text);
-document.documentElement.style.setProperty("--secondary_text", exports.secondary_text);
+document.documentElement.style.setProperty("--secondary_text", exports.invertDefault);
 
 const containerElement = document.getElementById("container");
 
@@ -238,6 +236,7 @@ const editor = monaco.editor.create(containerElement, {
     fontSize: 14,
     mouseWheelZoom: true,
     wordWrap: "on"
+
 });
 
 //Instantiate with new empty file
@@ -262,7 +261,7 @@ editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_B, () =>
 //Editor specific events
 editor.onDidChangeModelContent(() => 
 {
-    const workingDetailDiv = document.getElementById(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString());
+    const workingDetailDiv = document.getElementById( yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString() );
 
     syncCurrentFile();//Update the contents at each point
     const unsavedIdentifier = "*";//Can change to anything
@@ -297,7 +296,6 @@ const workingFiles = document.getElementById("workingFilesDetail");
 
 if (workingFiles) 
 {
-
     //Set the intiated new empty file into working space
     addFileToDisplay(yarnFileManager.getCurrentOpenFile());
     editor.updateOptions({ readOnly: false });
@@ -305,6 +303,7 @@ if (workingFiles)
     //Add all listeners
     workingFiles.addEventListener("click", (event) => 
     {
+        //Button clicked event
         if (event && event.target && (event.target as HTMLElement).tagName === "BUTTON") 
         {
             //Get file ID information and HTML elements
@@ -347,6 +346,7 @@ if (workingFiles)
             //Remove the HTML elements from working files
             parentDiv.parentElement?.removeChild(parentDiv);
         }
+
         else if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY") 
         {
             let fileIdentifier: number;

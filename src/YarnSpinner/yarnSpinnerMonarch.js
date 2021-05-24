@@ -86,7 +86,7 @@ export const tokensWIP =
         fileheader: 
         [
             //File tags
-            [ /\#.*\n/, "Default" ],
+            [ /\#.*\n/, "Metadata" ],
 
             { include: "comments" },
             { include: "whitespace"},
@@ -95,11 +95,11 @@ export const tokensWIP =
             [ /Title:\s?@yarnIdentifier/, "Default"],
             
             //Header Tags
-            [ /@yarnIdentifier:.*\n/, "MetaData" ],
+            [ /@yarnIdentifier:.*\n/, "Metadata" ],
             
             //Header Delimiter
             //Move to body once encountering the ---
-            { regex: /^---\n/, action: { token: "Default", next: "@body" } }
+            { regex: /---\n/, action: { token: "Default", next: "@body" } }
         ],
         body: 
         [
@@ -148,7 +148,7 @@ export const tokensWIP =
             { regex: /{/, action: { token: "Interpolation", next: "@interpolation" } },
             { regex: /"/, action: { token: "Strings", next: "@strings"} },
             { regex: /\$/, action: { token: "VarAndNum", next: "@variables"} },
-            
+            { include: "whitespace"},
             //Numbers, coloured dark pink in commands.
             [/@yarnFloat/,"VarAndNum"],
             [/@yarnInteger/,"VarAndNum"],
@@ -180,6 +180,8 @@ export const tokensWIP =
             { regex: /"/, action: { token: "Strings" , next: "@strings"} },
             //Hashtags
             { regex: /\#/, action: {token: "Metadata", next: "@hashtags"} },
+            
+            [/[ \t\r]+/, ""],
 
             //Any text
             [/[A-Za-z_$][\w$]*/, "Default"],
@@ -197,7 +199,7 @@ export const tokensWIP =
         [
             //Embedded variables.
             { regex: /\$/, action: { token: "VarAndNum", next: "@variables"} },
-            
+            { include: "whitespace"},
             //Any text
             [/[A-Za-z][\w$]*/, "Interpolation"],
             [/@yarnFloat/,"Interpolation"],
@@ -218,13 +220,13 @@ export const tokensWIP =
         variables:
         [
             //Variables can only be one word, so they pop at the end.
-            { regex: /@yarnIdentifier/, action: { token: "Variables", next: "@pop" } },
-            { regex: / /, action: { token: "Variables", next: "@pop" } }
+            { regex: /@yarnIdentifier/, action: { token: "VarAndNum", next: "@pop" } },
+            { regex: / /, action: { token: "VarAndNum", next: "@pop" } }
         ],
         hashtags:
         [
             { include: 'comments' },//include the rules for comments
-
+            { include: "whitespace"},
             //Any text that's not newline character
             [/[A-Za-z][\w$]*/, "Metadata"],
             [/@yarnFloat/,"Metadata"],

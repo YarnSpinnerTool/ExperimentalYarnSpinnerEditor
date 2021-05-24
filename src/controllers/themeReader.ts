@@ -1,6 +1,6 @@
 
 
-var template = {
+let template = {
     default: "",
     invertDefault: "",
 
@@ -18,7 +18,7 @@ var template = {
     editorMinimap: "",
     workingFile: "",
     tabGap: ""
-}
+};
 
 
 
@@ -27,7 +27,7 @@ var template = {
 
 
 //Original blue theme //! TODO
-var OGBlue = {
+let OGBlue = {
     default: "#000000",
     invertDefault: "#FFFFFF",
 
@@ -45,12 +45,12 @@ var OGBlue = {
     editorMinimap: "#d7dcde",
     workingFile: "#d5dee2",
     tabGap: "#546E7A"
-}
+};
 
 
 
 //Pink theme //TODO
-var Pink = {
+let Pink = {
     default: "#000000",
     invertDefault: "#FFFFFF",
 
@@ -68,11 +68,11 @@ var Pink = {
     editorMinimap: "#f5cece",
     workingFile: "#fce5e5",
     tabGap: "#ff7474"
-}
+};
 /**/
 
 //Night theme //TODO
-var Night = {
+let Night = {
     default: "#FFFFFF",
     invertDefault: "#000000",
 
@@ -94,7 +94,7 @@ var Night = {
 /**/
 
 //Wireframe theme //TODO
-var WireFrame = {
+let WireFrame = {
     default: "#000000",
     invertDefault: "#FFFFFF",
 
@@ -115,24 +115,29 @@ var WireFrame = {
 };
 /**/
 
-
-function getRandomInt(max) {
+/**
+ * getRandomInt
+ * @param max Randoms in range of 0 to Max
+ * @returns 
+ */
+function getRandomInt(max: Number) 
+{
     return Math.floor(Math.random() * max);
 }
 
-
-switch (getRandomInt(4)){
+switch (getRandomInt(4))
+{
     case 0: 
-        module.exports = OGBlue; 
-        break;
+    module.exports = OGBlue; 
+    break;
     case 1:
-        module.exports = Pink;
-        break;
+    module.exports = Pink;
+    break;
     case 2:
-        module.exports = Night;
-        break;
+    module.exports = Night;
+    break;
     default:
-        module.exports = WireFrame;
+    module.exports = WireFrame;
 }
 
 //module.exports = OGBlue;

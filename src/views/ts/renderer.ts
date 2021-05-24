@@ -183,33 +183,30 @@ monaco.editor.defineTheme("customTheme", {
         { token: "body.bold", fontStyle: "bold" },
         { token: "body.underline", fontStyle: "underline" },
         { token: "body.italic", fontStyle: "italic" },
-        { token: "body.commands", foreground: exports.commands },
-        { token: "commands", foreground: exports.commands },
-        { token: "file.tag", foreground: exports.fileTag },
-        { token: "interpolation", foreground: exports.interpolation },
-        { token: "options", foreground: exports.option },
-        { token: "variables", foreground: exports.variables },
-        { token: "float", foreground: exports.float },
-        { token: "number", foreground: exports.number },
-        { token: "yarn.commands", foreground: exports.yarnCommands },
-        { token: "commands.float", foreground: exports.commands },
-        { token: "commands.number", foreground: exports.commands },
-        { token: "commands.operator", foreground: exports.operator },
-        { token: "hashtag", foreground: exports.hashtag },
-        { token: "dialogue", foreground: exports.primary_text },
-        {token: "invalid", foreground: "000000", fontStyle: "italic"}
+
+        { token: "Commands", foreground: exports.commands},
+        { token: "CommandsInternal", foreground: exports.commandsInternal },
+        { token: "VarAndNum", foreground: exports.varAndNum },
+        { token: "Options", foreground: exports.options },
+        { token: "Interpolation", foreground: exports.interpolation },
+        { token: "Strings", foreground: exports.strings },
+        { token: "Metadata", foreground: exports.metadata },
+        { token: "Comments", foreground: exports.comments },
+        { token: "Default", foreground: exports.default },
+        
+        { token: "Invalid", foreground: "000000", fontStyle: "italic" }
 
     ],
 
     colors: {
-        "editor.foreground": exports.primary_text,
+        "editor.foreground": exports.default,
         "editor.background": exports.editor,
-        "editorCursor.foreground": "22FF55",
-        "editor.lineHighlightBackground": exports.primary_text,
-        "editorLineNumber.foreground": exports.primary_text,
-        "editor.selectionBackground": exports.lineSelection,
+        "editorCursor.foreground": exports.default,
+        "editor.lineHighlightBackground": exports.default,
+        "editorLineNumber.foreground": exports.default,
+        "editor.selectionBackground": exports.invertDefault,
         "editor.inactiveSelectionBackground": exports.editor,
-        "minimap.background": exports.lineSelection
+        "minimap.background": exports.default
     }
 });
 
@@ -218,9 +215,9 @@ document.documentElement.style.setProperty("--editor", exports.editor);
 document.documentElement.style.setProperty("--topSideEdit", exports.editor);
 document.documentElement.style.setProperty("--workingFile", exports.workingFile);
 document.documentElement.style.setProperty("--tabGap", exports.tabGap);
-document.documentElement.style.setProperty("--dividerColour", exports.divideColour);
+document.documentElement.style.setProperty("--dividerColour", exports.invertDefault);
 document.documentElement.style.setProperty("--primary_text", exports.primary_text);
-document.documentElement.style.setProperty("--secondary_text", exports.secondary_text);
+document.documentElement.style.setProperty("--secondary_text", exports.invertDefault);
 
 const containerElement = document.getElementById("container");
 

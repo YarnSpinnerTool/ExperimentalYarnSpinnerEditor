@@ -81,6 +81,6 @@ module.exports = {
     divideColour: "#2c2c2c",
     lineSelection: "#a5a5a5"
 
-}
+};
 /**/
 

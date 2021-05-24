@@ -61,7 +61,7 @@ const template = [
         submenu: [
             { 
                 label: "New",
-                accelerator: 'CmdOrCtrl+N',
+                accelerator: "CmdOrCtrl+N",
                 click: async () =>
                 {
                     handleNewFile();
@@ -69,7 +69,7 @@ const template = [
             },
             {
                 label: "Open",
-                accelerator: 'CmdOrCtrl+O',
+                accelerator: "CmdOrCtrl+O",
                 click: async () => 
                 {
                     handleFileOpen();
@@ -77,7 +77,7 @@ const template = [
             },
             { 
                 label: "save",
-                accelerator: 'CmdOrCtrl+S',
+                accelerator: "CmdOrCtrl+S",
                 click: async () =>
                 {
                     handleFileSave();
@@ -85,7 +85,7 @@ const template = [
             },
             { 
                 label: "save as",
-                accelerator: 'CmdOrCtrl+Shift+S',
+                accelerator: "CmdOrCtrl+Shift+S",
                 click: async () =>
                 {
                     handleFileSaveAs();
@@ -107,7 +107,7 @@ const template = [
             { type: "separator" },
             { 
                 label: "find",
-                accelerator: 'CmdOrCtrl+F',
+                accelerator: "CmdOrCtrl+F",
                 click: async () =>
                 {
                     handleFind();
@@ -115,7 +115,7 @@ const template = [
             },
             { 
                 label: "replace",
-                accelerator: 'CmdOrCtrl+R',
+                accelerator: "CmdOrCtrl+R",
                 click: async () =>
                 {
                     handleReplace();
@@ -286,56 +286,56 @@ function handleNewFile()
  * 
  * @returns {void}
  */
- function handleFileOpen() 
- {
-     //Sends message from main to renderer
-     const fileContent = YarnOpenFile();
-     if(fileContent) 
-     {
-         BrowserWindow.getFocusedWindow()?.webContents.send("openFile", fileContent.path, fileContent.contents, fileContent.name); //Pass the result to renderer
-     }
- } 
+function handleFileOpen() 
+{
+    //Sends message from main to renderer
+    const fileContent = YarnOpenFile();
+    if(fileContent) 
+    {
+        BrowserWindow.getFocusedWindow()?.webContents.send("openFile", fileContent.path, fileContent.contents, fileContent.name); //Pass the result to renderer
+    }
+} 
 
 /**
  * Emits message to renderer to save the file.
  * 
  * @returns {void}
  */
- function handleFileSave() 
- {
-     BrowserWindow.getFocusedWindow()?.webContents.send("saveFile"); 
- }
+function handleFileSave() 
+{
+    BrowserWindow.getFocusedWindow()?.webContents.send("saveFile"); 
+}
 
- /**
+/**
  * Emits message to renderer to saveAs the file.
  * 
  * @returns {void}
  */
-  function handleFileSaveAs() 
-  {
-      BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestSaveAs"); 
-  }
+function handleFileSaveAs() 
+{
+    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestSaveAs"); 
+}
 
 //Edit Options
 //----------------------------
 
- /**
+/**
  * Emits message to renderer to find the selected code within the file.
  * 
  * @returns {void}
  */
-  function handleFind() 
-  {
-      BrowserWindow.getFocusedWindow()?.webContents.send("findInFile"); 
-  }
+function handleFind() 
+{
+    BrowserWindow.getFocusedWindow()?.webContents.send("findInFile"); 
+}
 
- /**
+/**
  * Emits message to renderer to replace the selected code within the file.
  * 
  * @returns {void}
  */
-   function handleReplace() 
-   {
-       BrowserWindow.getFocusedWindow()?.webContents.send("ReplceInFile"); 
-   }
+function handleReplace() 
+{
+    BrowserWindow.getFocusedWindow()?.webContents.send("ReplceInFile"); 
+}
 

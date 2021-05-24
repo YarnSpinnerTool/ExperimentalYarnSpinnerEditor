@@ -7,35 +7,10 @@
 
 /* Currently unable to import .ts file into renderer, likely a webpack issue. https://webpack.js.org/guides/typescript/
  * Monaco Custom Language Documentation: https://microsoft.github.io/monaco-editor/playground.html#extending-language-services-custom-languages
- * Yarn Spinner Documentation: https://yarnspinner.dev/docs/syntax/
  * JS RegExp Documentation: https://www.w3schools.com/jsref/jsref_obj_regexp.asp
  * Typescript TokensProvider: https://github.com/microsoft/monaco-languages/blob/main/src/typescript/typescript.ts
  */
 import * as monaco from 'monaco-editor';
-
-/*
-file
-
-header
-
-body
-	commands
-x		strings
-x		keywords
-x		variables
-x		numbers 
-x		operators
-		>> pop
-	options
-x		text
-x		interpolation
-x		commands
-		3
-	dialogue
-x		commands
-x		interpolation
-*/
-
 //Exports configuration monaco/monarch tokenisation for Yarn Spinner
 export const tokensWIP = 
 {
@@ -376,6 +351,20 @@ export const completions = {
             documentation: 'Create new node',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }];
+        
+        var word = "test" //model.getValueInRange({startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
+        
+        var match = word.match(/[A-Za-z_]+[\.]*[A-Za-z_]*/);
+        
+        if(match)
+        {
+            suggestions.push(
+                {label: word, 
+                kind: monaco.languages.CompletionItemKind.Snippet,
+                insertText: word,
+                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,}
+                );
+        } 
         return { suggestions: suggestions };
     }
 };

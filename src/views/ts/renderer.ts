@@ -89,7 +89,7 @@ export class YarnFile
 
 export class YarnFileManager 
 {
-	private openFiles = new Map<number, YarnFile>();
+	private openFiles = new Map<number, YarnFile>(); //Number is the representation of the uniqueIdentifier
 	private currentOpenYarnFile: YarnFile;
 
 	constructor() 
@@ -180,7 +180,6 @@ monaco.editor.defineTheme("customTheme", {
     inherit: true,
     rules: [
         //{ background: 'CFD8DC'},
-
         { token: "body.bold", fontStyle: "bold" },
         { token: "body.underline", fontStyle: "underline" },
         { token: "body.italic", fontStyle: "italic" },
@@ -197,14 +196,16 @@ monaco.editor.defineTheme("customTheme", {
         { token: "commands.number", foreground: exports.commands },
         { token: "commands.operator", foreground: exports.operator },
         { token: "hashtag", foreground: exports.hashtag },
-        { token: "dialogue", foreground: exports.primary_text }
+        { token: "dialogue", foreground: exports.primary_text },
+        {token: "invalid", foreground: "000000", fontStyle: "italic"}
+
     ],
 
     colors: {
         "editor.foreground": exports.primary_text,
         "editor.background": exports.editor,
-        "editorCursor.foreground": exports.workingFile,
-        "editor.lineHighlightBackground": exports.lineSelection,
+        "editorCursor.foreground": "22FF55",
+        "editor.lineHighlightBackground": exports.primary_text,
         "editorLineNumber.foreground": exports.primary_text,
         "editor.selectionBackground": exports.lineSelection,
         "editor.inactiveSelectionBackground": exports.editor,
@@ -238,6 +239,7 @@ const editor = monaco.editor.create(containerElement, {
     fontSize: 14,
     mouseWheelZoom: true,
     wordWrap: "on"
+
 });
 
 //Instantiate with new empty file
@@ -262,7 +264,7 @@ editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_B, () =>
 //Editor specific events
 editor.onDidChangeModelContent(() => 
 {
-    const workingDetailDiv = document.getElementById(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString());
+    const workingDetailDiv = document.getElementById( yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString() );
 
     syncCurrentFile();//Update the contents at each point
     const unsavedIdentifier = "*";//Can change to anything
@@ -297,7 +299,6 @@ const workingFiles = document.getElementById("workingFilesDetail");
 
 if (workingFiles) 
 {
-
     //Set the intiated new empty file into working space
     addFileToDisplay(yarnFileManager.getCurrentOpenFile());
     editor.updateOptions({ readOnly: false });
@@ -305,6 +306,7 @@ if (workingFiles)
     //Add all listeners
     workingFiles.addEventListener("click", (event) => 
     {
+        //Button clicked event
         if (event && event.target && (event.target as HTMLElement).tagName === "BUTTON") 
         {
             //Get file ID information and HTML elements
@@ -347,6 +349,7 @@ if (workingFiles)
             //Remove the HTML elements from working files
             parentDiv.parentElement?.removeChild(parentDiv);
         }
+
         else if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY") 
         {
             let fileIdentifier: number;

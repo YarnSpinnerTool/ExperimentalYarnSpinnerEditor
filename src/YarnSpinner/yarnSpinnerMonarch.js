@@ -120,9 +120,9 @@ export const tokensWIP =
             
             //When encountering the body delimiter, move to the file state.
             //[/\[b\].*\[\\b\] /,"body.bold"],
-            [/\[b\](.*?)\[\\b\] /, "body.bold"],
-            [/\[i\](.*?)\[\\i\]/, "body.italic"],
-            [/\[u\](.*?)\[\\u\]/, "body.underline"],
+            [/\[b\].*?\[\\b\]/, "body.bold"],
+            [/\[i\].*?\[\\i\]/, "body.italic"],
+            [/\[u\].*?\[\\u\]/, "body.underline"],
 
             /*
                 So had to make it non greedy, as if there was a single like with [b]BOLD[/b] notBold [b]BOLD[/b], it would be all be BOLD

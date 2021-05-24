@@ -39,7 +39,7 @@ x		interpolation
 //Exports configuration monaco/monarch tokenisation for Yarn Spinner
 export const tokensWIP = 
 {
-    defaultToken: "invalid",
+    defaultToken: "Invalid",
     tokenPostfix: ".yarn",
     includeLF: true, //Adds \n to end of each line
 
@@ -49,7 +49,7 @@ export const tokensWIP =
   
     yarnFloat: /-?[\d]+\.[\d]+/,
     yarnInteger: /-?\d+/,
-    yarnOperator: /(is|==|!=|<=|>=|>(?!>)|<|or|\|\||xor|\^|!|and|&&|\+|-|\*|\/|%)/,
+    yarnOperator: /(is|==|!=|<=|>=|>(?!>)|<|or|\|\||xor|\^|!|and|&&|\+|-|\*|\/|%|=)/,
     dialogueSymbols: /[:!@#%^&*\()\\\|<>?/~`]/,
 
     yarnKeywords: ["as","true","false"],
@@ -85,35 +85,37 @@ export const tokensWIP =
     {    
         fileheader: 
         [
-            //File tags, comments
-            [ /\#.*\n/, "file.tag" ],
-            { include: 'comments' },
-            { include: 'whitespace'},
+            //File tags
+            [ /\#.*\n/, "Default" ],
+
+            { include: "comments" },
+            { include: "whitespace"},
 
             //Per Yarn Spec: Title's tag text must follow identifier rules, and other header tags' names must follow identifier rules.
-            [ /Title:\s?@yarnIdentifier/, 'title.tag'],
-            [ /@yarnIdentifier:.*\n/, 'header.tag' ],
+            [ /Title:\s?@yarnIdentifier/, "Default"],
             
+            //Header Tags
+            [ /@yarnIdentifier:.*\n/, "MetaData" ],
+            
+            //Header Delimiter
             //Move to body once encountering the ---
-            { regex: /^---\n/, action: { token: 'header.delimiter', next: '@body' } }
+            { regex: /^---\n/, action: { token: "Default", next: "@body" } }
         ],
         body: 
         [
-            { include: 'comments' },
-            { include: 'whitespace'},
+            { include: "comments" },
+            { include: "whitespace"},
             
             //Interpolation
-            { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
+            { regex: /{/, action: { token: "Interpolation", next: "@interpolation" } },
             //Strings
-            { regex: /"/, action: { token: 'string', next: '@strings'} },
+            { regex: /"/, action: { token: "Strings", next: "@strings"} },
             //Options
-            { regex: /->/, action: { token: 'options', next: '@options'} },
+            { regex: /->/, action: { token: "Options", next: "@options"} },
             //Commands
-            { regex: /<</, action: { token: 'commands', next: '@commands'} },
-            //Variables
-            { regex: /\$/, action: { token: 'variables', next: '@variables'} },
-            //Hashtags - TODO move to dialogue
-            { regex: /\#/, action: {token: 'hashtag', next: '@hashtags'} },
+            { regex: /<</, action: { token: "Commands", next: "@commands"} },
+            //Hashtags
+            { regex: /\#/, action: {token: "Metadata", next: "@hashtags"} },
 
             
             //When encountering the body delimiter, move to the file state.
@@ -121,85 +123,93 @@ export const tokensWIP =
             [/\[i\].*\[\\i\]/,"body.italic"],
             [/\[u\].*\[\\u\]/,"body.underline"],
             
-            //numbers, uncoloured in dialogue
-            [/[A-Za-z_$][\w$]*/, "dialogue"],
-            [/@yarnFloat/,"dialogue"],
-            [/@yarnInteger/,"dialogue"],
-            [/@dialogueSymbols/,"dialogue"],
+            //Words
+            [/[A-Za-z_$][\w$]*/, "Default"],
+            //Floats
+            [/@yarnFloat/,"Default"],
+            //Integer
+            [/@yarnInteger/,"Default"],
+            //Symbols
+            [/@dialogueSymbols/,"Default"],
             //[/@yarnOperator/, "operator"],//Does operator belong in body / dialogue?
             
+            //Body Delimiter
             //End of node
-            { regex: /^===\n/, action: { token: 'body.delimiter', next: '@popall' } }
+            { regex: /^===\n/, action: { token: "Default", next: "@popall" } }
         ], 
         strings:
         [
-            [/[^\"]+/, "string"],
-            [/"/, "string", "@pop"]
+            [/[^\"]+/, "Strings"],
+            [/"/, "Strings", "@pop"]
         ],
         commands:
         [
             //Embedded Interpolation, Strings, & Variables.
-            { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
-            { regex: /"/, action: { token: 'string', next: '@strings'} },
-            { regex: /\$/, action: { token: 'variables', next: '@variables'} },
+            { regex: /{/, action: { token: "Interpolation", next: "@interpolation" } },
+            { regex: /"/, action: { token: "Strings", next: "@strings"} },
+            { regex: /\$/, action: { token: "VarAndNum", next: "@variables"} },
             
             //Numbers, coloured dark pink in commands.
-            [/@yarnFloat/,"commands.float"],
-            [/@yarnInteger/,"commands.number"],
-            [/@yarnOperator/, "commands.operator"],
+            [/@yarnFloat/,"VarAndNum"],
+            [/@yarnInteger/,"VarAndNum"],
+            //Operators
+            [/@yarnOperator/, "CommandsInternals"],
 
-            
             //Words, can be specified commands, keywords, or types. (Dark pink)
             [/[A-Za-z_$][\w$]*/, { 
                 cases: 
                 {
-                "@yarnCommands": "yarn.commands",
-                "@yarnKeywords": "yarn.commands",
-                "@yarnTypeKeywords": "yarn.commands",
-                "@default": "commands"
+                "@yarnCommands": "CommandsInternals",
+                "@yarnKeywords": "CommandsInternals",
+                "@yarnTypeKeywords": "CommandsInternals",
+                "@default": "Commands"
                 }
             }
         ],
             //Pop when reaching close >> bracket.
-            { regex: />>/, action: {token: "commands", next: "@pop"} }
+            { regex: />>/, action: {token: "Commands", next: "@pop"} }
         ],
 
         options:
         [
-            //Embedded interpolation, strings, commands, variables.
-            { regex: /{/, action: { token: 'interpolation', next: '@interpolation' } },
-            { regex: /<</, action: { token: 'commands', next: '@commands'} },
-            { regex: /"/, action: { token: 'string', next: '@strings'} },
-            { regex: /\$/, action: { token: 'variables', next: '@variables'} },
-            { regex: /\#/, action: {token: 'hashtag', next: '@hashtags'} },
+            //Interpolation
+            { regex: /{/, action: { token: "Interpolation", next: "@interpolation" } },
+            //Commands
+            { regex: /<</, action: { token: "Commands", next: "@commands" } },
+            //Strings
+            { regex: /"/, action: { token: "Strings" , next: "@strings"} },
+            //Hashtags
+            { regex: /\#/, action: {token: "Metadata", next: "@hashtags"} },
 
             //Any text
-            [/[A-Za-z_$][\w$]*/, "dialogue"],
-            [/@yarnFloat/,"dialogue"],
-            [/@yarnInteger/,"dialogue"],
-            [/@dialogueSymbols/, "dialogue"],
+            [/[A-Za-z_$][\w$]*/, "Default"],
+            //Numbers
+            [/@yarnFloat/,"Default"],
+            [/@yarnInteger/,"Default"],
+            //Symbols
+            [/@dialogueSymbols/, "Default"],
             
             //Pop at new line character.
-            { regex: /\n/, action: {token: 'dialogue', next: '@pop'}}
+            { regex: /\n/, action: {token: "Default", next: "@pop"}}
         ],
 
         interpolation:
         [
             //Embedded variables.
-            { regex: /\$/, action: { token: 'variables', next: '@variables'} },
+            { regex: /\$/, action: { token: "VarAndNum", next: "@variables"} },
             
             //Any text
-            [/[A-Za-z][\w$]*/, "interpolation"],
-            [/@yarnFloat/,"options"],
-            [/@yarnInteger/,"options"],
-            [/@dialogueSymbols/, "options"],
+            [/[A-Za-z][\w$]*/, "Interpolation"],
+            [/@yarnFloat/,"Interpolation"],
+            [/@yarnInteger/,"Interpolation"],
+            [/@dialogueSymbols/, "Interpolation"],
 
             //Pop
-            { regex: /}/, action: { token: "interpolation", next: "@pop" } }
+            { regex: /}/, action: { token: "Interpolation", next: "@pop" } }
         ],
         comments:
         [
-            [/\/\/.*\n/, "comment"]
+            [/\/\/.*\n/, "Comments"]
         ],
         whitespace:
         [
@@ -208,20 +218,20 @@ export const tokensWIP =
         variables:
         [
             //Variables can only be one word, so they pop at the end.
-            { regex: /@yarnIdentifier/, action: { token: "variables", next: "@pop" } },
-            { regex: / /, action: { token: "variables", next: "@pop" } }
+            { regex: /@yarnIdentifier/, action: { token: "Variables", next: "@pop" } },
+            { regex: / /, action: { token: "Variables", next: "@pop" } }
         ],
         hashtags:
         [
             { include: 'comments' },//include the rules for comments
 
             //Any text that's not newline character
-            [/[A-Za-z][\w$]*/, "hashtag"],
-            [/@yarnFloat/,"hashtag"],
-            [/@yarnInteger/,"hashtag"],
-            [/@dialogueSymbols/, "hashtag"],
+            [/[A-Za-z][\w$]*/, "Metadata"],
+            [/@yarnFloat/,"Metadata"],
+            [/@yarnInteger/,"Metadata"],
+            [/@dialogueSymbols/, "Metadata"],
             
-            { regex: /\n/, action: {token: 'hashtag', next: '@pop'}}
+            { regex: /\n/, action: {token: "Metadata", next: "@pop"}}
         ]
 
     }

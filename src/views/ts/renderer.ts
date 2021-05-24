@@ -185,7 +185,7 @@ monaco.editor.defineTheme("customTheme", {
         { token: "body.italic", fontStyle: "italic" },
 
         { token: "Commands", foreground: exports.commands},
-        { token: "CommandsInternal", foreground: exports.commandsInternal },
+        { token: "CommandsInternals", foreground: exports.commandsInternal },
         { token: "VarAndNum", foreground: exports.varAndNum },
         { token: "Options", foreground: exports.options },
         { token: "Interpolation", foreground: exports.interpolation },
@@ -201,8 +201,8 @@ monaco.editor.defineTheme("customTheme", {
     colors: {
         "editor.foreground": exports.default,
         "editor.background": exports.editor,
-        "editorCursor.foreground": exports.default,
-        "editor.lineHighlightBackground": exports.default,
+        "editorCursor.foreground": exports.invertDefault,
+        "editor.lineHighlightBackground": exports.invertDefault,
         "editorLineNumber.foreground": exports.default,
         "editor.selectionBackground": exports.invertDefault,
         "editor.inactiveSelectionBackground": exports.editor,
@@ -235,7 +235,8 @@ const editor = monaco.editor.create(containerElement, {
     fontFamily: "Courier New",
     fontSize: 14,
     mouseWheelZoom: true,
-    wordWrap: "on"
+    wordWrap: "on",
+    renderLineHighlight: "none"
 
 });
 

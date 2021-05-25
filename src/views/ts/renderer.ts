@@ -579,6 +579,8 @@ ipcRenderer.on("mainRequestSaveAs", () =>
     saveAsEmitter();
 });
 
+ipcRenderer.on("mainRequestSave", 
+
 ipcRenderer.on("mainRequestNewFile", () => 
 {
     createNewFile();
@@ -612,17 +614,7 @@ ipcRenderer.on("gotPing", (event, arg) =>
  */
 function saveAsEmitter()
 {
-    ipcRenderer.send("fileSaveAsToMain", null, yarnFileManager.getCurrentOpenFile().getContents());
-}
-
-/**
- * Emits an event containing the the contents of the editor, instructing the main process to perform the Save function.
- * TODO implement this fully
- * @returns {void}
- */
-function saveEmitter() 
-{
-    ipcRenderer.send("fileSaveToMain", null, yarnFileManager.getCurrentOpenFile().getContents());
+    ipcRenderer.send("fileSaveAsToMain", yarnFileManager.getCurrentOpenFile().getPath(), yarnFileManager.getCurrentOpenFile().getContents());
 }
 
 /**

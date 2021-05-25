@@ -84,7 +84,7 @@ const template = [
                 }
             },
             { 
-                label: "save as",
+                label: "Save As",
                 accelerator: "CmdOrCtrl+Shift+S",
                 click: async () =>
                 {

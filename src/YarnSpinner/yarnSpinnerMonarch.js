@@ -290,32 +290,32 @@ export const completions = {
     provideCompletionItems: (model, position, context, token) => {
         var suggestions = [{
             label: 'jump',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Method,
             insertText: '<<jump $1>>',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'stop',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Method,
             insertText: '<<stop>>',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'set',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Method,
             insertText: '<<set \$$1 to $2>>',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'declare',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Method,
             insertText: '<<declare \$$1 = $2>>',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'declare-explicit',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Method,
             insertText: '<<declare \$$1 = $2 as $3>>',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'if-endif',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Interface,
             insertText: [
                 '<<if $1>>',
                 '\t$0',
@@ -324,7 +324,7 @@ export const completions = {
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'elseif',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Interface,
             insertText: [
                 '<<elseif $1>>',
                 '\t$0',
@@ -332,7 +332,7 @@ export const completions = {
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'else',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Interface,
             insertText: [
                 '<<else>>',
                 '\t$0',
@@ -341,7 +341,7 @@ export const completions = {
         }, {
             label: 'New node',
             filterText: 'Title',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Class,
             insertText: [
                 'Title: $1',
                 '---',

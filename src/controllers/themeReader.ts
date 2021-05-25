@@ -51,7 +51,7 @@ module.exports = {
     editor: "#CFD8DC",
     workingFile: "#d5dee2",
     tabGap: "#546E7A",
-}
+};
 /**/
 
 /*

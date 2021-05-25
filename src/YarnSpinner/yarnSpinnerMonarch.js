@@ -25,7 +25,7 @@ export const tokensWIP =
     yarnFloat: /-?[\d]+\.[\d]+/,
     yarnInteger: /-?\d+/,
     yarnOperator: /(is|==|!=|<=|>=|>(?!>)|<|or|\|\||xor|\^|!|and|&&|\+|-|\*|\/|%|=)/,
-    dialogueSymbols: /[:!@#%^&*\()\\\|<>?/~`]/,
+    dialogueSymbols: /[:!@#%^&*\()\\\|<>?/~`,]/,
 
     yarnKeywords: ["as","true","false"],
     yarnTypeKeywords: [ "Boolean", "String", "Number"],
@@ -287,7 +287,7 @@ export const theme = {
 };
 
 export const completions = {
-    provideCompletionItems: () => {
+    provideCompletionItems: (model, position, context, token) => {
         var suggestions = [{
             label: 'jump',
             kind: monaco.languages.CompletionItemKind.Snippet,
@@ -352,19 +352,51 @@ export const completions = {
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }];
         
-        var word = "test" //model.getValueInRange({startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
+        //Get all of the text in the editor
+        var text = model.getValueInRange({startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
         
-        var match = word.match(/[A-Za-z_]+[\.]*[A-Za-z_]*/);
+        //Regex for both titles and variables.
+        var nodesRegex = /Title:\s?[A-Za-z_]+[\.]*[A-Za-z_]*/;
+        var variablesRegex = /\$[A-Za-z_]+[\.]*[A-Za-z_]*/;
         
-        if(match)
+        // * FOR FINDING NODE TITLES
+        var nodes = text.match(nodesRegex);
+        if(nodes)
         {
-            suggestions.push(
-                {label: word, 
-                kind: monaco.languages.CompletionItemKind.Snippet,
-                insertText: word,
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,}
-                );
-        } 
+            //Iterate through the array of titles that match.
+            for(var i = 0; i < nodes.length; i++){ 
+                var word = nodes[i];
+                //Remove the "Title:"
+                word = word.replace("Title:","");
+                //Remove any spaces, for example "Title: nodeName"
+                //Can't use replace("Title: ","") as Title:nodeName is valid afaik.
+                word = word.replace(" ","");
+                //Add the word to the completion items.
+                suggestions.push(
+                    {label: word, 
+                    kind: monaco.languages.CompletionItemKind.Class,
+                    insertText: word
+                    }
+                    );
+            } 
+        }
+
+        // * FOR FINDING VARIABLES
+        var variables = text.match(variablesRegex);
+        if(variables){
+            //Iterate through the array of titles that match.
+            for(var i = 0; i < variables.length; i++){
+                //Add the word to the completion items.
+                var word = variables[i];
+                suggestions.push(
+                    {
+                    label: word, 
+                    kind: monaco.languages.CompletionItemKind.Property,
+                    insertText: word
+                    }
+                    );
+            }
+        }
         return { suggestions: suggestions };
     }
 };

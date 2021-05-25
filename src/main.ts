@@ -76,7 +76,7 @@ const template = [
                 }
             },
             { 
-                label: "save",
+                label: "Save",
                 accelerator: "CmdOrCtrl+S",
                 click: async () =>
                 {
@@ -106,7 +106,7 @@ const template = [
             { role: "paste" },
             { type: "separator" },
             { 
-                label: "find",
+                label: "Find",
                 accelerator: "CmdOrCtrl+F",
                 click: async () =>
                 {
@@ -114,8 +114,8 @@ const template = [
                 } 
             },
             { 
-                label: "replace",
-                accelerator: "CmdOrCtrl+R",
+                label: "Replace",
+                accelerator: "CmdOrCtrl+H",
                 click: async () =>
                 {
                     handleReplace();
@@ -124,7 +124,6 @@ const template = [
             ...(isMac ?
                 [
                     { role: "pasteAndMatchStyle" },
-                    { role: "delete" },
                     { role: "selectAll" },
                     { type: "separator" },
                     {
@@ -136,7 +135,6 @@ const template = [
                     }
                 ] :
                 [
-                    { role: "delete" },
                     { type: "separator" },
                     { role: "selectAll" }
                 ])
@@ -249,15 +247,12 @@ ipcMain.on("fileOpenToMain", () =>
     handleFileOpen();
 });
 
-ipcMain.on("fileSaveAsToMain", (event, filePath, contents) => 
+ipcMain.on("fileSaveToMain", (event, filePath, contents) => 
 {
-    YarnWriteFile(filePath, contents);
+    const result = YarnWriteFile(filePath, contents);
+
+    event.reply("fileSaveResponse", result.result, result.path, result.name);
 });
-
-// ipcMain.on("fileSaveToMain", (event, arg) => 
-// {
-
-// });
 
 /*
 	------------------------------------
@@ -303,7 +298,7 @@ function handleFileOpen()
  */
 function handleFileSave() 
 {
-    BrowserWindow.getFocusedWindow()?.webContents.send("saveFile"); 
+    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestSave"); 
 }
 
 /**
@@ -326,7 +321,7 @@ function handleFileSaveAs()
  */
 function handleFind() 
 {
-    BrowserWindow.getFocusedWindow()?.webContents.send("findInFile"); 
+    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestFind"); 
 }
 
 /**
@@ -336,6 +331,6 @@ function handleFind()
  */
 function handleReplace() 
 {
-    BrowserWindow.getFocusedWindow()?.webContents.send("ReplceInFile"); 
+    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestFindAndReplace"); 
 }
 

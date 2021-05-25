@@ -64,23 +64,23 @@ export class YarnFile
 	}
 
 	//Setters
-	setFilePath(filePath: string)  : void
+	setFilePath(filePath: string): void 
 	{
 	    this.filePath = filePath;
 	}
 
-	setName(name: string) : void
+	setName(name: string): void 
 	{
 	    this.fileName = name;
 	}
 
-	setContents(contents: string) : void
+	setContents(contents: string): void 
 	{
 	    this.contents = contents;
 	}
 
 	//Functions
-	fileSaved() : void
+	fileSaved(): void 
 	{
 	    this.contentsOnDisk = this.contents;
 	}
@@ -108,13 +108,13 @@ export class YarnFileManager
 	    return this.currentOpenYarnFile;
 	}
 
-	getYarnFile(yarnIDNumber: number) : YarnFile | undefined
+	getYarnFile(yarnIDNumber: number): YarnFile | undefined 
 	{
 	    return this.openFiles.get(yarnIDNumber);
 	}
 
 	//Setters
-	setCurrentOpenYarnFile(yarnIDNumber: number) : void
+	setCurrentOpenYarnFile(yarnIDNumber: number): void 
 	{
 	    const newCurrent = this.openFiles.get(yarnIDNumber);
 	    if (newCurrent) 
@@ -129,7 +129,7 @@ export class YarnFileManager
 	    this.openFiles.set(newFile.getUniqueIdentifier(), newFile);
 	}
 
-	removeFromFiles(yarnIDNumber: number) : void
+	removeFromFiles(yarnIDNumber: number): void 
 	{
 	    this.openFiles.delete(yarnIDNumber);
 	}
@@ -329,19 +329,19 @@ if (workingFiles)
                 editor.setValue("");
                 yarnFileManager.removeFromFiles(fileIdentifier);
                 const arrayOfFiles = Array.from(yarnFileManager.getFiles().keys());//Get new list of files
-				
-                if(arrayOfFiles.length)
-                {	
+
+                if (arrayOfFiles.length) 
+                {
                     yarnFileManager.setCurrentOpenYarnFile(arrayOfFiles[0]);
                     editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-                    editor.updateOptions({readOnly: false});
+                    editor.updateOptions({ readOnly: false });
                 }
             }
             else 
             {
                 yarnFileManager.removeFromFiles(fileIdentifier);
                 editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-                editor.updateOptions({readOnly: false});
+                editor.updateOptions({ readOnly: false });
             }
 
             //Remove the HTML elements from working files
@@ -454,36 +454,29 @@ if (colourPick)
     };
 }
 
-//Listen for editor commands
-// window.addEventListener("keydown", (e) =>{
-//No more need for this at this stage
-// });
-
-
-
 const saveFileIcon = document.getElementById("saveFileIcon");
 
 if (saveFileIcon) 
 {
-    saveFileIcon.onclick = () => { saveAsEmitter(); };
+    saveFileIcon.onclick = () => { saveEmitter(); };
 }
 
 const newFileIcon = document.getElementById("newFileIcon");
 if (newFileIcon) 
 {
-    newFileIcon.onclick = function () 
-    {
-        createNewFile();
-    };
+    newFileIcon.onclick = function () { createNewFile(); };
 }
 
 const openFolderIcon = document.getElementById("openFolderIcon");
 if (openFolderIcon) 
 {
-    openFolderIcon.onclick = function () 
-    {
-        openFileEmitter();
-    };
+    openFolderIcon.onclick = function () { openFileEmitter(); };
+}
+
+const findIcon = document.getElementById("searchFolderIcon");
+if (findIcon) 
+{
+    findIcon.onclick = function () { showFindDialog(); };
 }
 
 /**
@@ -562,15 +555,33 @@ ipcRenderer.on("openFile", (event, path, contents, name) =>
 });
 
 
-ipcRenderer.on("fileSaveResponse", (event, arg) => 
+ipcRenderer.on("fileSaveResponse", (event, response, filePath, fileName) => 
 {
-    if (arg) 
+    if (response) 
     {
-        alert("File saved successfully");
+        if (filePath) 
+        {
+            yarnFileManager.getCurrentOpenFile().setFilePath(filePath);
+        }
+
+        if (fileName) 
+        {
+            yarnFileManager.getCurrentOpenFile().setName(fileName);
+
+            const workingDetailDiv = document.getElementById(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString());
+
+            if (workingDetailDiv) 
+            {
+                workingDetailDiv.children[0].innerHTML = yarnFileManager.getCurrentOpenFile().getName();
+            }
+        }
+
+        yarnFileManager.getCurrentOpenFile().fileSaved();
+
     }
     else 
     {
-        alert("File save error occured");
+        console.error("File save error occured");
     }
 });
 
@@ -579,11 +590,24 @@ ipcRenderer.on("mainRequestSaveAs", () =>
     saveAsEmitter();
 });
 
-ipcRenderer.on("mainRequestSave", 
+ipcRenderer.on("mainRequestSave", () => 
+{
+    saveEmitter();
+});
 
 ipcRenderer.on("mainRequestNewFile", () => 
 {
     createNewFile();
+});
+
+ipcRenderer.on("mainRequestFind", () => 
+{
+    showFindDialog();
+});
+
+ipcRenderer.on("mainRequestFindAndReplace", () => 
+{
+    showFindAndReplaceDialog();
 });
 
 ipcRenderer.on("gotPing", (event, arg) => 
@@ -612,9 +636,19 @@ ipcRenderer.on("gotPing", (event, arg) =>
  * 
  * @returns {void}
  */
-function saveAsEmitter()
+function saveAsEmitter() 
 {
-    ipcRenderer.send("fileSaveAsToMain", yarnFileManager.getCurrentOpenFile().getPath(), yarnFileManager.getCurrentOpenFile().getContents());
+    ipcRenderer.send("fileSaveToMain", null, yarnFileManager.getCurrentOpenFile().getContents());
+}
+
+/**
+ * Emits an event containing the contents of the editor, instructing the main process to perform the Save As function.
+ * 
+ * @returns {void}
+ */
+function saveEmitter() 
+{
+    ipcRenderer.send("fileSaveToMain", yarnFileManager.getCurrentOpenFile().getPath(), yarnFileManager.getCurrentOpenFile().getContents());
 }
 
 /**
@@ -625,4 +659,26 @@ function saveAsEmitter()
 function openFileEmitter() 
 {
     ipcRenderer.send("fileOpenToMain");
+}
+
+/**
+ * Shows the Find dialog in the editor.
+ * 
+ * @returns {void}
+ */
+function showFindDialog() 
+{
+    editor.focus();
+    editor.trigger(null, "actions.find", null);
+}
+
+/**
+ * Shows the Find and Replace dialog in the editor.
+ * 
+ * @returns {void}
+ */
+function showFindAndReplaceDialog() 
+{
+    editor.focus();
+    editor.trigger(null, "editor.action.startFindReplaceAction", null);
 }

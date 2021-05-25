@@ -81,6 +81,7 @@ export const tokensWIP =
             { include: "comments" },
             { include: "whitespace"},
             
+            [/\\./, "Default"],
             //Interpolation
             { regex: /{/, action: { token: "Interpolation", next: "@interpolation" } },
             //Strings
@@ -201,7 +202,7 @@ export const tokensWIP =
         hashtags:
         [
             { include: 'comments' },//include the rules for comments
-            { include: "whitespace"},
+            [/[ \t\r]+/, ""],
             //Any text that's not newline character
             [/[A-Za-z][\w$]*/, "Metadata"],
             [/@yarnFloat/,"Metadata"],

@@ -20,7 +20,7 @@ export const tokensWIP =
 
     //From section identifiers in the yarn spec.
     //A-Z, a-z, _, followed by an optional period, and then an optional second string of A-Z, a-z, _. '$' are not allowed
-    yarnIdentifier: /[A-Za-z_]+[\.]*[A-Za-z_]*/,
+    yarnIdentifier: /[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/,
   
     yarnFloat: /-?[\d]+\.[\d]+/,
     yarnInteger: /-?\d+/,
@@ -355,10 +355,9 @@ export const completions = {
         
         //Get all of the text in the editor
         var text = model.getValueInRange({startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
-        
-        //Regex for both titles and variables.
-        var nodesRegex = /Title:\s?[A-Za-z_]+[\.]*[A-Za-z_]*/;
-        var variablesRegex = /\$[A-Za-z_]+[\.]*[A-Za-z_]*/;
+        //Regex for both titles and variables, global tag is used.
+        var nodesRegex = /Title:\s?[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/g;
+        var variablesRegex = /\$[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/g;
         
         // * FOR FINDING NODE TITLES
         var nodes = text.match(nodesRegex);
@@ -393,7 +392,7 @@ export const completions = {
                     {
                     label: word, 
                     kind: monaco.languages.CompletionItemKind.Property,
-                    insertText: word
+                    insertText: word,
                     }
                     );
             }

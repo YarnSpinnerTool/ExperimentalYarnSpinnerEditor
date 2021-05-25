@@ -566,7 +566,7 @@ ipcRenderer.on("fileSaveResponse", (event, arg) =>
 {
     if (arg) 
     {
-        alert("File successfully");
+        alert("File saved successfully");
     }
     else 
     {
@@ -610,7 +610,17 @@ ipcRenderer.on("gotPing", (event, arg) =>
  * 
  * @returns {void}
  */
-function saveAsEmitter() 
+function saveAsEmitter()
+{
+    ipcRenderer.send("fileSaveAsToMain", null, yarnFileManager.getCurrentOpenFile().getContents());
+}
+
+/**
+ * Emits an event containing the the contents of the editor, instructing the main process to perform the Save function.
+ * TODO implement this fully
+ * @returns {void}
+ */
+function saveEmitter() 
 {
     ipcRenderer.send("fileSaveToMain", null, yarnFileManager.getCurrentOpenFile().getContents());
 }

@@ -27,7 +27,7 @@ export function writeFile(filePathToWrite: string | null, contentToWrite: string
         const dialogResult = dialog.showSaveDialogSync(
             {
                 filters: [{ name: "Yarn file", extensions: ["yarn"] },
-                    { name: "Text file", extensions: ["txt"] }],
+                    { name: "Text file", extensions: ["txt"] }],    //! change before release
                 defaultPath: path.join(__dirname, "../src/")
             });
 

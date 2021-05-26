@@ -302,6 +302,13 @@ if (workingFiles)
     addFileToDisplay(yarnFileManager.getCurrentOpenFile());
     editor.updateOptions({ readOnly: false });
 
+    let lastOpenDiv = document.getElementById(String(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier()));//Get the last opened (current open) div
+    if (lastOpenDiv){
+        //Last file changes back to workingFile colour
+        console.log("Changing colour of generated");
+        lastOpenDiv.style.color = exports.tabGap;
+    }
+
     //Add all listeners
     workingFiles.addEventListener("click", (event) => 
     {
@@ -334,23 +341,33 @@ if (workingFiles)
                 if(arrayOfFiles.length)
                 {	
                     yarnFileManager.setCurrentOpenYarnFile(arrayOfFiles[0]);
-                    editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-                    editor.updateOptions({readOnly: false});
+                    updateEditor(yarnFileManager.getCurrentOpenFile());
+                }
+
+                lastOpenDiv = document.getElementById(String(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier()));
+                if (lastOpenDiv){
+                    //Sets the colour of the selected file
+                    lastOpenDiv.style.color = exports.tabGap;
                 }
             }
             else 
             {
                 yarnFileManager.removeFromFiles(fileIdentifier);
-                editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-                editor.updateOptions({readOnly: false});
+                updateEditor(yarnFileManager.getCurrentOpenFile());
             }
 
             //Remove the HTML elements from working files
             parentDiv.parentElement?.removeChild(parentDiv);
         }
 
+        //Swap between files, (button not clicked but element was)
         else if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY") 
         {
+            if (lastOpenDiv){
+                //Sets the colour of the now unselected file
+                lastOpenDiv.style.color = exports.default;
+            }
+
             let fileIdentifier: number;
 
             if ((event.target as HTMLElement).tagName === "P") 
@@ -367,17 +384,23 @@ if (workingFiles)
 
             if (openedFile) 
             {
+                //Swapping between files
                 //update currentOpen content
                 syncCurrentFile();
-
+                
                 //Change currentOpen
                 yarnFileManager.setCurrentOpenYarnFile(fileIdentifier);
-                editor.setValue(yarnFileManager.getCurrentOpenFile().getContents()); //TODO Swap to push edit operations? https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.itextmodel.html#pusheditoperations
-                editor.updateOptions({ readOnly: false });
+
+                lastOpenDiv = document.getElementById(String(openedFile.getUniqueIdentifier()));
+                if (lastOpenDiv){
+                    //Sets the colour of the selected file
+                    lastOpenDiv.style.color = exports.tabGap;
+                }
+
+                updateEditor(yarnFileManager.getCurrentOpenFile());
             }
         }
     });
-
 
     //Early beginnings of right click menu on working files
     workingFiles.addEventListener("contextmenu", (event) =>{
@@ -390,6 +413,19 @@ if (workingFiles)
         }
     });
 }
+
+/**
+ * 
+ * @param {YarnFile} fileToAdd The file of which contents to push to the editor
+ * @returns {void}
+ */
+function updateEditor(fileToAdd: YarnFile){
+    //TODO Swap to push edit operations? https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.itextmodel.html#pusheditoperations
+    editor.setValue(fileToAdd.getContents());
+    editor.updateOptions({readOnly: false});
+}
+
+
 
 /**
  * Update the file manager file to match the code editor.

@@ -20,14 +20,14 @@ import * as fs from "fs";
  * @returns {boolean} Returns true if the file writes successfully, or false if an error occurs or
  * the user cancels the dialog.
  */
-export function writeFile(filePathToWrite: string | null, contentToWrite: string): boolean 
+export function writeFile(filePathToWrite: string | null, contentToWrite: string): {result: boolean, path: string | null, name: string | null}  
 {
     if (!filePathToWrite) 
     {
         const dialogResult = dialog.showSaveDialogSync(
             {
                 filters: [{ name: "Yarn file", extensions: ["yarn"] },
-                    { name: "Text file", extensions: ["txt"] }],
+                    { name: "Text file", extensions: ["txt"] }],    //! change before release
                 defaultPath: path.join(__dirname, "../src/")
             });
 
@@ -40,7 +40,7 @@ export function writeFile(filePathToWrite: string | null, contentToWrite: string
     if (filePathToWrite) 
     {
         fs.writeFileSync(filePathToWrite, contentToWrite);
-        return true;
+        return {result: true, path: filePathToWrite, name: path.basename(filePathToWrite)};
     }
-    return false;
+    return {result: false, path: null, name: null};
 }

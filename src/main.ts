@@ -18,6 +18,7 @@ import { writeFile as YarnWriteFile } from "./controllers/fileSystem/fileWriteCo
  */
 function createWindow() 
 {
+
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         height: 545,
@@ -76,7 +77,7 @@ const template = [
                 }
             },
             { 
-                label: "save",
+                label: "Save",
                 accelerator: "CmdOrCtrl+S",
                 click: async () =>
                 {
@@ -84,7 +85,7 @@ const template = [
                 }
             },
             { 
-                label: "save as",
+                label: "Save As",
                 accelerator: "CmdOrCtrl+Shift+S",
                 click: async () =>
                 {
@@ -98,15 +99,29 @@ const template = [
     {
         label: "Edit",
         submenu: [
-            { role: "undo" },
-            { role: "redo" },
+            { 
+                label: "Undo",
+                accelerator: "CmdOrCtrl+Z",     //!Fails to get called
+                click: async () =>
+                {   
+                    handleUndo();
+                }
+            },
+            { 
+                label: "Redo",
+                accelerator: "CmdOrCtrl+Y",     //!Fails to get called 
+                click: async () =>
+                {
+                    handleRedo();
+                } 
+            },
             { type: "separator" },
             { role: "copy" },
             { role: "cut" },
             { role: "paste" },
             { type: "separator" },
             { 
-                label: "find",
+                label: "Find",
                 accelerator: "CmdOrCtrl+F",
                 click: async () =>
                 {
@@ -114,8 +129,8 @@ const template = [
                 } 
             },
             { 
-                label: "replace",
-                accelerator: "CmdOrCtrl+R",
+                label: "Replace",
+                accelerator: "CmdOrCtrl+H",
                 click: async () =>
                 {
                     handleReplace();
@@ -124,7 +139,6 @@ const template = [
             ...(isMac ?
                 [
                     { role: "pasteAndMatchStyle" },
-                    { role: "delete" },
                     { role: "selectAll" },
                     { type: "separator" },
                     {
@@ -136,7 +150,6 @@ const template = [
                     }
                 ] :
                 [
-                    { role: "delete" },
                     { type: "separator" },
                     { role: "selectAll" }
                 ])
@@ -249,15 +262,12 @@ ipcMain.on("fileOpenToMain", () =>
     handleFileOpen();
 });
 
-ipcMain.on("fileSaveAsToMain", (event, filePath, contents) => 
+ipcMain.on("fileSaveToMain", (event, filePath, contents) => 
 {
-    YarnWriteFile(filePath, contents);
+    const result = YarnWriteFile(filePath, contents);
+
+    event.reply("fileSaveResponse", result.result, result.path, result.name);
 });
-
-// ipcMain.on("fileSaveToMain", (event, arg) => 
-// {
-
-// });
 
 /*
 	------------------------------------
@@ -303,7 +313,7 @@ function handleFileOpen()
  */
 function handleFileSave() 
 {
-    BrowserWindow.getFocusedWindow()?.webContents.send("saveFile"); 
+    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestSave"); 
 }
 
 /**
@@ -326,7 +336,7 @@ function handleFileSaveAs()
  */
 function handleFind() 
 {
-    BrowserWindow.getFocusedWindow()?.webContents.send("findInFile"); 
+    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestFind"); 
 }
 
 /**
@@ -336,6 +346,26 @@ function handleFind()
  */
 function handleReplace() 
 {
-    BrowserWindow.getFocusedWindow()?.webContents.send("ReplceInFile"); 
+    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestFindAndReplace"); 
 }
+
+/**
+ * Emits a message to renderer to undo any changes made in the code
+ * 
+ * @returns {void}
+ */
+ function handleUndo() 
+ {
+    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestUndo"); 
+ }
+
+ /**
+ * Emits a message to renderer to redo any changes made in the code
+ * 
+ * @returns {void}
+ */
+  function handleRedo() 
+  {
+     BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestRedo"); 
+  }
 

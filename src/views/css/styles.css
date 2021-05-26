@@ -51,6 +51,11 @@ img {
 .tooltip {
 	position: relative;
 	display: inline-block;
+    cursor: pointer;
+    -webkit-user-select: none; /* Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
 	/* border-bottom: 1px hidden var(--dividerColour); */
   }
   
@@ -279,6 +284,14 @@ select{
     background-color: var(--topSideEdit);
 }
 
+#workingFilesDetail > summary{
+    -webkit-user-select: none; /* Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+    cursor: pointer;
+}
+
 #workingFilesDetail > div {
     display: flex;
     align-items: center;
@@ -293,6 +306,12 @@ select{
     border: var(--dividerColour);
     border-style: solid hidden hidden solid;
     border-width: thin;
+    -webkit-user-select: none; /* Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+    cursor: pointer;
+
 }
 
 #workingFilesDetail > div:last-of-type {

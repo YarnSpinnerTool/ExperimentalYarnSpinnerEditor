@@ -18,6 +18,7 @@ import { writeFile as YarnWriteFile } from "./controllers/fileSystem/fileWriteCo
  */
 function createWindow() 
 {
+
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         height: 545,
@@ -98,8 +99,23 @@ const template = [
     {
         label: "Edit",
         submenu: [
-            { role: "undo" },
-            { role: "redo" },
+            { 
+                label: "Undo",
+                accelerator: "CmdOrCtrl+Z",     //!Fails to get called
+                click: async () =>
+                {   
+                    console.log("Undo pressed or activated through menu item");
+                    handleUndo();
+                }
+            },
+            { 
+                label: "Redo",
+                accelerator: "CmdOrCtrl+Y",     //!Fails to get called 
+                click: async () =>
+                {
+                    handleRedo();
+                } 
+            },
             { type: "separator" },
             { role: "copy" },
             { role: "cut" },
@@ -333,4 +349,26 @@ function handleReplace()
 {
     BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestFindAndReplace"); 
 }
+
+/**
+ * Emits a message to renderer to undo any changes made in the code
+ * 
+ * @returns {void}
+ */
+ function handleUndo() 
+ {
+    console.log("Main undo reached")
+    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestUndo"); 
+ }
+
+ /**
+ * Emits a message to renderer to redo any changes made in the code
+ * 
+ * @returns {void}
+ */
+  function handleRedo() 
+  {
+     console.log("Main redo reached")
+     BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestRedo"); 
+  }
 

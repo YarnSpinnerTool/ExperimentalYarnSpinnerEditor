@@ -605,6 +605,16 @@ ipcRenderer.on("mainRequestFind", () =>
     showFindDialog();
 });
 
+ipcRenderer.on("mainRequestUndo", () =>
+{
+    actionUndo(); 
+});
+
+ipcRenderer.on("mainRequestRedo", () =>
+{
+    actionRedo();
+});
+
 ipcRenderer.on("mainRequestFindAndReplace", () => 
 {
     showFindAndReplaceDialog();
@@ -682,3 +692,33 @@ function showFindAndReplaceDialog()
     editor.focus();
     editor.trigger(null, "editor.action.startFindReplaceAction", null);
 }
+
+/**
+ * Executes the undo function from within the editor.
+ * 
+ * @returns {void}
+ */
+function actionUndo()
+{
+    console.log("Render undo reached")
+
+    editor.focus();
+    editor.trigger("keyboard", "undo", null);
+    ////editor.getModel()?.undo();
+    ////editor.trigger(ke, "undo", null);
+}
+
+/**
+ * Executes the redo function from within the editor.
+ * 
+ * @returns {void}
+ */
+ function actionRedo()
+ {
+     console.log("Render redo reached")
+ 
+     editor.focus();
+     editor.trigger("keyboard", "redo", null);
+     ////editor.getModel()?.undo();
+     ////editor.trigger(ke, "undo", null);
+ }

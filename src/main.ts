@@ -104,7 +104,6 @@ const template = [
                 accelerator: "CmdOrCtrl+Z",     //!Fails to get called
                 click: async () =>
                 {   
-                    console.log("Undo pressed or activated through menu item");
                     handleUndo();
                 }
             },
@@ -357,7 +356,6 @@ function handleReplace()
  */
  function handleUndo() 
  {
-    console.log("Main undo reached")
     BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestUndo"); 
  }
 
@@ -368,7 +366,6 @@ function handleReplace()
  */
   function handleRedo() 
   {
-     console.log("Main redo reached")
      BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestRedo"); 
   }
 

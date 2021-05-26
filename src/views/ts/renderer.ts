@@ -622,7 +622,6 @@ ipcRenderer.on("mainRequestFindAndReplace", () =>
 
 ipcRenderer.on("gotPing", (event, arg) => 
 {
-    console.log("RESPONSE RECIEVED");
     console.log(arg);//Should be pong
 });
 
@@ -700,12 +699,8 @@ function showFindAndReplaceDialog()
  */
 function actionUndo()
 {
-    console.log("Render undo reached")
-
     editor.focus();
     editor.trigger("keyboard", "undo", null);
-    ////editor.getModel()?.undo();
-    ////editor.trigger(ke, "undo", null);
 }
 
 /**
@@ -715,10 +710,6 @@ function actionUndo()
  */
  function actionRedo()
  {
-     console.log("Render redo reached")
- 
      editor.focus();
      editor.trigger("keyboard", "redo", null);
-     ////editor.getModel()?.undo();
-     ////editor.trigger(ke, "undo", null);
  }

@@ -354,18 +354,18 @@ function handleReplace()
  * 
  * @returns {void}
  */
- function handleUndo() 
- {
+function handleUndo() 
+{
     BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestUndo"); 
- }
+}
 
- /**
+/**
  * Emits a message to renderer to redo any changes made in the code
  * 
  * @returns {void}
  */
-  function handleRedo() 
-  {
-     BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestRedo"); 
-  }
+function handleRedo() 
+{
+    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestRedo"); 
+}
 

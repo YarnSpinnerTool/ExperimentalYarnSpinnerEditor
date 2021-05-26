@@ -159,7 +159,6 @@ import * as monaco from "monaco-editor";
 import * as yarnSpinner from "../../YarnSpinner/yarnSpinnerMonarch";
 import { ipcRenderer } from "electron";
 import exports from "../../controllers/themeReader.ts";
-import { EventEmitter } from "node:stream";
 
 const yarnFileManager = new YarnFileManager();
 
@@ -303,7 +302,8 @@ if (workingFiles)
     editor.updateOptions({ readOnly: false });
 
     let lastOpenDiv = document.getElementById(String(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier()));//Get the last opened (current open) div
-    if (lastOpenDiv){
+    if (lastOpenDiv)
+    {
         //Last file changes back to workingFile colour
         console.log("Changing colour of generated");
         lastOpenDiv.style.color = exports.tabGap;
@@ -345,7 +345,8 @@ if (workingFiles)
                 }
 
                 lastOpenDiv = document.getElementById(String(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier()));
-                if (lastOpenDiv){
+                if (lastOpenDiv)
+                {
                     //Sets the colour of the selected file
                     lastOpenDiv.style.color = exports.tabGap;
                 }
@@ -363,7 +364,8 @@ if (workingFiles)
         //Swap between files, (button not clicked but element was)
         else if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY") 
         {
-            if (lastOpenDiv){
+            if (lastOpenDiv)
+            {
                 //Sets the colour of the now unselected file
                 lastOpenDiv.style.color = exports.default;
             }
@@ -392,7 +394,8 @@ if (workingFiles)
                 yarnFileManager.setCurrentOpenYarnFile(fileIdentifier);
 
                 lastOpenDiv = document.getElementById(String(openedFile.getUniqueIdentifier()));
-                if (lastOpenDiv){
+                if (lastOpenDiv)
+                {
                     //Sets the colour of the selected file
                     lastOpenDiv.style.color = exports.tabGap;
                 }
@@ -403,7 +406,8 @@ if (workingFiles)
     });
 
     //Early beginnings of right click menu on working files
-    workingFiles.addEventListener("contextmenu", (event) =>{
+    workingFiles.addEventListener("contextmenu", (event) =>
+    {
         event.preventDefault();
         
         if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY" && (event.target as HTMLParagraphElement).parentElement?.id !== "workingFilesDetail" ) 
@@ -419,7 +423,8 @@ if (workingFiles)
  * @param {YarnFile} fileToAdd The file of which contents to push to the editor
  * @returns {void}
  */
-function updateEditor(fileToAdd: YarnFile){
+function updateEditor(fileToAdd: YarnFile)
+{
     //TODO Swap to push edit operations? https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.itextmodel.html#pusheditoperations
     editor.setValue(fileToAdd.getContents());
     editor.updateOptions({readOnly: false});
@@ -758,8 +763,8 @@ function actionUndo()
  * 
  * @returns {void}
  */
- function actionRedo()
- {
-     editor.focus();
-     editor.trigger("keyboard", "redo", null);
- }
+function actionRedo()
+{
+    editor.focus();
+    editor.trigger("keyboard", "redo", null);
+}

@@ -1,33 +1,27 @@
+// const template = {
+//     default: "",
+//     invertDefault: "",
 
-
-let template = {
-    default: "",
-    invertDefault: "",
-
-    commands: "",
-    commandsInternal: "",
-    varAndNum: "",
-    options: "",
+//     commands: "",
+//     commandsInternal: "",
+//     varAndNum: "",
+//     options: "",
     
-    interpolation: "",
-    strings: "", 
-    metadata: "",
-    comments: "",
+//     interpolation: "",
+//     strings: "", 
+//     metadata: "",
+//     comments: "",
 
-    editor: "",
-    editorMinimap: "",
-    workingFile: "",
-    tabGap: ""
-};
-
-
+//     editor: "",
+//     editorMinimap: "",
+//     workingFile: "",
+//     tabGap: ""
+// };
 
 //File to handle the list of variables
 
-
-
 //Original blue theme //! TODO
-let OGBlue = {
+const OGBlue = {
     default: "#000000",
     invertDefault: "#FFFFFF",
 
@@ -50,7 +44,7 @@ let OGBlue = {
 
 
 //Pink theme //TODO
-let Pink = {
+const Pink = {
     default: "#000000",
     invertDefault: "#FFFFFF",
 
@@ -72,7 +66,7 @@ let Pink = {
 /**/
 
 //Night theme //TODO
-let Night = {
+const Night = {
     default: "#FFFFFF",
     invertDefault: "#000000",
 
@@ -94,7 +88,7 @@ let Night = {
 /**/
 
 //Wireframe theme //TODO
-let WireFrame = {
+const WireFrame = {
     default: "#000000",
     invertDefault: "#FFFFFF",
 
@@ -117,26 +111,27 @@ let WireFrame = {
 
 /**
  * getRandomInt
- * @param max Randoms in range of 0 to Max
- * @returns 
+ * @param {number} max Randoms in range of 0 to Max
+ * 
+ * @returns {void}
  */
-function getRandomInt(max: Number) 
+function getRandomInt(max: number) 
 {
     return Math.floor(Math.random() * max);
 }
 
 switch (getRandomInt(4))
 {
-    case 0: 
+case 0: 
     module.exports = OGBlue; 
     break;
-    case 1:
+case 1:
     module.exports = Pink;
     break;
-    case 2:
+case 2:
     module.exports = Night;
     break;
-    default:
+default:
     module.exports = WireFrame;
 }
 

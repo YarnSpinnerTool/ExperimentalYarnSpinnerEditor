@@ -5,6 +5,9 @@
 # Ignore builds
 out
 
+# Macos
+.DS_Store
+
 ### Node ###
 # Logs
 logs

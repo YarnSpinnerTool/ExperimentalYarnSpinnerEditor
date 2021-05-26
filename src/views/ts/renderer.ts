@@ -159,6 +159,7 @@ import * as monaco from "monaco-editor";
 import * as yarnSpinner from "../../YarnSpinner/yarnSpinnerMonarch";
 import { ipcRenderer } from "electron";
 import exports from "../../controllers/themeReader.ts";
+import { EventEmitter } from "node:stream";
 
 const yarnFileManager = new YarnFileManager();
 
@@ -374,6 +375,18 @@ if (workingFiles)
                 editor.setValue(yarnFileManager.getCurrentOpenFile().getContents()); //TODO Swap to push edit operations? https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.itextmodel.html#pusheditoperations
                 editor.updateOptions({ readOnly: false });
             }
+        }
+    });
+
+
+    //Early beginnings of right click menu on working files
+    workingFiles.addEventListener("contextmenu", (event) =>{
+        event.preventDefault();
+        
+        if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY" && (event.target as HTMLParagraphElement).parentElement?.id !== "workingFilesDetail" ) 
+        {
+            console.log("We right click the P erlement not the div");
+            console.log((event.target as HTMLParagraphElement).parentElement?.id);
         }
     });
 }

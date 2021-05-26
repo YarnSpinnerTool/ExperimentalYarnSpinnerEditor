@@ -89,7 +89,7 @@ export class YarnFile
 
 export class YarnFileManager 
 {
-	private openFiles = new Map<number, YarnFile>();
+	private openFiles = new Map<number, YarnFile>(); //Number is the representation of the uniqueIdentifier
 	private currentOpenYarnFile: YarnFile;
 
 	constructor() 
@@ -159,6 +159,7 @@ import * as monaco from "monaco-editor";
 import * as yarnSpinner from "../../YarnSpinner/yarnSpinnerMonarch";
 import { ipcRenderer } from "electron";
 import exports from "../../controllers/themeReader.ts";
+import { EventEmitter } from "node:stream";
 
 const yarnFileManager = new YarnFileManager();
 
@@ -180,35 +181,33 @@ monaco.editor.defineTheme("customTheme", {
     inherit: true,
     rules: [
         //{ background: 'CFD8DC'},
+        { token: "body.bold", foreground: exports.default, fontStyle: "bold" },
+        { token: "body.underline", foreground: exports.default,  fontStyle: "underline" },
+        { token: "body.italic", foreground: exports.default,  fontStyle: "italic" },
 
-        { token: "body.bold", fontStyle: "bold" },
-        { token: "body.underline", fontStyle: "underline" },
-        { token: "body.italic", fontStyle: "italic" },
-        { token: "body.commands", foreground: exports.commands },
-        { token: "commands", foreground: exports.commands },
-        { token: "file.tag", foreground: exports.fileTag },
-        { token: "interpolation", foreground: exports.interpolation },
-        { token: "options", foreground: exports.option },
-        { token: "variables", foreground: exports.variables },
-        { token: "float", foreground: exports.float },
-        { token: "number", foreground: exports.number },
-        { token: "yarn.commands", foreground: exports.yarnCommands },
-        { token: "commands.float", foreground: exports.commands },
-        { token: "commands.number", foreground: exports.commands },
-        { token: "commands.operator", foreground: exports.operator },
-        { token: "hashtag", foreground: exports.hashtag },
-        { token: "dialogue", foreground: exports.primary_text }
+        { token: "Commands", foreground: exports.commands},
+        { token: "CommandsInternals", foreground: exports.commandsInternal },
+        { token: "VarAndNum", foreground: exports.varAndNum },
+        { token: "Options", foreground: exports.options },
+        { token: "Interpolation", foreground: exports.interpolation },
+        { token: "Strings", foreground: exports.strings },
+        { token: "Metadata", foreground: exports.metadata },
+        { token: "Comments", foreground: exports.comments },
+        { token: "Default", foreground: exports.default },
+        
+        { token: "Invalid", foreground: "#931621"}
+
     ],
 
     colors: {
-        "editor.foreground": exports.primary_text,
+        "editor.foreground": exports.default,
         "editor.background": exports.editor,
-        "editorCursor.foreground": exports.workingFile,
-        "editor.lineHighlightBackground": exports.lineSelection,
-        "editorLineNumber.foreground": exports.primary_text,
-        "editor.selectionBackground": exports.lineSelection,
+        "editorCursor.foreground": exports.invertDefault,
+        //"editor.lineHighlightBackground": exports.invertDefault, //Removed from parameter
+        "editorLineNumber.foreground": exports.default,
+        "editor.selectionBackground": exports.invertDefault,
         "editor.inactiveSelectionBackground": exports.editor,
-        "minimap.background": exports.lineSelection
+        "minimap.background": exports.editorMinimap
     }
 });
 
@@ -217,9 +216,9 @@ document.documentElement.style.setProperty("--editor", exports.editor);
 document.documentElement.style.setProperty("--topSideEdit", exports.editor);
 document.documentElement.style.setProperty("--workingFile", exports.workingFile);
 document.documentElement.style.setProperty("--tabGap", exports.tabGap);
-document.documentElement.style.setProperty("--dividerColour", exports.divideColour);
-document.documentElement.style.setProperty("--primary_text", exports.primary_text);
-document.documentElement.style.setProperty("--secondary_text", exports.secondary_text);
+document.documentElement.style.setProperty("--dividerColour", exports.invertDefault);
+document.documentElement.style.setProperty("--primary_text", exports.default);
+document.documentElement.style.setProperty("--secondary_text", exports.invertDefault);
 
 const containerElement = document.getElementById("container");
 
@@ -235,9 +234,11 @@ const editor = monaco.editor.create(containerElement, {
     language: "yarnSpinner",
     automaticLayout: true,
     fontFamily: "Courier New",
-    fontSize: 14,
+    fontSize: 20,
     mouseWheelZoom: true,
-    wordWrap: "on"
+    wordWrap: "on",
+    renderLineHighlight: "none"
+
 });
 
 //Instantiate with new empty file
@@ -262,7 +263,7 @@ editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_B, () =>
 //Editor specific events
 editor.onDidChangeModelContent(() => 
 {
-    const workingDetailDiv = document.getElementById(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString());
+    const workingDetailDiv = document.getElementById( yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString() );
 
     syncCurrentFile();//Update the contents at each point
     const unsavedIdentifier = "*";//Can change to anything
@@ -297,14 +298,21 @@ const workingFiles = document.getElementById("workingFilesDetail");
 
 if (workingFiles) 
 {
-
     //Set the intiated new empty file into working space
     addFileToDisplay(yarnFileManager.getCurrentOpenFile());
     editor.updateOptions({ readOnly: false });
 
+    let lastOpenDiv = document.getElementById(String(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier()));//Get the last opened (current open) div
+    if (lastOpenDiv){
+        //Last file changes back to workingFile colour
+        console.log("Changing colour of generated");
+        lastOpenDiv.style.color = exports.tabGap;
+    }
+
     //Add all listeners
     workingFiles.addEventListener("click", (event) => 
     {
+        //Button clicked event
         if (event && event.target && (event.target as HTMLElement).tagName === "BUTTON") 
         {
             //Get file ID information and HTML elements
@@ -333,22 +341,33 @@ if (workingFiles)
                 if(arrayOfFiles.length)
                 {	
                     yarnFileManager.setCurrentOpenYarnFile(arrayOfFiles[0]);
-                    editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-                    editor.updateOptions({readOnly: false});
+                    updateEditor(yarnFileManager.getCurrentOpenFile());
+                }
+
+                lastOpenDiv = document.getElementById(String(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier()));
+                if (lastOpenDiv){
+                    //Sets the colour of the selected file
+                    lastOpenDiv.style.color = exports.tabGap;
                 }
             }
             else 
             {
                 yarnFileManager.removeFromFiles(fileIdentifier);
-                editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-                editor.updateOptions({readOnly: false});
+                updateEditor(yarnFileManager.getCurrentOpenFile());
             }
 
             //Remove the HTML elements from working files
             parentDiv.parentElement?.removeChild(parentDiv);
         }
+
+        //Swap between files, (button not clicked but element was)
         else if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY") 
         {
+            if (lastOpenDiv){
+                //Sets the colour of the now unselected file
+                lastOpenDiv.style.color = exports.default;
+            }
+
             let fileIdentifier: number;
 
             if ((event.target as HTMLElement).tagName === "P") 
@@ -365,17 +384,48 @@ if (workingFiles)
 
             if (openedFile) 
             {
+                //Swapping between files
                 //update currentOpen content
                 syncCurrentFile();
-
+                
                 //Change currentOpen
                 yarnFileManager.setCurrentOpenYarnFile(fileIdentifier);
-                editor.setValue(yarnFileManager.getCurrentOpenFile().getContents()); //TODO Swap to push edit operations? https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.itextmodel.html#pusheditoperations
-                editor.updateOptions({ readOnly: false });
+
+                lastOpenDiv = document.getElementById(String(openedFile.getUniqueIdentifier()));
+                if (lastOpenDiv){
+                    //Sets the colour of the selected file
+                    lastOpenDiv.style.color = exports.tabGap;
+                }
+
+                updateEditor(yarnFileManager.getCurrentOpenFile());
             }
         }
     });
+
+    //Early beginnings of right click menu on working files
+    workingFiles.addEventListener("contextmenu", (event) =>{
+        event.preventDefault();
+        
+        if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY" && (event.target as HTMLParagraphElement).parentElement?.id !== "workingFilesDetail" ) 
+        {
+            console.log("We right click the P erlement not the div");
+            console.log((event.target as HTMLParagraphElement).parentElement?.id);
+        }
+    });
 }
+
+/**
+ * 
+ * @param {YarnFile} fileToAdd The file of which contents to push to the editor
+ * @returns {void}
+ */
+function updateEditor(fileToAdd: YarnFile){
+    //TODO Swap to push edit operations? https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.itextmodel.html#pusheditoperations
+    editor.setValue(fileToAdd.getContents());
+    editor.updateOptions({readOnly: false});
+}
+
+
 
 /**
  * Update the file manager file to match the code editor.

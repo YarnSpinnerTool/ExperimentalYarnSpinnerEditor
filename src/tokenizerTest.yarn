@@ -1,0 +1,40 @@
+#This is a file tag
+//This is a comment
+Title: testNode
+headerTag: otherTest
+---
+<<genericCommand>>
+
+This is some dialogue
+This is some {$interpolated} dialogue!
+This is some escaped \{$var\} dialogue! \#hashtag
+This is a hashtag #hashtag
+
+//Explicit typing for strings, numbers, and boolean
+<<declare $score = 0 as Number>>
+<<declare $stringvar = "String" as String>>
+<<declare $bool = false as Bool>>
+
+//Numbers example
+<<declare $score = -1.4 as Number >>
+<<set $score = .5 >>
+<<set $score = 1. >>
+
+//Flow control
+<<<<if $score > 5 >>
+    Well done!
+<<elseif $score == 5>>
+    You were so close!
+<<else>>
+    Better luck next time!
+<<endif>>
+
+Options
+-> First Option dialogue
+    Cullie: Further output dialogue!
+
+-> Second Option Dialogue!
+    Cullie: Further output dialogue!
+
+<<jump otherNode>>
+===

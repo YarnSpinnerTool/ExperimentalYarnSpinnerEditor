@@ -7,35 +7,10 @@
 
 /* Currently unable to import .ts file into renderer, likely a webpack issue. https://webpack.js.org/guides/typescript/
  * Monaco Custom Language Documentation: https://microsoft.github.io/monaco-editor/playground.html#extending-language-services-custom-languages
- * Yarn Spinner Documentation: https://yarnspinner.dev/docs/syntax/
  * JS RegExp Documentation: https://www.w3schools.com/jsref/jsref_obj_regexp.asp
  * Typescript TokensProvider: https://github.com/microsoft/monaco-languages/blob/main/src/typescript/typescript.ts
  */
 import * as monaco from 'monaco-editor';
-
-/*
-file
-
-header
-
-body
-	commands
-x		strings
-x		keywords
-x		variables
-x		numbers 
-x		operators
-		>> pop
-	options
-x		text
-x		interpolation
-x		commands
-		3
-	dialogue
-x		commands
-x		interpolation
-*/
-
 //Exports configuration monaco/monarch tokenisation for Yarn Spinner
 export const tokensWIP = 
 {
@@ -45,12 +20,12 @@ export const tokensWIP =
 
     //From section identifiers in the yarn spec.
     //A-Z, a-z, _, followed by an optional period, and then an optional second string of A-Z, a-z, _. '$' are not allowed
-    yarnIdentifier: /[A-Za-z_]+[\.]*[A-Za-z_]*/,
+    yarnIdentifier: /[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/,
   
     yarnFloat: /-?[\d]+\.[\d]+/,
     yarnInteger: /-?\d+/,
     yarnOperator: /(is|==|!=|<=|>=|>(?!>)|<|or|\|\||xor|\^|!|and|&&|\+|-|\*|\/|%|=)/,
-    dialogueSymbols: /[:!@#%^&*\()\\\|<>?/~`]/,
+    dialogueSymbols: /[:!@%^&*\()\\\|<>?/~`,]/,
 
     yarnKeywords: ["as","true","false"],
     yarnTypeKeywords: [ "Boolean", "String", "Number"],
@@ -106,6 +81,7 @@ export const tokensWIP =
             { include: "comments" },
             { include: "whitespace"},
             
+            [/\\./, "Default"],
             //Interpolation
             { regex: /{/, action: { token: "Interpolation", next: "@interpolation" } },
             //Strings
@@ -235,7 +211,7 @@ export const tokensWIP =
         hashtags:
         [
             { include: 'comments' },//include the rules for comments
-            { include: "whitespace"},
+            [/[ \t\r]+/, ""],
             //Any text that's not newline character
             [/[A-Za-z][\w$]*/, "Metadata"],
             [/@yarnFloat/,"Metadata"],
@@ -321,35 +297,35 @@ export const theme = {
 };
 
 export const completions = {
-    provideCompletionItems: () => {
+    provideCompletionItems: (model, position, context, token) => {
         var suggestions = [{
             label: 'jump',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Method,
             insertText: '<<jump $1>>',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'stop',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Method,
             insertText: '<<stop>>',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'set',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Method,
             insertText: '<<set \$$1 to $2>>',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'declare',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Method,
             insertText: '<<declare \$$1 = $2>>',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'declare-explicit',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Method,
             insertText: '<<declare \$$1 = $2 as $3>>',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'if-endif',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Interface,
             insertText: [
                 '<<if $1>>',
                 '\t$0',
@@ -358,7 +334,7 @@ export const completions = {
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'elseif',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Interface,
             insertText: [
                 '<<elseif $1>>',
                 '\t$0',
@@ -366,7 +342,7 @@ export const completions = {
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'else',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Interface,
             insertText: [
                 '<<else>>',
                 '\t$0',
@@ -375,7 +351,7 @@ export const completions = {
         }, {
             label: 'New node',
             filterText: 'Title',
-            kind: monaco.languages.CompletionItemKind.Snippet,
+            kind: monaco.languages.CompletionItemKind.Class,
             insertText: [
                 'Title: $1',
                 '---',
@@ -385,6 +361,51 @@ export const completions = {
             documentation: 'Create new node',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }];
+        
+        //Get all of the text in the editor
+        var text = model.getValueInRange({startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
+        //Regex for both titles and variables, global tag is used.
+        var nodesRegex = /Title:\s?[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/g;
+        var variablesRegex = /\$[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/g;
+        
+        // * FOR FINDING NODE TITLES
+        var nodes = text.match(nodesRegex);
+        if(nodes)
+        {
+            //Iterate through the array of titles that match.
+            for(var i = 0; i < nodes.length; i++){ 
+                var word = nodes[i];
+                //Remove the "Title:"
+                word = word.replace("Title:","");
+                //Remove any spaces, for example "Title: nodeName"
+                //Can't use replace("Title: ","") as Title:nodeName is valid afaik.
+                word = word.replace(" ","");
+                //Add the word to the completion items.
+                suggestions.push(
+                    {label: word, 
+                    kind: monaco.languages.CompletionItemKind.Class,
+                    insertText: word
+                    }
+                    );
+            } 
+        }
+
+        // * FOR FINDING VARIABLES
+        var variables = text.match(variablesRegex);
+        if(variables){
+            //Iterate through the array of titles that match.
+            for(var i = 0; i < variables.length; i++){
+                //Add the word to the completion items.
+                var word = variables[i];
+                suggestions.push(
+                    {
+                    label: word, 
+                    kind: monaco.languages.CompletionItemKind.Property,
+                    insertText: word,
+                    }
+                    );
+            }
+        }
         return { suggestions: suggestions };
     }
 };

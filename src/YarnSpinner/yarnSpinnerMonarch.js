@@ -369,12 +369,13 @@ export const completions = {
         var variablesRegex = /\$[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/g;
         
         // * FOR FINDING NODE TITLES
-        var nodes = text.match(nodesRegex);
+        var nodesArr = text.match(nodesRegex);
+        var nodes = new Set(nodesArr);
         if(nodes)
         {
             //Iterate through the array of titles that match.
-            for(var i = 0; i < nodes.length; i++){ 
-                var word = nodes[i];
+            for(let i of nodes){ 
+                var word = i;
                 //Remove the "Title:"
                 word = word.replace("Title:","");
                 //Remove any spaces, for example "Title: nodeName"
@@ -391,12 +392,15 @@ export const completions = {
         }
 
         // * FOR FINDING VARIABLES
-        var variables = text.match(variablesRegex);
+        
+        var variablesArr = text.match(variablesRegex)
+        var variables = new Set(variablesArr);
+
         if(variables){
             //Iterate through the array of titles that match.
-            for(var i = 0; i < variables.length; i++){
+            for(let i of variables){
                 //Add the word to the completion items.
-                var word = variables[i];
+                var word = i;
                 suggestions.push(
                     {
                     label: word, 

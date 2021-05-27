@@ -236,6 +236,7 @@ const editor = monaco.editor.create(containerElement, {
     fontSize: 20,
     mouseWheelZoom: true,
     wordWrap: "on",
+    wrappingIndent: "same",
     renderLineHighlight: "none"
 
 });

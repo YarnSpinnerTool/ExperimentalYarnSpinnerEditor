@@ -205,7 +205,7 @@ monaco.editor.defineTheme("customTheme", {
         //"editor.lineHighlightBackground": exports.invertDefault, //Removed from parameter
         
         //Shows indentation
-        'editorIndentGuide.background': exports.default,
+        'editorIndentGuide.background': exports.metadata,
         
         //lineNumberColour
         "editorLineNumber.foreground": exports.default,
@@ -248,7 +248,6 @@ const editor = monaco.editor.create(containerElement, {
     wrappingIndent: "same",
     renderLineHighlight: "none",
     lineNumbersMinChars: 1
-
 });
 
 //Instantiate with new empty file

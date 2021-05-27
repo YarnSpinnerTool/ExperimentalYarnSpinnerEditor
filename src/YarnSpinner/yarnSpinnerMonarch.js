@@ -25,7 +25,7 @@ export const tokensWIP =
     yarnFloat: /-?[\d]+\.[\d]+/,
     yarnInteger: /-?\d+/,
     yarnOperator: /(is|==|!=|<=|>=|>(?!>)|<|or|\|\||xor|\^|!|and|&&|\+|-|\*|\/|%|=)/,
-    dialogueSymbols: /[:!@%^&*\()\\\|<>?/~`,]/,
+    dialogueSymbols: /[:!@%^&*\()\\\|<>?/~`',."+=-]/,
 
     yarnKeywords: ["as","true","false"],
     yarnTypeKeywords: [ "Bool", "String", "Number"],
@@ -84,8 +84,6 @@ export const tokensWIP =
             [/\\./, "Default"],
             //Interpolation
             { regex: /{/, action: { token: "Interpolation", next: "@interpolation" } },
-            //Strings
-            { regex: /"/, action: { token: "Strings", next: "@strings"} },
             //Options
             { regex: /->/, action: { token: "Options", next: "@options"} },
             //Commands

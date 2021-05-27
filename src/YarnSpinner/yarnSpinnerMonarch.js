@@ -28,7 +28,7 @@ export const tokensWIP =
     dialogueSymbols: /[:!@%^&*\()\\\|<>?/~`,]/,
 
     yarnKeywords: ["as","true","false"],
-    yarnTypeKeywords: [ "Boolean", "String", "Number"],
+    yarnTypeKeywords: [ "Bool", "String", "Number"],
     yarnCommands: ["jump","stop","declare","set","if", "else", "elseif","endif"],
     yarnOperators: 
     [

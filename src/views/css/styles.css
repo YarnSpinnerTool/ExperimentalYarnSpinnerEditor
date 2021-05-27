@@ -294,8 +294,6 @@ select{
 
 #workingFilesDetail > div {
     display: flex;
-    align-items: center;
-    justify-content: center;
 
     padding-left: 5px;
     height: 30px;
@@ -322,13 +320,15 @@ select{
 
 #workingFilesDetail > div > p {
     text-align: justify;
+    align-self: flex-start;
     word-wrap: break-word;
     font-size: smaller;
     margin: auto 0px auto 0px; 
 }
 
 #workingFilesDetail > div > button {
-    margin: auto 0px auto 0px; 
+    margin-left: auto; 
+    justify-content: right;
     background-color: var(--workingFile);
     border-style: hidden;
 }

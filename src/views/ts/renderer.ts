@@ -197,16 +197,25 @@ monaco.editor.defineTheme("customTheme", {
         { token: "Invalid", foreground: "#931621"}
 
     ],
-
+    // * A list of colour names: https://github.com/Microsoft/monaco-editor/blob/main/test/playground.generated/customizing-the-appearence-exposed-colors.html
     colors: {
         "editor.foreground": exports.default,
         "editor.background": exports.editor,
         "editorCursor.foreground": exports.invertDefault,
         //"editor.lineHighlightBackground": exports.invertDefault, //Removed from parameter
+        
+        //Shows indentation
+        'editorIndentGuide.background': exports.metadata,
+        
+        //lineNumberColour
         "editorLineNumber.foreground": exports.default,
+        //Changes bgColour of lineNumbers
+        "editorGutter.background": exports.editorMinimap,
+
         "editor.selectionBackground": exports.invertDefault,
         "editor.inactiveSelectionBackground": exports.editor,
         "minimap.background": exports.editorMinimap
+
     }
 });
 
@@ -236,8 +245,9 @@ const editor = monaco.editor.create(containerElement, {
     fontSize: 20,
     mouseWheelZoom: true,
     wordWrap: "on",
-    renderLineHighlight: "none"
-
+    wrappingIndent: "same",
+    renderLineHighlight: "none",
+    lineNumbersMinChars: 1
 });
 
 //Instantiate with new empty file

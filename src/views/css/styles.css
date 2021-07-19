@@ -261,6 +261,7 @@ select{
 
 #leftCont{
     margin-left: 5px;
+    width: 150px;
 }
 
 #leftSideContainer{
@@ -270,7 +271,7 @@ select{
 
     color: var(--primary_text);
     background-color: var(--topSideEdit);
-    min-width: 150px;
+    width: 150px;
     max-height: 85vh;
     padding-top: 10px;
     
@@ -331,13 +332,14 @@ select{
     justify-content: right;
     background-color: var(--workingFile);
     border-style: hidden;
+    
 }
 
 
 /* EDIT SPACE */
 
 .outerOuterEditor{
-    width: match-parent;
+    width: 1500px;
     background-color: var(--tabGap);
     grid-column-start: 2;
     grid-column-end: 2;
@@ -357,6 +359,7 @@ select{
     margin-left: 15px;
     margin-top: 15px;
     padding-bottom: 20px;
+    width: match-parent;
     /* padding-top: 5px; */
 }
 
@@ -403,7 +406,8 @@ select{
     margin-top: 5px;
     margin-left: 5px;
     height: 98vh;
-    width: 99%;
+    width: 500px;
+    float: left;
 
     /* border: var(--clr5);
     border-style: groove hidden hidden groove;  */
@@ -413,6 +417,12 @@ select{
     /* border-width: 1px; */
 }
 
+.nodeEditorView {
+    width: 500px;
+    height: 98vh;
+    float: left;
+    background-color: #CFD8DC;
+}
 
 
 

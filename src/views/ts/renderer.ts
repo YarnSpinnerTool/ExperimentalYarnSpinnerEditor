@@ -148,8 +148,6 @@ export class YarnFileManager
 
 //!----------------------------------------------------------------------------------------------------------------------------------
 
-const matchAll = require("match-all");
-
 export class yarnNode 
 {
     private titles : string[];
@@ -191,24 +189,64 @@ headerTag: otherTest
 ===
 */
 
-        let regexExp = /(Title:.*)/g;
+//TODO - Figure out the way to have the nodes construct whilst waiting for the final ===, e.g. start with title and that line no, then wait to construct that object until
+//TODO - get to the ===
 
-        let n = content.match(regexExp);
-        let nn = [];
-        if(n)
-        {
-            //Iterate through the array of titles that match.
-            for(let i of n){ 
-                var word = i;
+
+/*
+        if node already exists, update line no start number and end number
+        else
+            Find title and line no start, hold it
+            finds final === and it's line number, then construct the node
+*/
+
+//TODO - Then after this, make it only update the node if the title exists, or remove the node if no longer exists
+
+
+        let regexExp = /(Title:.*)/g;
+        let endRegexExp = /===/g;
+
+        let indexes = [] as number[];
+
+        //let n = content.match(regexExp);
+
+        let n = [] as string[];
+        let ends = [] as number[];
+
+        var allLines = content.split("\n");
+
+        for (var i = 0; i < allLines.length; i++){
+            if (allLines[i].match(regexExp)){
+                var word = allLines[i]
                 word = word.replace("Title:","");
                 word = word.replace(" ","");
-                nn.push(word);
+
+                n.push(word);
+                indexes.push(i+1);
+            }
+            else if (allLines[i].match(endRegexExp)){
+                ends.push(i+1);
             }
         }
-        this.titles = nn;//Make sure it resets the full list (prevent duplicates)
+
+        //let nn = [];
+        // if(n)
+        // {
+        //     //Iterate through the array of titles that match.
+        //     for(let i of n){ 
+                
+        //         var word = i;
+        //         word = word.replace("Title:","");
+        //         word = word.replace(" ","");
+        //         nn.push(word);
+        //     }
+        // }
+        this.titles = n;//Make sure it resets the full list (prevent duplicates)
         
         //Debug log
         console.log(this.titles);
+        console.log(indexes);
+        console.log(ends);
     }
 
     convertFromNodeToContent(): String{

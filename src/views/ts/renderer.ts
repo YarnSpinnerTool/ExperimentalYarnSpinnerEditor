@@ -148,6 +148,84 @@ export class YarnFileManager
 
 //!----------------------------------------------------------------------------------------------------------------------------------
 
+const matchAll = require("match-all");
+
+export class yarnNode 
+{
+    private titles : string[];
+
+
+    constructor(){
+        this.titles = [];
+    }
+
+
+    getTitles(): string[]{
+        return this.titles;
+    }
+
+    convertFromContentToNode(content: String){
+
+        /*
+            1. get the content from current editor
+            2. regex node info (starting with just titles)
+            3. should be good
+        */
+
+            /*
+#This is a file tag
+//This is a comment
+Title: eee
+headerTag: otherTest
+---
+===
+
+Title: 333
+headerTag: otherTest
+---
+===
+
+Title: ttt
+headerTag: otherTest
+---
+===
+*/
+
+        let regexExp = /(Title:.*)/g;
+
+        let n = content.match(regexExp);
+        let nn = [];
+        if(n)
+        {
+            //Iterate through the array of titles that match.
+            for(let i of n){ 
+                var word = i;
+                word = word.replace("Title:","");
+                word = word.replace(" ","");
+                nn.push(word);
+            }
+        }
+        this.titles = nn;//Make sure it resets the full list (prevent duplicates)
+        
+        //Debug log
+        console.log(this.titles);
+    }
+
+    convertFromNodeToContent(): String{
+
+
+        return "TODO Not implemented";
+    }
+
+
+}
+
+
+
+
+
+//!----------------------------------------------------------------------------------------------------------------------------------
+
 
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
@@ -272,9 +350,19 @@ editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_B, () =>
     boldText?.click();
 });
 
+
+let yn = new yarnNode();
+
+
+
+
+
 //Editor specific events
 editor.onDidChangeModelContent(() => 
 {
+    yn.convertFromContentToNode(editor.getValue());
+
+
     const workingDetailDiv = document.getElementById( yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString() );
 
     syncCurrentFile();//Update the contents at each point
@@ -325,6 +413,7 @@ if (workingFiles)
     //Add all listeners
     workingFiles.addEventListener("click", (event) => 
     {
+        alert(yn.getTitles());
         //Button clicked event
         if (event && event.target && (event.target as HTMLElement).tagName === "BUTTON") 
         {

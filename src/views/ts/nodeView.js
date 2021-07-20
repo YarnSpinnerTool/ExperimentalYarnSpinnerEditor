@@ -20,6 +20,9 @@ var layer = new Konva.Layer();
 // * Initialise and draw the Konva stage.
 export function init() {
 
+
+  /*
+   * CONNECTED NODES DEMO
   //Create a square.
   var rect = new Konva.Rect({
     x: stage.width() / 2,
@@ -31,7 +34,7 @@ export function init() {
     strokeWidth: 1,
     draggable: true,
   });
-  
+
   //Create a second square.
   var rect2 = new Konva.Rect({
     x: 50,
@@ -51,21 +54,6 @@ export function init() {
     tension: 1
   });
 
-  //Add all of the shapes to the layer.
-  layer.add(line);
-  layer.add(rect);
-  layer.add(rect2);
-
-  //Add the layer to the stage.
-  stage.add(layer);
-
-  //Draw the layer.
-  layer.draw();
-
-  //Resize the stage appropriately, recall on window resize.
-  responsiveSize();
-  window.addEventListener('resize', responsiveSize);
-  
   //When dragging the rectangle, move the line to the centerpoint of both nodes.
   rect.on("dragmove", () => {
     var nodeCenterLength = rect.width() / 2;
@@ -79,6 +67,20 @@ export function init() {
     line.points([rect.x() + nodeCenterLength, rect.y() + nodeCenterLength, rect2.x() + nodeCenterLength, rect2.y() + nodeCenterLength]);
     layer.draw();
   });
+  //Add all of the shapes to the layer.
+  layer.add(line);
+  layer.add(rect);
+  layer.add(rect2);
+*/
+  //Add the layer to the stage.
+  stage.add(layer);
+
+  //Draw the layer.
+  layer.draw();
+
+  //Resize the stage appropriately, recall on window resize.
+  responsiveSize();
+  window.addEventListener('resize', responsiveSize);
 }
 
 /**  
@@ -101,27 +103,52 @@ function createNewGroupNode(text, height, width) {
   var nodeGroup = new Konva.Group({
     draggable: true,
   });
-  
+  var randX = Math.random() * stage.width();
+  var randY = Math.random() * stage.height();
   // Add the rectangle using both h + w parameters.
   nodeGroup.add(
     new Konva.Rect({
-      x: 0,
-      y: 0,
+      x: randX,
+      y: randY,
       width: width,
       height: height,
       fill: '#f5f0b0',
       stroke: '#f2deac',
+      strokeWidth: 2,
+      
+      shadowColor: 'black',
+      shadowBlur: 10,
+      shadowOffset: { x: 3, y: 3 },
+      shadowOpacity: 0.2,
+    })
+  );
+
+  nodeGroup.add(
+    new Konva.Rect({
+      x: randX,
+      y: randY,
+      width: width,
+      height: height/5,
+      fill: '#f2deac',
+      stroke: '#f2deac',
       strokeWidth: 1,
     })
   );
-  
+
+  if (text.length > 12) {
+    text = text.substring(0, 10);
+    text += "...";
+  };
+
+
   // Add text using the parameter.
   nodeGroup.add(
     new Konva.Text({
-      x: 2,
-      y: 5,
+      x: randX + 1,
+      // + ((width / 2) - (text.length * 2.75))
+      y: randY + 2,
       width: width,
-      height: height,
+      height: height/5,
       text: text,
       fill: "black",
       stroke: "black",
@@ -137,11 +164,11 @@ function createNewGroupNode(text, height, width) {
 function responsiveSize() {
   //Retrieves the element that the Konva stage is in.
   var container = document.getElementById('nodeContainer');
-  
+
   //Gets the width and height of the element.
   var containerWidth = container.offsetWidth;
   var containerHeight = container.offsetHeight;
-  
+
   //Sets the width and height of the stage to fit the element, scales the layer appropriately.
   var scale = containerWidth / sceneWidth;
   stage.width(containerWidth);

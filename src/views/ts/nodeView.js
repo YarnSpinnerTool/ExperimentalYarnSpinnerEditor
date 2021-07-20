@@ -33,11 +33,10 @@ export function init() {
 
 function responsiveSize() {
   var container = document.getElementById('nodeContainer');
-  var containerWidth = container.clientWidth;
-  var containerHeight = container.clientHeight;
+  var containerWidth = container.offsetWidth;
+  var containerHeight = container.offsetHeight;
   var scale = containerWidth / sceneWidth;
-  stage.width = (containerWidth - 50);
-  stage.height = (containerHeight - 50);
+  stage.width(containerWidth);
+  stage.height(containerHeight);
   stage.scale({ x: scale, y: scale });
-  console.log("responsiveSize ran");
 }

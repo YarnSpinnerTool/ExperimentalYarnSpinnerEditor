@@ -148,13 +148,40 @@ export class YarnFileManager
 
 //!----------------------------------------------------------------------------------------------------------------------------------
 
+
+
+export class tempJump
+{
+    source : string;
+    target : string;
+
+    constructor(source: string, target: string){
+        this.source = source;
+        this.target = target;
+    }
+}
+
+export class JumpsListTemp{
+
+    listOfJumps : tempJump[];
+
+    constructor(){
+        this.listOfJumps = [] as tempJump[];
+    }
+
+
+}
+
+
 export class yarnNode 
 {
     private titles : string[];
+    jumps : JumpsListTemp;
 
 
     constructor(){
         this.titles = [];
+        this.jumps = new JumpsListTemp();
     }
 
 
@@ -176,11 +203,14 @@ export class yarnNode
 Title: eee
 headerTag: otherTest
 ---
+<<jump 333>>
+<<jump ttt>>
 ===
 
 Title: 333
 headerTag: otherTest
 ---
+<<jump ttt>>
 ===
 
 Title: ttt
@@ -205,6 +235,8 @@ headerTag: otherTest
 
         let regexExp = /(Title:.*)/g;
         let endRegexExp = /===/g;
+        let jumpRegexExp = /<<jump.*?>>/
+        let jumpTitleRegexExp = /<<jump(.*?)>>/
 
         let indexes = [] as number[];
 
@@ -215,38 +247,36 @@ headerTag: otherTest
 
         var allLines = content.split("\n");
 
+        var lastNode = ""
+
         for (var i = 0; i < allLines.length; i++){
             if (allLines[i].match(regexExp)){
                 var word = allLines[i]
                 word = word.replace("Title:","");
                 word = word.replace(" ","");
 
+                lastNode = word;
                 n.push(word);
                 indexes.push(i+1);
             }
             else if (allLines[i].match(endRegexExp)){
                 ends.push(i+1);
             }
+            else if (allLines[i].match(jumpRegexExp)){
+                var w = allLines[i].match(jumpTitleRegexExp);
+                if (w){
+                    this.jumps.listOfJumps.push(new tempJump(lastNode, w[1]));
+                }
+            }
         }
 
-        //let nn = [];
-        // if(n)
-        // {
-        //     //Iterate through the array of titles that match.
-        //     for(let i of n){ 
-                
-        //         var word = i;
-        //         word = word.replace("Title:","");
-        //         word = word.replace(" ","");
-        //         nn.push(word);
-        //     }
-        // }
         this.titles = n;//Make sure it resets the full list (prevent duplicates)
         
         //Debug log
         console.log(this.titles);
         console.log(indexes);
         console.log(ends);
+        console.log(this.jumps.listOfJumps);
     }
 
     convertFromNodeToContent(): String{

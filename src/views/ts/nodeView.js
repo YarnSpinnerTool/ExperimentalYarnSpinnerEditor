@@ -11,6 +11,7 @@ var sceneWidth = 500;
 var sceneHeight = 500;
 
 var stage = new Konva.Stage({
+  draggable: true,
   container: 'nodeContainer',   // id of container <div>
   width: sceneWidth,
   height: sceneHeight,
@@ -18,6 +19,32 @@ var stage = new Konva.Stage({
 var layer = new Konva.Layer();
 stage.add(layer);
 layer.draw();
+
+// * Mouse Events
+var scaleBy = 1.1;
+stage.on('wheel', (e) => {
+  e.evt.preventDefault();
+  var scrollDirection = e.evt.deltaY;
+  var oldScale = stage.scaleX();
+  var mPos = stage.getPointerPosition();
+
+  var mousePosition = {
+    x: (mPos.x - stage.x()) / oldScale,
+    y: (mPos.y - stage.y()) / oldScale
+  }
+
+  if (scrollDirection > 0 && oldScale < 4)
+  {
+    stage.scale({x:(oldScale * scaleBy), y:(oldScale * scaleBy)});
+  }
+  else if (scrollDirection < 0 && oldScale > 0.5)
+  {
+    stage.scale({x:(oldScale / scaleBy), y:(oldScale / scaleBy)});
+  }
+
+  stage.x(mPos.x - mousePosition.x * stage.scaleX());
+  stage.y(mPos.y - mousePosition.y * stage.scaleY());
+});
 
 // * Initialise and draw the Konva stage.
 export function init() {

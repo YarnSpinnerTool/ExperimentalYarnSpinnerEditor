@@ -169,35 +169,122 @@ export class JumpsListTemp{
         this.listOfJumps = [] as tempJump[];
     }
 
+}
+
+//TODO
+/*
+    Do we remove this entire class as it's always known what the source title will be?
+    The target is all we really need so jumps can just be titles, less abstraction?
+
+*/
+export class nodeJump{
+    private sourceTitle: string;
+    private targetTitle: string;
+
+    constructor(sourceTitle: string, targetTitle: string){
+        this.sourceTitle = sourceTitle;
+        this.targetTitle = targetTitle;
+    }
+
+    getSource(): string{
+        return this.sourceTitle;
+    }
+
+    getTarget(): string{
+        return this.targetTitle;
+    }
+
+    setSource(source: string): void{
+        this.sourceTitle = source;
+    }
+
+    setTarget(target: string): void{
+        this.targetTitle = target;
+    }
+
+    //TODO remainder of functions that this may need
 
 }
 
+export class yarnNode{
 
-export class yarnNode 
+    private title: string;
+    private lineStart: number;
+    private lineEnd: number;
+    private jumps: nodeJump[];
+
+    constructor(title: string, lineStart: number, lineEnd: number, jumps: nodeJump[]){
+        this.title = title;
+        this.lineStart = lineStart;
+        this.lineEnd = lineEnd;
+        this.jumps = jumps;
+    }
+
+    getTitle(): string{
+        return this.title;
+    }
+
+    getLineStart(): number{
+        return this.lineStart;
+    }
+
+    getLineEnd(): number{
+        return this.lineEnd;
+    }
+
+    getJumps(): nodeJumps[]{
+        return this.jumps;
+    }
+
+    setTitle(title: string): void{
+        this.title = title;
+    }
+
+    setLineStart(lineStart: number): void{
+        this.lineStart = lineStart;
+    }
+
+    setLineEnd(lineEnd: number): void{
+        this.lineEnd = lineEnd;
+    }
+
+    addJump(targetNode: string): void{
+        this.jumps.push(new nodeJump(this.getTitle(), targetNode));
+    }
+
+    removeJump(targetNode: string): void{
+        //TODO
+        //!-------
+    }
+
+    searchJumpsForTitleAndReplaceTitle(oldTitle: string, newTitle: string): void{
+        this.getJumps().forEach(jump => {
+            if (jump.getTarget() === oldTitle){
+                jump.setTarget(newTitle);
+            }
+        });
+    }
+}
+
+export class yarnNodeList
 {
     private titles : string[];
-    jumps : JumpsListTemp;
+    private nodes: Map<String, yarnNode>
 
+    jumps : JumpsListTemp;
 
     constructor(){
         this.titles = [];
+        this.nodes = new Map<String, yarnNode>();
         this.jumps = new JumpsListTemp();
     }
-
 
     getTitles(): string[]{
         return this.titles;
     }
 
     convertFromContentToNode(content: String){
-
-        /*
-            1. get the content from current editor
-            2. regex node info (starting with just titles)
-            3. should be good
-        */
-
-            /*
+/*
 #This is a file tag
 //This is a comment
 Title: eee
@@ -219,35 +306,19 @@ headerTag: otherTest
 ===
 */
 
-//TODO - Figure out the way to have the nodes construct whilst waiting for the final ===, e.g. start with title and that line no, then wait to construct that object until
-//TODO - get to the ===
-
-
-/*
-        if node already exists, update line no start number and end number
-        else
-            Find title and line no start, hold it
-            finds final === and it's line number, then construct the node
-*/
-
-//TODO - Then after this, make it only update the node if the title exists, or remove the node if no longer exists
-
-
         let regexExp = /(Title:.*)/g;
         let endRegexExp = /===/g;
         let jumpRegexExp = /<<jump.*?>>/
         let jumpTitleRegexExp = /<<jump(.*?)>>/
 
-        let indexes = [] as number[];
-
-        //let n = content.match(regexExp);
-
-        let n = [] as string[];
-        let ends = [] as number[];
-
         var allLines = content.split("\n");
 
+        //Variables to hold to create new nodes
         var lastNode = ""
+        var newNodeTitle = "";
+        var newNodeLineStart = 0;
+        var newNodeLineEnd = 0;
+        var jumpsNode = [] as nodeJump[];
 
         for (var i = 0; i < allLines.length; i++){
             if (allLines[i].match(regexExp)){
@@ -256,31 +327,36 @@ headerTag: otherTest
                 word = word.replace(" ","");
 
                 lastNode = word;
-                n.push(word);
-                indexes.push(i+1);
+                newNodeTitle = word;
+                newNodeLineStart = i+1;
             }
             else if (allLines[i].match(endRegexExp)){
-                ends.push(i+1);
+                newNodeLineEnd = i+1;
             }
             else if (allLines[i].match(jumpRegexExp)){
                 var w = allLines[i].match(jumpTitleRegexExp);
                 if (w){
-                    this.jumps.listOfJumps.push(new tempJump(lastNode, w[1]));
+                    jumpsNode.push(new nodeJump(lastNode, w[1]));
                 }
+            }
+
+            if (newNodeTitle !== "" && newNodeLineStart !== 0 && newNodeLineEnd !== 0){
+                this.nodes.set(newNodeTitle, new yarnNode(newNodeTitle, newNodeLineStart, newNodeLineEnd, jumpsNode));
+
+                //Reset variables to create the next node
+                newNodeTitle = "";
+                newNodeLineStart = 0;
+                newNodeLineEnd = 0;
+                jumpsNode = [] as nodeJump[];
             }
         }
 
-        this.titles = n;//Make sure it resets the full list (prevent duplicates)
-        
-        //Debug log
-        console.log(this.titles);
-        console.log(indexes);
-        console.log(ends);
-        console.log(this.jumps.listOfJumps);
+        console.log("NODE TIME");
+        console.log(this.nodes);
     }
 
     convertFromNodeToContent(): String{
-
+        //TODO is this even needed following our circular one way direction design?
 
         return "TODO Not implemented";
     }
@@ -419,10 +495,7 @@ editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_B, () =>
 });
 
 
-let yn = new yarnNode();
-
-
-
+let yn = new yarnNodeList();
 
 
 //Editor specific events

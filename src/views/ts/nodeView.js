@@ -16,62 +16,12 @@ var stage = new Konva.Stage({
   height: sceneHeight,
 });
 var layer = new Konva.Layer();
+stage.add(layer);
+layer.draw();
 
 // * Initialise and draw the Konva stage.
 export function init() {
-
-
-  /*
-   * CONNECTED NODES DEMO
-  //Create a square.
-  var rect = new Konva.Rect({
-    x: stage.width() / 2,
-    y: stage.height() / 2,
-    width: 70,
-    height: 70,
-    fill: '#f5f0b0',
-    stroke: '#f2deac',
-    strokeWidth: 1,
-    draggable: true,
-  });
-
-  //Create a second square.
-  var rect2 = new Konva.Rect({
-    x: 50,
-    y: stage.height() / 2,
-    width: 70,
-    height: 70,
-    fill: '#f5f0b0',
-    stroke: '#f2deac',
-    strokeWidth: 1,
-    draggable: true,
-  });
-
-  //Create a line between the centerpoints of the two squares.
-  var line = new Konva.Line({
-    points: [rect.x() + (rect.width() / 2), rect.y() + (rect.width() / 2), rect2.x() + (rect.width() / 2), rect2.y() + (rect.width() / 2)],
-    stroke: 'black',
-    tension: 1
-  });
-
-  //When dragging the rectangle, move the line to the centerpoint of both nodes.
-  rect.on("dragmove", () => {
-    var nodeCenterLength = rect.width() / 2;
-    line.points([rect.x() + nodeCenterLength, rect.y() + nodeCenterLength, rect2.x() + nodeCenterLength, rect2.y() + nodeCenterLength]);
-    layer.draw();
-  });
-
-  //When dragging rectangle 2, move the line to the centerpoint of both nodes.
-  rect2.on("dragmove", () => {
-    var nodeCenterLength = rect.width() / 2;
-    line.points([rect.x() + nodeCenterLength, rect.y() + nodeCenterLength, rect2.x() + nodeCenterLength, rect2.y() + nodeCenterLength]);
-    layer.draw();
-  });
-  //Add all of the shapes to the layer.
-  layer.add(line);
-  layer.add(rect);
-  layer.add(rect2);
-*/
+  
   //Add the layer to the stage.
   stage.add(layer);
 
@@ -85,24 +35,27 @@ export function init() {
 
 /**  
  * * Function for creating a new node externally.
- * @param title The text in the node.
+ * @param title String: The title of the node.
  */
 export function newNode(title) {
   var node = createNewGroupNode(title, 70, 70);
+  node.name(title);
   layer.add(node);
   layer.draw();
 }
 
 /**  
  * * Creating a new group with a rectangle and text shape.
- * @param text The text of the node
- * @param height The height of the node
- * @param width The width of the node
+ * @param text String: The text of the node
+ * @param height Int: The height of the node
+ * @param width Int: The width of the node
  */
 function createNewGroupNode(text, height, width) {
   var nodeGroup = new Konva.Group({
     draggable: true,
+    name: text
   });
+
   var randX = Math.random() * stage.width();
   var randY = Math.random() * stage.height();
   // Add the rectangle using both h + w parameters.
@@ -115,7 +68,6 @@ function createNewGroupNode(text, height, width) {
       fill: '#f5f0b0',
       stroke: '#f2deac',
       strokeWidth: 2,
-      
       shadowColor: 'black',
       shadowBlur: 10,
       shadowOffset: { x: 3, y: 3 },
@@ -156,6 +108,40 @@ function createNewGroupNode(text, height, width) {
     })
   );
   return nodeGroup;
+}
+
+/**  
+ * * Function for connecting two nodes with a line. 
+ * @param from String: The title of the node where the line starts.
+ * @param to String: The title of the node where the line ends.
+ */
+export function connectNodes(from, to) {
+  
+  var nodeFrom = stage.findOne("."+from);
+  var nodeTo = stage.findOne("."+to);
+  
+  // ! DEBUG
+  console.log(stage.findOne("."+from));
+
+  var nodeCenterLength = nodeTo.width() / 2;
+
+  //Draw the line between the center of each node. 
+  var line = new Konva.Line({
+    points: [nodeFrom.x() + nodeCenterLength, nodeFrom.y() + nodeCenterLength, nodeTo.x() + nodeCenterLength, nodeTo.y() + nodeCenterLength],
+    stroke: 'black',
+    tension: 1
+  });  
+  //Redraw the line when moving the from node.
+  nodeFrom.on("dragmove", () => {
+    line.points([nodeFrom.x() + nodeCenterLength, nodeFrom.y() + nodeCenterLength, nodeTo.x() + nodeCenterLength, nodeTo.y() + nodeCenterLength]);
+    layer.draw();
+  });
+
+  //Redraw the line when moving the to node.
+  nodeTo.on("dragmove", () => {
+    line.points([nodeFrom.x() + nodeCenterLength, nodeFrom.y() + nodeCenterLength, nodeTo.x() + nodeCenterLength, nodeTo.y() + nodeCenterLength]);
+    layer.draw();
+  });
 }
 
 /**  

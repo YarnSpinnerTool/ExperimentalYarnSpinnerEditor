@@ -159,7 +159,7 @@ import * as monaco from "monaco-editor";
 import * as yarnSpinner from "../../YarnSpinner/yarnSpinnerMonarch";
 import { ipcRenderer } from "electron";
 import exports from "../../controllers/themeReader.ts";
-import * as Konva from "./nodeView"
+import * as Konva from "./nodeView";
 
 const yarnFileManager = new YarnFileManager();
 
@@ -206,7 +206,7 @@ monaco.editor.defineTheme("customTheme", {
         //"editor.lineHighlightBackground": exports.invertDefault, //Removed from parameter
         
         //Shows indentation
-        'editorIndentGuide.background': exports.metadata,
+        "editorIndentGuide.background": exports.metadata,
         
         //lineNumberColour
         "editorLineNumber.foreground": exports.default,

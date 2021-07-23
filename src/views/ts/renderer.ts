@@ -149,20 +149,22 @@ export class YarnFileManager
 //!----------------------------------------------------------------------------------------------------------------------------------
 
 
-
+//temporary working object
 export class tempJump
 {
     source : string;
     target : string;
 
-    constructor(source: string, target: string){
+    constructor(source: string, target: string)
+    {
         this.source = source;
         this.target = target;
     }
 }
 
-export class JumpsListTemp{
-
+//temporary working object
+export class JumpsListTemp
+{
     listOfJumps : tempJump[];
 
     constructor(){
@@ -171,12 +173,6 @@ export class JumpsListTemp{
 
 }
 
-//TODO
-/*
-    Do we remove this entire class as it's always known what the source title will be?
-    The target is all we really need so jumps can just be titles, less abstraction?
-
-*/
 export class nodeJump{
     private sourceTitle: string;
     private targetTitle: string;
@@ -268,23 +264,29 @@ export class yarnNode{
 
 export class yarnNodeList
 {
-    private titles : string[];
-    private nodes: Map<String, yarnNode>
+    private titles : string[];// is this going to be removed?
+    private nodes: Map<string, yarnNode>
 
     jumps : JumpsListTemp;
 
-    constructor(){
+    constructor()
+    {
         this.titles = [];
-        this.nodes = new Map<String, yarnNode>();
+        this.nodes = new Map<string, yarnNode>();
         this.jumps = new JumpsListTemp();
     }
 
-    getTitles(): string[]{
+    getTitles(): string[]
+    {
         return this.titles;
     }
 
-    convertFromContentToNode(content: String){
+    convertFromContentToNode(content: string)
+    {
 /*
+
+test string to copy paste in
+
 #This is a file tag
 //This is a comment
 Title: eee
@@ -304,45 +306,111 @@ Title: ttt
 headerTag: otherTest
 ---
 ===
+
+
+
+POSSIBLE FIXES
+- Make a listener event for mouse click and enter press to run this?
+
+TODO    0. Remove jumps from nodes, and make it it's own standalone array / map (however we implement it)
+TODO    1. Adaptive creation, check if line start and end are the same but title different?, the title has been changed in the text
+TODO    2. Will help with efficiently and call the regex on each new line rather than each char
+            
+            One possible solution is:
+            conditional THAT CHECKS LINE NUMBER POSITION, AGAINST THE OLD SAVED POSITION
+            IF THEY ARE DIFFERENT, THEN CALL THIS METHOD - This will be called on all model change
+            https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.istandalonecodeeditor.html#getposition
+
+            This is probably not the best solution but if there is a better one please don't hesitate to share
+
+            Enter and tab probably can't be used as they handle the autocomplete for the title, causing the empty title problem
+                but that might not be a problem if implemented correctly, see bugs 1.
+
+TODO    3. Pass through jumps to nodeView at the end of the block (where newNode is reassigned to empty)
+TODO    4. Tidy up the code, cases and checks to be more clear and readable
+TODO    
+TODO    
+
+        Do we keep the node creation as is (created at the end)
+        Or make it assign the values as they are found
+
+        Do we assign unique identifiers to the node obj (outside of the title) so title changes are arbitrary?
+
+!       IMPORTANT - BUGS TO FIX
+!    1.  The autocomplete on new nodes won't 
+!        call the regex to add the title to the list 
+            They're added but as empty title, needs to have some recall once the line is completed - A
+
+            If implemented correctly, this won't be a "problem" as it will show the title being created
+            on the nodeView end as the user types it? - A
+
+!
+!    2.  Renaming nodes won't rename the title in the list
+!
+
+!    3.  
+
+
+
+ will require to hold two instances of the node collection, one that is drawn, one that is calculated on each "event" (rn it's all changes in the monaco editor)
+
+- Transfer NodeList from text to node renderer
+- Compare if all titles are in each list - if so, don't redraw
+- Compare if there is a new title - redraw whole tree
+- - After, make it so it only redraws the new node (check all titles are drawn)
+
+- compare if there is a missing title - redraw whole tree
+- - After, make it so it only removes the node that was deleted
 */
 
-        let regexExp = /(Title:.*)/g;
-        let endRegexExp = /===/g;
-        let jumpRegexExp = /<<jump.*?>>/
-        let jumpTitleRegexExp = /<<jump(.*?)>>/
 
-        var allLines = content.split("\n");
+        const regexExp = /(Title:.*)/g;//Get title match
+        const endRegexExp = /===/g; //Get the end of the node match
+        const jumpRegexExp = /<<jump.*?>>/; //Get the jump line match
+        const jumpTitleRegexExp = /<<jump(.*?)>>/; //get the title from the jump command
+
+        const allLines = content.split("\n");//Splits the content into a string array to increment over
 
         //Variables to hold to create new nodes
-        var lastNode = ""
-        var newNodeTitle = "";
-        var newNodeLineStart = 0;
-        var newNodeLineEnd = 0;
-        var jumpsNode = [] as nodeJump[];
+        let lastNode = "";
+        let newNodeTitle = "";
+        let newNodeLineStart = 0;
+        let newNodeLineEnd = 0;
+        let jumpsNode = [] as nodeJump[];
 
-        for (var i = 0; i < allLines.length; i++){
-            if (allLines[i].match(regexExp)){
-                var word = allLines[i]
+        let newNode = new Map<string,yarnNode>();
+
+        for (let i = 0; i < allLines.length; i++){
+            if (allLines[i].match(regexExp))
+            {
+                let word = allLines[i];
                 word = word.replace("Title:","");
                 word = word.replace(" ","");
 
                 lastNode = word;
+                //TODO make a empty node (no line start or end, just title) might be a good thing?
+                //Assign the stuff as you find it rather than clump it all at the end
                 newNodeTitle = word;
                 newNodeLineStart = i+1;
             }
-            else if (allLines[i].match(endRegexExp)){
-                newNodeLineEnd = i+1;
-            }
-            else if (allLines[i].match(jumpRegexExp)){
-                var w = allLines[i].match(jumpTitleRegexExp);
-                if (w){
+            
+            else if (allLines[i].match(jumpRegexExp))
+            {
+                let w = allLines[i].match(jumpTitleRegexExp);
+                if (w)
+                {
                     jumpsNode.push(new nodeJump(lastNode, w[1]));
                 }
             }
 
-            if (newNodeTitle !== "" && newNodeLineStart !== 0 && newNodeLineEnd !== 0){
-                this.nodes.set(newNodeTitle, new yarnNode(newNodeTitle, newNodeLineStart, newNodeLineEnd, jumpsNode));
+            else if (allLines[i].match(endRegexExp))
+            {
+                newNodeLineEnd = i+1;
+            }
 
+            if (newNodeTitle !== "" && newNodeLineStart !== 0 && newNodeLineEnd !== 0)
+            {
+                newNode.set(newNodeTitle, new yarnNode(newNodeTitle, newNodeLineStart, newNodeLineEnd, jumpsNode));
                 //Reset variables to create the next node
                 newNodeTitle = "";
                 newNodeLineStart = 0;
@@ -351,11 +419,59 @@ headerTag: otherTest
             }
         }
 
-        console.log("NODE TIME");
+        
+        if (newNode.size !== this.nodes.size){
+            //Changes are afoot
+
+            //First case: new title - notify renderer
+            if (newNode.size >= this.nodes.size)
+            {
+                newNode.forEach((node,title) => 
+                {
+                    if (!this.nodes.has(title))
+                    {
+                        console.log(title + " has been added");
+                        //TODO notify nodeView new node is added
+                    }
+                });
+            }
+
+            //Second case: removed title - notify renderer
+            else if (newNode.size <= this.nodes.size)
+            {
+                this.nodes.forEach((node,title) => 
+                {
+                    if (!newNode.has(title))
+                    {
+                        console.log(title + " has been removed");
+                        //TODO notify nodeView node has been removed
+                    }
+                });
+            }
+            console.log("Nodes have been reassigned");
+            this.nodes = newNode;
+        }
+        else if (newNode.size === this.nodes.size){
+            //TODO - CHECK FOR TITLE CHANGES
+            /*
+                check if line start is same, and line end is same
+                maybe hold old name?
+
+
+            */
+
+            this.nodes = newNode;
+
+
+
+        }
+
+        newNode = new Map<string,yarnNode>();
         console.log(this.nodes);
     }
 
-    convertFromNodeToContent(): String{
+    convertFromNodeToContent(): string
+    {
         //TODO is this even needed following our circular one way direction design?
 
         return "TODO Not implemented";
@@ -428,7 +544,7 @@ monaco.editor.defineTheme("customTheme", {
         //"editor.lineHighlightBackground": exports.invertDefault, //Removed from parameter
         
         //Shows indentation
-        'editorIndentGuide.background': exports.metadata,
+        "editorIndentGuide.background": exports.metadata,
         
         //lineNumberColour
         "editorLineNumber.foreground": exports.default,

@@ -10,7 +10,7 @@
  * JS RegExp Documentation: https://www.w3schools.com/jsref/jsref_obj_regexp.asp
  * Typescript TokensProvider: https://github.com/microsoft/monaco-languages/blob/main/src/typescript/typescript.ts
  */
-import * as monaco from 'monaco-editor';
+import * as monaco from "monaco-editor";
 //Exports configuration monaco/monarch tokenisation for Yarn Spinner
 export const tokensWIP = 
 {
@@ -20,12 +20,12 @@ export const tokensWIP =
 
     //From section identifiers in the yarn spec.
     //A-Z, a-z, _, followed by an optional period, and then an optional second string of A-Z, a-z, _. '$' are not allowed
-    yarnIdentifier: /[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/,
+    yarnIdentifier: /[A-Za-z0-9_]+[.]*[A-Za-z0-9_]*/,
   
     yarnFloat: /-?[\d]+\.[\d]+/,
     yarnInteger: /-?\d+/,
     yarnOperator: /(is|==|!=|<=|>=|>(?!>)|<|or|\|\||xor|\^|!|and|&&|\+|-|\*|\/|%|=)/,
-    dialogueSymbols: /[:!@%^&*\()\\\|<>?/~`',."+=-]/,
+    dialogueSymbols: /[:!@%^&*()\\|<>?/~`',."+=-]/,
 
     yarnKeywords: ["as","true","false"],
     yarnTypeKeywords: [ "Bool", "String", "Number"],
@@ -61,7 +61,7 @@ export const tokensWIP =
         fileheader: 
         [
             //File tags
-            [ /\#.*\n/, "Metadata" ],
+            [ /#.*\n/, "Metadata" ],
 
             { include: "comments" },
             { include: "whitespace"},
@@ -89,7 +89,7 @@ export const tokensWIP =
             //Commands
             { regex: /<</, action: { token: "Commands", next: "@commands"} },
             //Hashtags
-            { regex: /\#/, action: {token: "Metadata", next: "@hashtags"} },
+            { regex: /#/, action: {token: "Metadata", next: "@hashtags"} },
 
             
             //When encountering the body delimiter, move to the file state.
@@ -122,7 +122,7 @@ export const tokensWIP =
         ], 
         strings:
         [
-            [/[^\"]+/, "Strings"],
+            [/[^"]+/, "Strings"],
             [/"/, "Strings", "@pop"]
         ],
         commands:
@@ -142,13 +142,13 @@ export const tokensWIP =
             [/[A-Za-z_$][\w$]*/, { 
                 cases: 
                 {
-                "@yarnCommands": "CommandsInternals",
-                "@yarnKeywords": "CommandsInternals",
-                "@yarnTypeKeywords": "CommandsInternals",
-                "@default": "Commands"
+                    "@yarnCommands": "CommandsInternals",
+                    "@yarnKeywords": "CommandsInternals",
+                    "@yarnTypeKeywords": "CommandsInternals",
+                    "@default": "Commands"
                 }
             }
-        ],
+            ],
             //Pop when reaching close >> bracket.
             { regex: />>/, action: {token: "Commands", next: "@pop"} }
         ],
@@ -162,7 +162,7 @@ export const tokensWIP =
             //Strings
             { regex: /"/, action: { token: "Strings" , next: "@strings"} },
             //Hashtags
-            { regex: /\#/, action: {token: "Metadata", next: "@hashtags"} },
+            { regex: /#/, action: {token: "Metadata", next: "@hashtags"} },
             
             [/[ \t\r]+/, ""],
 
@@ -208,7 +208,7 @@ export const tokensWIP =
         ],
         hashtags:
         [
-            { include: 'comments' },//include the rules for comments
+            { include: "comments" },//include the rules for comments
             [/[ \t\r]+/, ""],
             //Any text that's not newline character
             [/[A-Za-z][\w$]*/, "Metadata"],
@@ -233,7 +233,7 @@ export const config = {
     },
 
     brackets: [
-        ['<<', '>>'], // Command brackets
+        ["<<", ">>"], // Command brackets
         ["[", "]"], 
         ["(", ")"]
     ],
@@ -244,136 +244,138 @@ export const config = {
 
     autoClosingPairs: [
         //Command
-        { open: '<<', close: '>>' },
+        { open: "<<", close: ">>" },
         //Interpolation
-        { open: '{', close: '}' },
+        { open: "{", close: "}" },
         //Mathematical 
-        { open: '(', close: ')' },
+        { open: "(", close: ")" },
     ],
 
     folding: {
         markers: {
-            start: new RegExp('^---'),
-            end: new RegExp('^===')
+            start: new RegExp("^---"),
+            end: new RegExp("^===")
         }
     }
 };
 
 export const theme = {
-    base: 'vs',
+    base: "vs",
     inherit: true,
 
     rules: [
-        { background: 'CFD8DC'},
-        { token: 'body.bold', fontStyle: 'bold' },
-        { token: 'body.underline', fontStyle: 'underline' },
-        { token: 'body.italic', fontStyle: 'italic' },
-        { token: 'body.commands', foreground : 'FF00FF' },
-        { token: 'commands', foreground : 'FF00AA' },
-        { token: 'file.tag', foreground : '719C70' },
-        { token: 'interpolation', foreground : 'CC8400' },
-        { token: 'options', foreground : 'AD00C4'},
-        { token: 'variables', foreground : '347F36'},
-        { token: 'float', foreground : '063B0E'},
-        { token: 'number', foreground : '063B0E'},
-        { token: 'yarn.commands', foreground : 'A30A70'},
-        { token: 'commands.float', foreground : 'A30A70'},
-        { token: 'commands.number', foreground : 'A30A70'},
-        { token: 'commands.operator', foreground: 'AAAFFF'},
-        { token: 'hashtag', foreground: '#AAAAAA'}
-        ],
+        { background: "CFD8DC"},
+        { token: "body.bold", fontStyle: "bold" },
+        { token: "body.underline", fontStyle: "underline" },
+        { token: "body.italic", fontStyle: "italic" },
+        { token: "body.commands", foreground : "FF00FF" },
+        { token: "commands", foreground : "FF00AA" },
+        { token: "file.tag", foreground : "719C70" },
+        { token: "interpolation", foreground : "CC8400" },
+        { token: "options", foreground : "AD00C4"},
+        { token: "variables", foreground : "347F36"},
+        { token: "float", foreground : "063B0E"},
+        { token: "number", foreground : "063B0E"},
+        { token: "yarn.commands", foreground : "A30A70"},
+        { token: "commands.float", foreground : "A30A70"},
+        { token: "commands.number", foreground : "A30A70"},
+        { token: "commands.operator", foreground: "AAAFFF"},
+        { token: "hashtag", foreground: "#AAAAAA"}
+    ],
 
     colors: {
-        'editor.foreground': '#000000',
-        'editor.background': '#CFD8DC',
-        'editorCursor.foreground': '#8B0000',
-        'editor.lineHighlightBackground': '#0000FF20',
-        'editorLineNumber.foreground': '#008800',
-        'editor.selectionBackground': '#88000030',
-        'editor.inactiveSelectionBackground': '#88000015'
+        "editor.foreground": "#000000",
+        "editor.background": "#CFD8DC",
+        "editorCursor.foreground": "#8B0000",
+        "editor.lineHighlightBackground": "#0000FF20",
+        "editorLineNumber.foreground": "#008800",
+        "editor.selectionBackground": "#88000030",
+        "editor.inactiveSelectionBackground": "#88000015"
     }
 };
 
 export const completions = {
-    provideCompletionItems: (model, position, context, token) => {
-        var suggestions = [{
-            label: 'jump',
+    provideCompletionItems: (model: ITextModel, position: Position) : ProviderResult<CompletionList> => 
+    {
+        const suggestions = [{
+            label: "jump",
             kind: monaco.languages.CompletionItemKind.Method,
-            insertText: '<<jump $1>>',
+            insertText: "<<jump $1>>",
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
-            label: 'stop',
+            label: "stop",
             kind: monaco.languages.CompletionItemKind.Method,
-            insertText: '<<stop>>',
+            insertText: "<<stop>>",
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
-            label: 'set',
+            label: "set",
             kind: monaco.languages.CompletionItemKind.Method,
-            insertText: '<<set \$$1 to $2>>',
+            insertText: "<<set $$1 to $2>>",
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
-            label: 'declare',
+            label: "declare",
             kind: monaco.languages.CompletionItemKind.Method,
-            insertText: '<<declare \$$1 = $2>>',
+            insertText: "<<declare $$1 = $2>>",
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
-            label: 'declare-explicit',
+            label: "declare-explicit",
             kind: monaco.languages.CompletionItemKind.Method,
-            insertText: '<<declare \$$1 = $2 as $3>>',
+            insertText: "<<declare $$1 = $2 as $3>>",
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
-            label: 'if-endif',
+            label: "if-endif",
             kind: monaco.languages.CompletionItemKind.Interface,
             insertText: [
-                '<<if $1>>',
-                '\t$0',
-                '<<endif>>'
-            ].join('\n'),
+                "<<if $1>>",
+                "\t$0",
+                "<<endif>>"
+            ].join("\n"),
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
-            label: 'elseif',
+            label: "elseif",
             kind: monaco.languages.CompletionItemKind.Interface,
             insertText: [
-                '<<elseif $1>>',
-                '\t$0',
-            ].join('\n'),
+                "<<elseif $1>>",
+                "\t$0",
+            ].join("\n"),
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
-            label: 'else',
+            label: "else",
             kind: monaco.languages.CompletionItemKind.Interface,
             insertText: [
-                '<<else>>',
-                '\t$0',
-            ].join('\n'),
+                "<<else>>",
+                "\t$0",
+            ].join("\n"),
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
-            label: 'New node',
-            filterText: 'Title',
+            label: "New node",
+            filterText: "Title",
             kind: monaco.languages.CompletionItemKind.Class,
             insertText: [
-                'Title: $1',
-                '---',
-                '$0',
-                '==='
-            ].join('\n'),
-            documentation: 'Create new node',
+                "Title: $1",
+                "---",
+                "$0",
+                "==="
+            ].join("\n"),
+            documentation: "Create new node",
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }];
         
         //Get all of the text in the editor
-        var text = model.getValueInRange({startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
+        const text = model.getValueInRange({startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
         //Regex for both titles and variables, global tag is used.
-        var nodesRegex = /Title:\s?[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/g;
-        var variablesRegex = /\$[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/g;
+        const nodesRegex = /Title:\s?[A-Za-z0-9_]+[.]*[A-Za-z0-9_]*/g;
+        const variablesRegex = /\$[A-Za-z0-9_]+[.]*[A-Za-z0-9_]*/g;
         
         // * FOR FINDING NODE TITLES
-        var nodesArr = text.match(nodesRegex);
-        var nodes = new Set(nodesArr);
+        const nodesArr = text.match(nodesRegex);
+        const nodes = new Set(nodesArr);
         if(nodes)
         {
             //Iterate through the array of titles that match.
-            for(let i of nodes){ 
-                var word = i;
+            for(const i of nodes)
+            { 
+                let word = i;
                 //Remove the "Title:"
                 word = word.replace("Title:","");
                 //Remove any spaces, for example "Title: nodeName"
@@ -382,30 +384,32 @@ export const completions = {
                 //Add the word to the completion items.
                 suggestions.push(
                     {label: word, 
-                    kind: monaco.languages.CompletionItemKind.Class,
-                    insertText: word
+                        kind: monaco.languages.CompletionItemKind.Class,
+                        insertText: word
                     }
-                    );
+                );
             } 
         }
 
         // * FOR FINDING VARIABLES
         
-        var variablesArr = text.match(variablesRegex)
-        var variables = new Set(variablesArr);
+        const variablesArr = text.match(variablesRegex);
+        const variables = new Set(variablesArr);
 
-        if(variables){
+        if(variables)
+        {
             //Iterate through the array of titles that match.
-            for(let i of variables){
+            for(const i of variables)
+            {
                 //Add the word to the completion items.
-                var word = i;
+                const word = i;
                 suggestions.push(
                     {
-                    label: word, 
-                    kind: monaco.languages.CompletionItemKind.Property,
-                    insertText: word,
+                        label: word, 
+                        kind: monaco.languages.CompletionItemKind.Property,
+                        insertText: word,
                     }
-                    );
+                );
             }
         }
         return { suggestions: suggestions };

@@ -10,144 +10,6 @@
 	IPC Renderer console.log output will be in the developer tools window in the actual Electron client
 */
 
-//TODO Temporary classes location
-//!----------------------------------------------------------------------------------------------------------------------------------
-
-/*
-	--------------------------------------------------
-		THIS NEEDS TO BE MOVED TO ANOTHER FILE
-		STAYING HERE FOR NOW BC WEBPACK ISSUES
-	--------------------------------------------------
-*/
-
-export class YarnFile 
-{
-	private filePath: string | null;
-	private fileName: string;
-	private contents: string;
-	private contentsOnDisk: string;
-	private uniqueIdentifier: number;
-
-	constructor(filePath: string | null, contents: string | null, name: string | null, uniqueIdentifier: number) 
-	{
-	    this.filePath = filePath ? filePath : null;
-	    this.fileName = name ? name : "New File";
-	    this.contents = contents ? contents : "";
-	    this.contentsOnDisk = contents ? contents : "";
-	    this.uniqueIdentifier = uniqueIdentifier;
-	}
-
-	//Getters
-	getPath(): string | null 
-	{
-	    return this.filePath;
-	}
-
-	getName(): string 
-	{
-	    return this.fileName;
-	}
-
-	getContents(): string 
-	{
-	    return this.contents;
-	}
-
-	getSaved(): boolean 
-	{
-	    return this.getContents() === this.contentsOnDisk;
-	}
-
-	getUniqueIdentifier(): number 
-	{
-	    return this.uniqueIdentifier;
-	}
-
-	//Setters
-	setFilePath(filePath: string): void 
-	{
-	    this.filePath = filePath;
-	}
-
-	setName(name: string): void 
-	{
-	    this.fileName = name;
-	}
-
-	setContents(contents: string): void 
-	{
-	    this.contents = contents;
-	}
-
-	//Functions
-	fileSaved(): void 
-	{
-	    this.contentsOnDisk = this.contents;
-	}
-
-}
-
-export class YarnFileManager 
-{
-	private openFiles = new Map<number, YarnFile>(); //Number is the representation of the uniqueIdentifier
-	private currentOpenYarnFile: YarnFile;
-
-	constructor() 
-	{
-	    this.currentOpenYarnFile = this.createEmptyFile();
-	}
-
-	//Getters 
-	getFiles(): Map<number, YarnFile> 
-	{
-	    return this.openFiles;
-	}
-
-	getCurrentOpenFile(): YarnFile 
-	{
-	    return this.currentOpenYarnFile;
-	}
-
-	getYarnFile(yarnIDNumber: number): YarnFile | undefined 
-	{
-	    return this.openFiles.get(yarnIDNumber);
-	}
-
-	//Setters
-	setCurrentOpenYarnFile(yarnIDNumber: number): void 
-	{
-	    const newCurrent = this.openFiles.get(yarnIDNumber);
-	    if (newCurrent) 
-	    {
-	        this.currentOpenYarnFile = newCurrent;
-	    }
-	}
-
-	//Functions
-	addToFiles(newFile: YarnFile): void 
-	{
-	    this.openFiles.set(newFile.getUniqueIdentifier(), newFile);
-	}
-
-	removeFromFiles(yarnIDNumber: number): void 
-	{
-	    this.openFiles.delete(yarnIDNumber);
-	}
-
-	createEmptyFile(): YarnFile 
-	{
-	    const newFile: YarnFile = new YarnFile(null, null, null, Date.now());
-	    this.addToFiles(newFile);
-	    this.setCurrentOpenYarnFile(newFile.getUniqueIdentifier());
-
-	    return newFile;
-	}
-}
-
-
-
-//!----------------------------------------------------------------------------------------------------------------------------------
-
 
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
@@ -158,7 +20,9 @@ export class YarnFileManager
 import * as monaco from "monaco-editor";
 import * as yarnSpinner from "../../YarnSpinner/yarnSpinnerMonarch";
 import { ipcRenderer } from "electron";
-import exports from "../../controllers/themeReader.ts";
+import { ThemeReader } from "../../controllers/themeReader";
+import { YarnFileManager } from "../../models/YarnFileManager";
+import { YarnFile } from "../../models/YarnFile";
 
 const yarnFileManager = new YarnFileManager();
 
@@ -173,60 +37,61 @@ monaco.languages.registerCompletionItemProvider("yarnSpinner", yarnSpinner.compl
 
 //monaco.editor.defineTheme("yarnSpinnerTheme", yarnSpinner.theme);
 
-//Utilising exports we can get the variable information from themeReader
+//Utilising theme we can get the variable information from themeReader
 
+const theme = new ThemeReader().OGBlue;
 monaco.editor.defineTheme("customTheme", {
     base: "vs",
     inherit: true,
     rules: [
         //{ background: 'CFD8DC'},
-        { token: "body.bold", foreground: exports.default, fontStyle: "bold" },
-        { token: "body.underline", foreground: exports.default,  fontStyle: "underline" },
-        { token: "body.italic", foreground: exports.default,  fontStyle: "italic" },
+        { token: "body.bold", foreground: theme.default, fontStyle: "bold" },
+        { token: "body.underline", foreground: theme.default,  fontStyle: "underline" },
+        { token: "body.italic", foreground: theme.default,  fontStyle: "italic" },
 
-        { token: "Commands", foreground: exports.commands},
-        { token: "CommandsInternals", foreground: exports.commandsInternal },
-        { token: "VarAndNum", foreground: exports.varAndNum },
-        { token: "Options", foreground: exports.options },
-        { token: "Interpolation", foreground: exports.interpolation },
-        { token: "Strings", foreground: exports.strings },
-        { token: "Metadata", foreground: exports.metadata },
-        { token: "Comments", foreground: exports.comments },
-        { token: "Default", foreground: exports.default },
+        { token: "Commands", foreground: theme.commands},
+        { token: "CommandsInternals", foreground: theme.commandsInternal },
+        { token: "VarAndNum", foreground: theme.varAndNum },
+        { token: "Options", foreground: theme.options },
+        { token: "Interpolation", foreground: theme.interpolation },
+        { token: "Strings", foreground: theme.strings },
+        { token: "Metadata", foreground: theme.metadata },
+        { token: "Comments", foreground: theme.comments },
+        { token: "Default", foreground: theme.default },
         
         { token: "Invalid", foreground: "#931621"}
 
     ],
     // * A list of colour names: https://github.com/Microsoft/monaco-editor/blob/main/test/playground.generated/customizing-the-appearence-exposed-colors.html
     colors: {
-        "editor.foreground": exports.default,
-        "editor.background": exports.editor,
-        "editorCursor.foreground": exports.invertDefault,
-        //"editor.lineHighlightBackground": exports.invertDefault, //Removed from parameter
+        "editor.foreground": theme.default,
+        "editor.background": theme.editor,
+        "editorCursor.foreground": theme.invertDefault,
+        //"editor.lineHighlightBackground": theme.invertDefault, //Removed from parameter
         
         //Shows indentation
-        'editorIndentGuide.background': exports.metadata,
+        "editorIndentGuide.background": theme.metadata,
         
         //lineNumberColour
-        "editorLineNumber.foreground": exports.default,
+        "editorLineNumber.foreground": theme.default,
         //Changes bgColour of lineNumbers
-        "editorGutter.background": exports.editorMinimap,
+        "editorGutter.background": theme.editorMinimap,
 
-        "editor.selectionBackground": exports.invertDefault,
-        "editor.inactiveSelectionBackground": exports.editor,
-        "minimap.background": exports.editorMinimap
+        "editor.selectionBackground": theme.invertDefault,
+        "editor.inactiveSelectionBackground": theme.editor,
+        "minimap.background": theme.editorMinimap
 
     }
 });
 
 //set css variables
-document.documentElement.style.setProperty("--editor", exports.editor);
-document.documentElement.style.setProperty("--topSideEdit", exports.editor);
-document.documentElement.style.setProperty("--workingFile", exports.workingFile);
-document.documentElement.style.setProperty("--tabGap", exports.tabGap);
-document.documentElement.style.setProperty("--dividerColour", exports.invertDefault);
-document.documentElement.style.setProperty("--primary_text", exports.default);
-document.documentElement.style.setProperty("--secondary_text", exports.invertDefault);
+document.documentElement.style.setProperty("--editor", theme.editor);
+document.documentElement.style.setProperty("--topSideEdit", theme.editor);
+document.documentElement.style.setProperty("--workingFile", theme.workingFile);
+document.documentElement.style.setProperty("--tabGap", theme.tabGap);
+document.documentElement.style.setProperty("--dividerColour", theme.invertDefault);
+document.documentElement.style.setProperty("--primary_text", theme.default);
+document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
 
 const containerElement = document.getElementById("container");
 
@@ -316,7 +181,7 @@ if (workingFiles)
     {
         //Last file changes back to workingFile colour
         console.log("Changing colour of generated");
-        lastOpenDiv.style.color = exports.tabGap;
+        lastOpenDiv.style.color = theme.tabGap;
     }
 
     //Add all listeners
@@ -358,7 +223,7 @@ if (workingFiles)
                 if (lastOpenDiv)
                 {
                     //Sets the colour of the selected file
-                    lastOpenDiv.style.color = exports.tabGap;
+                    lastOpenDiv.style.color = theme.tabGap;
                 }
             }
             else 
@@ -377,7 +242,7 @@ if (workingFiles)
             if (lastOpenDiv)
             {
                 //Sets the colour of the now unselected file
-                lastOpenDiv.style.color = exports.default;
+                lastOpenDiv.style.color = theme.default;
             }
 
             let fileIdentifier: number;
@@ -407,7 +272,7 @@ if (workingFiles)
                 if (lastOpenDiv)
                 {
                     //Sets the colour of the selected file
-                    lastOpenDiv.style.color = exports.tabGap;
+                    lastOpenDiv.style.color = theme.tabGap;
                 }
 
                 updateEditor(yarnFileManager.getCurrentOpenFile());

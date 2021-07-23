@@ -167,34 +167,41 @@ export class JumpsListTemp
 {
     listOfJumps : tempJump[];
 
-    constructor(){
+    constructor()
+    {
         this.listOfJumps = [] as tempJump[];
     }
 
 }
 
-export class nodeJump{
+export class nodeJump
+{
     private sourceTitle: string;
     private targetTitle: string;
 
-    constructor(sourceTitle: string, targetTitle: string){
+    constructor(sourceTitle: string, targetTitle: string)
+    {
         this.sourceTitle = sourceTitle;
         this.targetTitle = targetTitle;
     }
 
-    getSource(): string{
+    getSource(): string
+    {
         return this.sourceTitle;
     }
 
-    getTarget(): string{
+    getTarget(): string
+    {
         return this.targetTitle;
     }
 
-    setSource(source: string): void{
+    setSource(source: string): void
+    {
         this.sourceTitle = source;
     }
 
-    setTarget(target: string): void{
+    setTarget(target: string): void
+    {
         this.targetTitle = target;
     }
 
@@ -202,60 +209,74 @@ export class nodeJump{
 
 }
 
-export class yarnNode{
+export class yarnNode
+{
 
     private title: string;
     private lineStart: number;
     private lineEnd: number;
     private jumps: nodeJump[];
 
-    constructor(title: string, lineStart: number, lineEnd: number, jumps: nodeJump[]){
+    constructor(title: string, lineStart: number, lineEnd: number, jumps: nodeJump[])
+    {
         this.title = title;
         this.lineStart = lineStart;
         this.lineEnd = lineEnd;
         this.jumps = jumps;
     }
 
-    getTitle(): string{
+    getTitle(): string
+    {
         return this.title;
     }
 
-    getLineStart(): number{
+    getLineStart(): number
+    {
         return this.lineStart;
     }
 
-    getLineEnd(): number{
+    getLineEnd(): number
+    {
         return this.lineEnd;
     }
 
-    getJumps(): nodeJumps[]{
+    getJumps(): nodeJump[]
+    {
         return this.jumps;
     }
 
-    setTitle(title: string): void{
+    setTitle(title: string): void
+    {
         this.title = title;
     }
 
-    setLineStart(lineStart: number): void{
+    setLineStart(lineStart: number): void
+    {
         this.lineStart = lineStart;
     }
 
-    setLineEnd(lineEnd: number): void{
+    setLineEnd(lineEnd: number): void
+    {
         this.lineEnd = lineEnd;
     }
 
-    addJump(targetNode: string): void{
+    addJump(targetNode: string): void
+    {
         this.jumps.push(new nodeJump(this.getTitle(), targetNode));
     }
 
-    removeJump(targetNode: string): void{
+    removeJump(targetNode: string): void
+    {
         //TODO
         //!-------
     }
 
-    searchJumpsForTitleAndReplaceTitle(oldTitle: string, newTitle: string): void{
-        this.getJumps().forEach(jump => {
-            if (jump.getTarget() === oldTitle){
+    searchJumpsForTitleAndReplaceTitle(oldTitle: string, newTitle: string): void
+    {
+        this.getJumps().forEach(jump => 
+        {
+            if (jump.getTarget() === oldTitle)
+            {
                 jump.setTarget(newTitle);
             }
         });
@@ -283,7 +304,7 @@ export class yarnNodeList
 
     convertFromContentToNode(content: string)
     {
-/*
+        /*
 
 test string to copy paste in
 
@@ -380,7 +401,8 @@ TODO
 
         let newNode = new Map<string,yarnNode>();
 
-        for (let i = 0; i < allLines.length; i++){
+        for (let i = 0; i < allLines.length; i++)
+        {
             if (allLines[i].match(regexExp))
             {
                 let word = allLines[i];
@@ -396,7 +418,7 @@ TODO
             
             else if (allLines[i].match(jumpRegexExp))
             {
-                let w = allLines[i].match(jumpTitleRegexExp);
+                const w = allLines[i].match(jumpTitleRegexExp);
                 if (w)
                 {
                     jumpsNode.push(new nodeJump(lastNode, w[1]));
@@ -420,7 +442,8 @@ TODO
         }
 
         
-        if (newNode.size !== this.nodes.size){
+        if (newNode.size !== this.nodes.size)
+        {
             //Changes are afoot
 
             //First case: new title - notify renderer
@@ -451,13 +474,12 @@ TODO
             console.log("Nodes have been reassigned");
             this.nodes = newNode;
         }
-        else if (newNode.size === this.nodes.size){
+        else if (newNode.size === this.nodes.size)
+        {
             //TODO - CHECK FOR TITLE CHANGES
             /*
                 check if line start is same, and line end is same
-                maybe hold old name?
-
-
+                maybe hold old name of the node (i.e. the one it was first assigned/ assigned after each title change)?
             */
 
             this.nodes = newNode;
@@ -497,7 +519,7 @@ import * as monaco from "monaco-editor";
 import * as yarnSpinner from "../../YarnSpinner/yarnSpinnerMonarch";
 import { ipcRenderer } from "electron";
 import exports from "../../controllers/themeReader.ts";
-import * as Konva from "./nodeView"
+import * as Konva from "./nodeView";
 
 const yarnFileManager = new YarnFileManager();
 
@@ -611,7 +633,7 @@ editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_B, () =>
 });
 
 
-let yn = new yarnNodeList();
+const yn = new yarnNodeList();
 
 
 //Editor specific events

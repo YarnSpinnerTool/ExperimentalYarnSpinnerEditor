@@ -9,6 +9,7 @@ import Konva from "konva";
 
 var sceneWidth = 500;
 var sceneHeight = 500;
+var selectedNode; //selected node
 
 var stage = new Konva.Stage({
   draggable: true,
@@ -20,7 +21,7 @@ var layer = new Konva.Layer();
 stage.add(layer);
 layer.draw();
 
-// * Mouse Events
+// * Stage Mouse Events
 var scaleBy = 1.1;
 stage.on('wheel', (e) => {
   e.evt.preventDefault();
@@ -88,6 +89,7 @@ function createNewGroupNode(text, height, width) {
   // Add the rectangle using both h + w parameters.
   nodeGroup.add(
     new Konva.Rect({
+      name:'bigSquare',
       x: randX,
       y: randY,
       width: width,
@@ -134,6 +136,24 @@ function createNewGroupNode(text, height, width) {
       strokeWidth: 0,
     })
   );
+
+  //* Node Mouse Event
+  // show software reaction to selection
+  nodeGroup.on('click', function() {
+    var selectedSquare;
+    if(selectedNode){
+      selectedSquare = selectedNode.findOne('.bigSquare');
+      selectedSquare.shadowColor('black');
+      selectedSquare.shadowOpacity(0.2);
+    }
+
+    selectedNode = this;
+    selectedSquare = this.findOne('.bigSquare');
+    selectedSquare.shadowColor('yellow');
+    selectedSquare.shadowOpacity(0.8);
+
+    //console.log(this);
+  });
   return nodeGroup;
 }
 

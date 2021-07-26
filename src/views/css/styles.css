@@ -255,12 +255,19 @@ select{
     display: grid;
     border-style: hidden;
     border-radius: 15px;
+    width: 100%;
+    display: flex;
 }
 
 /* SIDE BAR */
 
 #leftCont{
     margin-left: 5px;
+    width: 14%;
+    min-width: 100px;
+    float: left;
+    padding-right: 1%;
+
 }
 
 #leftSideContainer{
@@ -270,14 +277,10 @@ select{
 
     color: var(--primary_text);
     background-color: var(--topSideEdit);
-    min-width: 150px;
     max-height: 85vh;
     padding-top: 10px;
     
     overflow-y: auto;
-
-    grid-column-start: 1;
-    grid-column-end: 1;
 }
 
 #workingFilesDetail{
@@ -331,23 +334,21 @@ select{
     justify-content: right;
     background-color: var(--workingFile);
     border-style: hidden;
+    
 }
 
 
 /* EDIT SPACE */
 
 .outerOuterEditor{
-    width: match-parent;
+    width: 86%;
     background-color: var(--tabGap);
-    grid-column-start: 2;
-    grid-column-end: 2;
 
     border-style: hidden;
     border-radius: 15px;
-    margin-right: -20px;
-
     margin-top: 5px;
-    margin-left: 5px;
+    margin-right: -10px;
+    float: right;
 }
 
 .outerEditor{
@@ -357,6 +358,7 @@ select{
     margin-left: 15px;
     margin-top: 15px;
     padding-bottom: 20px;
+    width: 100%;
     /* padding-top: 5px; */
 }
 
@@ -401,9 +403,9 @@ select{
 
 .editorView {
     margin-top: 5px;
-    margin-left: 5px;
     height: 98vh;
-    width: 99%;
+    width: 54%;
+    float: left;
 
     /* border: var(--clr5);
     border-style: groove hidden hidden groove;  */
@@ -413,6 +415,12 @@ select{
     /* border-width: 1px; */
 }
 
+.nodeEditorView {
+    width: 45%;
+    height: 98vh;
+    float: left;
+    background-color: #CFD8DC;
+}
 
 
 

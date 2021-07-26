@@ -23,6 +23,7 @@ import { ipcRenderer } from "electron";
 import { ThemeReader } from "../../controllers/themeReader";
 import { YarnFileManager } from "../../models/YarnFileManager";
 import { YarnFile } from "../../models/YarnFile";
+import * as Konva from "./nodeView";
 
 const yarnFileManager = new YarnFileManager();
 
@@ -100,6 +101,8 @@ if (!containerElement)
     throw new Error("Container element not found");
 }
 
+Konva.init();
+
 const editor = monaco.editor.create(containerElement, {
     //theme: "yarnSpinnerTheme",
     theme: "customTheme",
@@ -134,9 +137,16 @@ editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_B, () =>
     boldText?.click();
 });
 
+
+const yn = new yarnNodeList();
+
+
 //Editor specific events
 editor.onDidChangeModelContent(() => 
 {
+    yn.convertFromContentToNode(editor.getValue());
+
+
     const workingDetailDiv = document.getElementById( yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString() );
 
     syncCurrentFile();//Update the contents at each point
@@ -187,6 +197,7 @@ if (workingFiles)
     //Add all listeners
     workingFiles.addEventListener("click", (event) => 
     {
+        alert(yn.getTitles());
         //Button clicked event
         if (event && event.target && (event.target as HTMLElement).tagName === "BUTTON") 
         {

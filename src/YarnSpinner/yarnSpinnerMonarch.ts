@@ -6,13 +6,13 @@
  */
 
 /* Currently unable to import .ts file into renderer, likely a webpack issue. https://webpack.js.org/guides/typescript/
- * Monaco Custom Language Documentation: https://microsoft.github.io/monaco-editor/playground.html#extending-language-services-custom-languages
+ * Monaco Custom Language Documentation: https://microsoft.github.io/Monaco-editor/playground.html#extending-language-services-custom-languages
  * JS RegExp Documentation: https://www.w3schools.com/jsref/jsref_obj_regexp.asp
- * Typescript TokensProvider: https://github.com/microsoft/monaco-languages/blob/main/src/typescript/typescript.ts
+ * Typescript TokensProvider: https://github.com/microsoft/Monaco-languages/blob/main/src/typescript/typescript.ts
  */
-import * as monaco from "monaco-editor";
-//Exports configuration monaco/monarch tokenisation for Yarn Spinner
-export const tokensWIP = 
+import * as Monaco from "monaco-editor";
+//Exports configuration Monaco/monarch tokenisation for Yarn Spinner
+export const tokens : Monaco.languages.IMonarchLanguage = 
 {
     defaultToken: "Invalid",
     tokenPostfix: ".yarn",
@@ -222,7 +222,7 @@ export const tokensWIP =
     }
 };
 
-export const config = {
+export const config : Monaco.languages.LanguageConfiguration = {
 
     // Default typescript iLanguageDefinition
     // Set defaultToken to invalid to see what you do not tokenize yet
@@ -294,71 +294,75 @@ export const theme = {
     }
 };
 
-export const completions = {
-    provideCompletionItems: (model: ITextModel, position: Position) : ProviderResult<CompletionList> => 
+export const completions : Monaco.languages.CompletionItemProvider = {
+    provideCompletionItems(model: Monaco.editor.ITextModel, position: Monaco.IPosition) : Monaco.languages.ProviderResult<Monaco.languages.CompletionList>  
     {
-        const suggestions = [{
+        const suggestions = [{    
             label: "jump",
-            kind: monaco.languages.CompletionItemKind.Method,
+            kind: Monaco.languages.CompletionItemKind.Method,
             insertText: "<<jump $1>>",
-            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
         }, {
             label: "stop",
-            kind: monaco.languages.CompletionItemKind.Method,
+            kind: Monaco.languages.CompletionItemKind.Method,
             insertText: "<<stop>>",
-            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
         }, {
             label: "set",
-            kind: monaco.languages.CompletionItemKind.Method,
+            kind: Monaco.languages.CompletionItemKind.Method,
             insertText: "<<set $$1 to $2>>",
-            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
         }, {
             label: "declare",
-            kind: monaco.languages.CompletionItemKind.Method,
+            kind: Monaco.languages.CompletionItemKind.Method,
             insertText: "<<declare $$1 = $2>>",
-            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
         }, {
             label: "declare-explicit",
-            kind: monaco.languages.CompletionItemKind.Method,
+            kind: Monaco.languages.CompletionItemKind.Method,
             insertText: "<<declare $$1 = $2 as $3>>",
-            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
         }, {
             label: "if-endif",
-            kind: monaco.languages.CompletionItemKind.Interface,
+            kind: Monaco.languages.CompletionItemKind.Interface,
             insertText: [
                 "<<if $1>>",
                 "\t$0",
                 "<<endif>>"
             ].join("\n"),
-            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
         }, {
             label: "elseif",
-            kind: monaco.languages.CompletionItemKind.Interface,
+            kind: Monaco.languages.CompletionItemKind.Interface,
             insertText: [
                 "<<elseif $1>>",
                 "\t$0",
             ].join("\n"),
-            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
         }, {
+            
             label: "else",
-            kind: monaco.languages.CompletionItemKind.Interface,
+            kind: Monaco.languages.CompletionItemKind.Interface,
             insertText: [
                 "<<else>>",
                 "\t$0",
             ].join("\n"),
-            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
         }, {
+            
             label: "New node",
             filterText: "Title",
-            kind: monaco.languages.CompletionItemKind.Class,
+            kind: Monaco.languages.CompletionItemKind.Class,
             insertText: [
                 "Title: $1",
+                "xPos:",
+                "yPos:",
                 "---",
                 "$0",
                 "==="
             ].join("\n"),
             documentation: "Create new node",
-            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
         }];
         
         //Get all of the text in the editor
@@ -369,13 +373,14 @@ export const completions = {
         
         // * FOR FINDING NODE TITLES
         const nodesArr = text.match(nodesRegex);
-        const nodes = new Set(nodesArr);
+        const nodes : Set<string> = new Set(nodesArr);
         if(nodes)
         {
             //Iterate through the array of titles that match.
-            for(const i of nodes)
+            // for(const i of nodes)
+            nodes.forEach((nodeKey, node) => 
             { 
-                let word = i;
+                let word = node;
                 //Remove the "Title:"
                 word = word.replace("Title:","");
                 //Remove any spaces, for example "Title: nodeName"
@@ -383,35 +388,38 @@ export const completions = {
                 word = word.replace(" ","");
                 //Add the word to the completion items.
                 suggestions.push(
-                    {label: word, 
-                        kind: monaco.languages.CompletionItemKind.Class,
-                        insertText: word
+                    {
+                        label: word, 
+                        kind: Monaco.languages.CompletionItemKind.Variable,
+                        insertText: word,
+                        insertTextRules:  Monaco.languages.CompletionItemInsertTextRule.KeepWhitespace,
                     }
                 );
-            } 
+            } );
         }
 
         // * FOR FINDING VARIABLES
         
         const variablesArr = text.match(variablesRegex);
-        const variables = new Set(variablesArr);
+        const variables : Set<string> = new Set(variablesArr);
 
         if(variables)
         {
             //Iterate through the array of titles that match.
-            for(const i of variables)
-            {
-                //Add the word to the completion items.
-                const word = i;
+            nodes.forEach((nodeKey, node) => 
+            { 
+                const word = node;
                 suggestions.push(
                     {
                         label: word, 
-                        kind: monaco.languages.CompletionItemKind.Property,
+                        kind: Monaco.languages.CompletionItemKind.Property,
                         insertText: word,
+                        insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                     }
                 );
-            }
+            });
         }
-        return { suggestions: suggestions };
+
+        return suggestions;
     }
 };

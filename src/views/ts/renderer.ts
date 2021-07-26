@@ -1,7 +1,7 @@
 /*
  *---------------------------------------------------------------------------------------------
  *  Copyright (c) Yarn Spinner Editor Team. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *  Licensed under the MIT License. See License.txt in the protect root for license information.
  *---------------------------------------------------------------------------------------------
 */
 
@@ -17,75 +17,22 @@
 // nodeIntegration is set to true in webPreferences.
 // Use preload.js to selectively enable features
 // needed in the renderer process.
-import * as monaco from "monaco-editor";
-import * as yarnSpinner from "../../YarnSpinner/yarnSpinnerMonarch";
 import { ipcRenderer } from "electron";
 import { ThemeReader } from "../../controllers/themeReader";
 import { YarnFileManager } from "../../models/YarnFileManager";
 import { YarnFile } from "../../models/YarnFile";
+import { YarnNodeList } from "../../controllers/NodeTranslator";
 import * as Konva from "./nodeView";
+import { EditorController } from "../../controllers/editorController";
 
 const yarnFileManager = new YarnFileManager();
-
-//Register our new custom language
-monaco.languages.register({ id: "yarnSpinner" });
-//set the tokeniser
-monaco.languages.setMonarchTokensProvider("yarnSpinner", yarnSpinner.tokensWIP);
-//set the configuration
-monaco.languages.setLanguageConfiguration("yarnSpinner", yarnSpinner.config);
-//set the completions NOT WORKING CURRENTLY
-monaco.languages.registerCompletionItemProvider("yarnSpinner", yarnSpinner.completions);
-
-//monaco.editor.defineTheme("yarnSpinnerTheme", yarnSpinner.theme);
-
-//Utilising theme we can get the variable information from themeReader
-
+const yarnNodeList = new YarnNodeList();
 const theme = new ThemeReader().OGBlue;
-monaco.editor.defineTheme("customTheme", {
-    base: "vs",
-    inherit: true,
-    rules: [
-        //{ background: 'CFD8DC'},
-        { token: "body.bold", foreground: theme.default, fontStyle: "bold" },
-        { token: "body.underline", foreground: theme.default,  fontStyle: "underline" },
-        { token: "body.italic", foreground: theme.default,  fontStyle: "italic" },
+const editor = new EditorController("container", theme, yarnFileManager, yarnNodeList);
 
-        { token: "Commands", foreground: theme.commands},
-        { token: "CommandsInternals", foreground: theme.commandsInternal },
-        { token: "VarAndNum", foreground: theme.varAndNum },
-        { token: "Options", foreground: theme.options },
-        { token: "Interpolation", foreground: theme.interpolation },
-        { token: "Strings", foreground: theme.strings },
-        { token: "Metadata", foreground: theme.metadata },
-        { token: "Comments", foreground: theme.comments },
-        { token: "Default", foreground: theme.default },
-        
-        { token: "Invalid", foreground: "#931621"}
-
-    ],
-    // * A list of colour names: https://github.com/Microsoft/monaco-editor/blob/main/test/playground.generated/customizing-the-appearence-exposed-colors.html
-    colors: {
-        "editor.foreground": theme.default,
-        "editor.background": theme.editor,
-        "editorCursor.foreground": theme.invertDefault,
-        //"editor.lineHighlightBackground": theme.invertDefault, //Removed from parameter
-        
-        //Shows indentation
-        "editorIndentGuide.background": theme.metadata,
-        
-        //lineNumberColour
-        "editorLineNumber.foreground": theme.default,
-        //Changes bgColour of lineNumbers
-        "editorGutter.background": theme.editorMinimap,
-
-        "editor.selectionBackground": theme.invertDefault,
-        "editor.inactiveSelectionBackground": theme.editor,
-        "minimap.background": theme.editorMinimap
-
-    }
-});
 
 //set css variables
+//TODO streamline variables, a few of these are using the same colour
 document.documentElement.style.setProperty("--editor", theme.editor);
 document.documentElement.style.setProperty("--topSideEdit", theme.editor);
 document.documentElement.style.setProperty("--workingFile", theme.workingFile);
@@ -93,13 +40,6 @@ document.documentElement.style.setProperty("--tabGap", theme.tabGap);
 document.documentElement.style.setProperty("--dividerColour", theme.invertDefault);
 document.documentElement.style.setProperty("--primary_text", theme.default);
 document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
-
-const containerElement = document.getElementById("container");
-
-if (!containerElement) 
-{
-    throw new Error("Container element not found");
-}
 
 // * Initialise and create a node in the node view.
 Konva.init();
@@ -110,78 +50,7 @@ Konva.newNode("Node Four");
 Konva.newNode("Node Five");
 Konva.newNode("Node Six");
 
-const editor = monaco.editor.create(containerElement, {
-    //theme: "yarnSpinnerTheme",
-    theme: "customTheme",
-    value: "".toString(),
-    language: "yarnSpinner",
-    automaticLayout: true,
-    fontFamily: "Courier New",
-    fontSize: 20,
-    mouseWheelZoom: true,
-    wordWrap: "on",
-    wrappingIndent: "same",
-    renderLineHighlight: "none",
-    lineNumbersMinChars: 1
-});
 
-//Instantiate with new empty file
-editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-
-//Override monaco's default commands to add our own
-editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_I, () => 
-{
-    italicText?.click();
-});
-
-editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_U, () => 
-{
-    underlineText?.click();
-});
-
-editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_B, () => 
-{
-    boldText?.click();
-});
-
-
-const yn = new yarnNodeList();
-
-
-//Editor specific events
-editor.onDidChangeModelContent(() => 
-{
-    yn.convertFromContentToNode(editor.getValue());
-
-
-    const workingDetailDiv = document.getElementById( yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString() );
-
-    syncCurrentFile();//Update the contents at each point
-    const unsavedIdentifier = "*";//Can change to anything
-
-    if (workingDetailDiv) 
-    {
-        const paraElementContent = workingDetailDiv.children[0].innerHTML;//Access the paragraph text
-
-        //Checks if it is not saved
-        if (yarnFileManager.getCurrentOpenFile().getSaved() === false) 
-        {
-            if (paraElementContent.substr(paraElementContent.length - unsavedIdentifier.length) !== unsavedIdentifier) 
-            {
-                workingDetailDiv.children[0].innerHTML = paraElementContent.concat(unsavedIdentifier);
-            }
-        }
-        //Checks if it is saved
-        else if (yarnFileManager.getCurrentOpenFile().getSaved()) 
-        {
-            //check if it is saved, but still has the *
-            if (paraElementContent.substr(paraElementContent.length - unsavedIdentifier.length) === unsavedIdentifier) 
-            {
-                workingDetailDiv.children[0].innerHTML = paraElementContent.slice(0, - unsavedIdentifier.length);
-            }
-        }
-    }
-});
 
 
 //Working file details specific events
@@ -191,7 +60,7 @@ if (workingFiles)
 {
     //Set the intiated new empty file into working space
     addFileToDisplay(yarnFileManager.getCurrentOpenFile());
-    editor.updateOptions({ readOnly: false });
+    editor.setReadOnly(false);
 
     let lastOpenDiv = document.getElementById(String(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier()));//Get the last opened (current open) div
     if (lastOpenDiv)
@@ -204,7 +73,7 @@ if (workingFiles)
     //Add all listeners
     workingFiles.addEventListener("click", (event) => 
     {
-        alert(yn.getTitles());
+        alert(yarnNodeList.getTitles());
         //Button clicked event
         if (event && event.target && (event.target as HTMLElement).tagName === "BUTTON") 
         {
@@ -222,7 +91,7 @@ if (workingFiles)
             //Remove file from array
             if (yarnFileManager.getFiles().size === 1) 
             {
-                editor.updateOptions({ readOnly: true });
+                editor.setReadOnly(true);
             }
 
             if (fileIdentifier === yarnFileManager.getCurrentOpenFile().getUniqueIdentifier()) 
@@ -234,7 +103,7 @@ if (workingFiles)
                 if (arrayOfFiles.length) 
                 {
                     yarnFileManager.setCurrentOpenYarnFile(arrayOfFiles[0]);
-                    updateEditor(yarnFileManager.getCurrentOpenFile());
+                    editor.updateEditor(yarnFileManager.getCurrentOpenFile());
                 }
 
                 lastOpenDiv = document.getElementById(String(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier()));
@@ -247,7 +116,7 @@ if (workingFiles)
             else 
             {
                 yarnFileManager.removeFromFiles(fileIdentifier);
-                updateEditor(yarnFileManager.getCurrentOpenFile());
+                editor.updateEditor(yarnFileManager.getCurrentOpenFile());
             }
 
             //Remove the HTML elements from working files
@@ -281,7 +150,7 @@ if (workingFiles)
             {
                 //Swapping between files
                 //update currentOpen content
-                syncCurrentFile();
+                editor.syncCurrentFile();
                 
                 //Change currentOpen
                 yarnFileManager.setCurrentOpenYarnFile(fileIdentifier);
@@ -293,7 +162,7 @@ if (workingFiles)
                     lastOpenDiv.style.color = theme.tabGap;
                 }
 
-                updateEditor(yarnFileManager.getCurrentOpenFile());
+                editor.updateEditor(yarnFileManager.getCurrentOpenFile());
             }
         }
     });
@@ -311,79 +180,25 @@ if (workingFiles)
     });
 }
 
-/**
- * 
- * @param {YarnFile} fileToAdd The file of which contents to push to the editor
- * @returns {void}
- */
-function updateEditor(fileToAdd: YarnFile)
-{
-    //TODO Swap to push edit operations? https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.itextmodel.html#pusheditoperations
-    editor.setValue(fileToAdd.getContents());
-    editor.updateOptions({readOnly: false});
-}
-
-
-
-/**
- * Update the file manager file to match the code editor.
- * 
- * @returns {void}
- */
-function syncCurrentFile() 
-{
-    yarnFileManager.getCurrentOpenFile().setContents(editor.getValue());
-}
-
-
-/**
- *	Generic function for inserting at the front and the end of a selection.
- *
- * @param {string} textFront The tag to insert at the front of the selection 
- * @param {string} textBack The tag to insert at the back of the selection 
- * 
- * @returns {void}
- */
-function wrapTextWithTag(textFront: string, textBack: string) 
-{
-
-    const selection = editor.getSelection() as monaco.IRange;
-    const selectFront = new monaco.Selection(selection.startLineNumber, selection.startColumn, selection.startLineNumber, selection.startColumn);
-    const selectBack = new monaco.Selection(selection.endLineNumber, selection.endColumn, selection.endLineNumber, selection.endColumn);
-
-
-    const frontString = textFront.concat("");//Needs to concat an empty character in order to set the cursor properly
-
-    //In this order, so when nothing is selected, textFront is prepended after textBack is inserted
-    editor.focus();//Set focus back to editor
-
-    editor.executeEdits("", [{ range: selectBack, text: textBack as string }]);//Set textBack
-    editor.setPosition(new monaco.Position(selectFront.startLineNumber, selectFront.startColumn));//reset cursor to behind textFront input
-    editor.executeEdits("", [{ range: selectFront, text: frontString as string }]);//Set textFront
-    editor.setSelection(new monaco.Selection(selection.startLineNumber, selection.startColumn + frontString.length, selection.startLineNumber, selection.startColumn + frontString.length));
-    //Reset collection to an empty range
-}
-
-
 //Set selection to BOLD
 const boldText = document.getElementById("boldTextIcon");
 if (boldText) 
 {
-    boldText.onclick = () => { wrapTextWithTag("[b]", "[\\b]"); };
+    boldText.onclick = () => { editor.wrapTextWithTag("[b]", "[\\b]"); };
 }
 
 //Set selection to Italics
 const italicText = document.getElementById("italicTextIcon");
 if (italicText) 
 {
-    italicText.onclick = () => { wrapTextWithTag("[i]", "[\\i]"); };
+    italicText.onclick = () => { editor.wrapTextWithTag("[i]", "[\\i]"); };
 }
 
 //Set selection to Underline
 const underlineText = document.getElementById("underlineTextIcon");
 if (underlineText) 
 {
-    underlineText.onclick = () => { wrapTextWithTag("[u]", "[\\u]"); };
+    underlineText.onclick = () => { editor.wrapTextWithTag("[u]", "[\\u]"); };
 }
 
 //TODO Set selection to selected colour 
@@ -397,8 +212,7 @@ if (colourPick)
         const startText = "[col='".concat(value.substr(1)).concat("']");
         const endText = "[\\col]";
 
-        wrapTextWithTag(startText, endText);
-        editor.focus();
+        editor.wrapTextWithTag(startText, endText);
     };
 }
 
@@ -424,7 +238,7 @@ if (openFolderIcon)
 const findIcon = document.getElementById("searchFolderIcon");
 if (findIcon) 
 {
-    findIcon.onclick = function () { showFindDialog(); };
+    findIcon.onclick = function () { editor.showFindDialog(); };
 }
 
 /**
@@ -437,7 +251,7 @@ function createNewFile()
     yarnFileManager.createEmptyFile();
     addFileToDisplay(yarnFileManager.createEmptyFile());
     editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-    editor.updateOptions({ readOnly: false });
+    editor.setReadOnly(false);
 }
 
 /**
@@ -499,7 +313,7 @@ ipcRenderer.on("openFile", (event, path, contents, name) =>
     addFileToDisplay(openedFile);
     yarnFileManager.setCurrentOpenYarnFile(openedFile.getUniqueIdentifier());
     editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-    editor.updateOptions({ readOnly: false });
+    editor.setReadOnly(false);
 });
 
 
@@ -550,22 +364,22 @@ ipcRenderer.on("mainRequestNewFile", () =>
 
 ipcRenderer.on("mainRequestFind", () => 
 {
-    showFindDialog();
+    editor.showFindDialog();
 });
 
 ipcRenderer.on("mainRequestUndo", () =>
 {
-    actionUndo(); 
+    editor.actionUndo(); 
 });
 
 ipcRenderer.on("mainRequestRedo", () =>
 {
-    actionRedo();
+    editor.actionRedo();
 });
 
 ipcRenderer.on("mainRequestFindAndReplace", () => 
 {
-    showFindAndReplaceDialog();
+    editor.showFindAndReplaceDialog();
 });
 
 ipcRenderer.on("gotPing", (event, arg) => 
@@ -616,48 +430,4 @@ function saveEmitter()
 function openFileEmitter() 
 {
     ipcRenderer.send("fileOpenToMain");
-}
-
-/**
- * Shows the Find dialog in the editor.
- * 
- * @returns {void}
- */
-function showFindDialog() 
-{
-    editor.focus();
-    editor.trigger(null, "actions.find", null);
-}
-
-/**
- * Shows the Find and Replace dialog in the editor.
- * 
- * @returns {void}
- */
-function showFindAndReplaceDialog() 
-{
-    editor.focus();
-    editor.trigger(null, "editor.action.startFindReplaceAction", null);
-}
-
-/**
- * Executes the undo function from within the editor.
- * 
- * @returns {void}
- */
-function actionUndo()
-{
-    editor.focus();
-    editor.trigger("keyboard", "undo", null);
-}
-
-/**
- * Executes the redo function from within the editor.
- * 
- * @returns {void}
- */
-function actionRedo()
-{
-    editor.focus();
-    editor.trigger("keyboard", "redo", null);
 }

@@ -121,7 +121,7 @@ export class ThemeReader
         return Math.floor(Math.random() * max);
     }
 
-    randomTheme(): Record<string, unknown> 
+    randomTheme(): Record<string, string> 
     {
         switch (this.getRandomInt(4)) 
         {

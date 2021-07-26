@@ -101,7 +101,14 @@ if (!containerElement)
     throw new Error("Container element not found");
 }
 
+// * Initialise and create a node in the node view.
 Konva.init();
+Konva.newNode("Node One");
+Konva.newNode("Node Two");
+Konva.newNode("Node Three");
+Konva.newNode("Node Four");
+Konva.newNode("Node Five");
+Konva.newNode("Node Six");
 
 const editor = monaco.editor.create(containerElement, {
     //theme: "yarnSpinnerTheme",

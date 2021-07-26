@@ -215,14 +215,12 @@ export class yarnNode
     private title: string;
     private lineStart: number;
     private lineEnd: number;
-    private jumps: nodeJump[];
 
-    constructor(title: string, lineStart: number, lineEnd: number, jumps: nodeJump[])
+    constructor(title: string, lineStart: number, lineEnd: number)
     {
         this.title = title;
         this.lineStart = lineStart;
         this.lineEnd = lineEnd;
-        this.jumps = jumps;
     }
 
     getTitle(): string
@@ -240,10 +238,10 @@ export class yarnNode
         return this.lineEnd;
     }
 
-    getJumps(): nodeJump[]
-    {
-        return this.jumps;
-    }
+    // getJumps(): nodeJump[]
+    // {
+    //     return this.jumps;
+    // }
 
     setTitle(title: string): void
     {
@@ -260,27 +258,16 @@ export class yarnNode
         this.lineEnd = lineEnd;
     }
 
-    addJump(targetNode: string): void
-    {
-        this.jumps.push(new nodeJump(this.getTitle(), targetNode));
-    }
-
-    removeJump(targetNode: string): void
-    {
-        //TODO
-        //!-------
-    }
-
-    searchJumpsForTitleAndReplaceTitle(oldTitle: string, newTitle: string): void
-    {
-        this.getJumps().forEach(jump => 
-        {
-            if (jump.getTarget() === oldTitle)
-            {
-                jump.setTarget(newTitle);
-            }
-        });
-    }
+    // searchJumpsForTitleAndReplaceTitle(oldTitle: string, newTitle: string): void
+    // {
+    //     this.getJumps().forEach(jump => 
+    //     {
+    //         if (jump.getTarget() === oldTitle)
+    //         {
+    //             jump.setTarget(newTitle);
+    //         }
+    //     });
+    // }
 }
 
 export class yarnNodeList
@@ -302,7 +289,7 @@ export class yarnNodeList
         return this.titles;
     }
 
-    convertFromContentToNode(content: string)
+    convertFromContentToNode(content: string) : void
     {
         /*
 

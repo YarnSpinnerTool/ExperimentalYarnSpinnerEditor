@@ -105,14 +105,12 @@ function createNewGroupNode(text: string, height: number, width: number)
         name: text
     });
 
-    const randX : number = Math.random() * stage.width();
-    const randY : number = Math.random() * stage.height();
+    nodeGroup.x(Math.random() * stage.width());
+    nodeGroup.y(Math.random() * stage.height());
     // Add the rectangle using both h + w parameters.
     nodeGroup.add(
         new Konva.Rect({
             name:"bigSquare",
-            x: randX,
-            y: randY,
             width: width,
             height: height,
             fill: "#f5f0b0",
@@ -127,8 +125,6 @@ function createNewGroupNode(text: string, height: number, width: number)
     
     nodeGroup.add(
         new Konva.Rect({
-            x: randX,
-            y: randY,
             width: width,
             height: height/5,
             fill: "#f2deac",
@@ -147,9 +143,9 @@ function createNewGroupNode(text: string, height: number, width: number)
     // Add text using the parameter.
     nodeGroup.add(
         new Konva.Text({
-            x: randX + 1,
+            x: 1,
             // + ((width / 2) - (text.length * 2.75))
-            y: randY + 2,
+            y: 2,
             width: width,
             height: height/5,
             text: text,
@@ -176,7 +172,7 @@ function createNewGroupNode(text: string, height: number, width: number)
         selectedSquare.shadowColor("yellow");
         selectedSquare.shadowOpacity(0.8);
 
-        console.log(this);    //!  DEBUG
+        //console.log(this);    //!  DEBUG
     });
 
     // double click to center on screen [test]

@@ -171,15 +171,24 @@ function createNewGroupNode(text: string, height: number, width: number)
         selectedSquare = this.findOne(".bigSquare");
         selectedSquare.shadowColor("yellow");
         selectedSquare.shadowOpacity(0.8);
-
-        //console.log(this);    //!  DEBUG
     });
 
     // double click to center on screen [test]
-    /*nodeGroup.on('dblclick', function() {
-    stage.x( this.x() - stage.width() / 2 );
-    stage.y();
-  });*/
+    nodeGroup.on("dblclick", function() 
+    {
+        const portCenter = {
+            x: stage.width() / 2,
+            y: stage.height() / 2,
+        };
+
+        const nodeCenter = {
+            x: width / 2,
+            y: height / 2,    // TODO: work out a better way to center the shape vertically
+        };
+
+        stage.x(-this.x() * stage.scaleX() + portCenter.x - (nodeCenter.x * stage.scaleX()));
+        stage.y(-this.y() * stage.scaleY() + portCenter.y - (nodeCenter.y * stage.scaleY()));
+    });
     return nodeGroup;
 }
 

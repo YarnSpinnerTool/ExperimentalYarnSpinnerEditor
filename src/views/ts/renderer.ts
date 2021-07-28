@@ -22,7 +22,7 @@ import { ThemeReader } from "../../controllers/themeReader";
 import { YarnFileManager } from "../../models/YarnFileManager";
 import { YarnFile } from "../../models/YarnFile";
 import { YarnNodeList } from "../../controllers/NodeTranslator";
-import * as Konva from "./nodeView";
+import * as nodeView from "./nodeView";
 import { EditorController } from "../../controllers/editorController";
 
 const yarnFileManager = new YarnFileManager();
@@ -42,15 +42,17 @@ document.documentElement.style.setProperty("--primary_text", theme.default);
 document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
 
 // * Initialise and create a node in the node view.
-Konva.init();
-Konva.newNode("Node One");
-Konva.newNode("Node Two");
-Konva.newNode("Node Three");
-Konva.newNode("Node Four");
-Konva.newNode("Node Five");
-Konva.newNode("Node Six");
-
-
+nodeView.newNode("Node One");
+nodeView.newNode("Node Two");
+nodeView.newNode("Node Three");
+nodeView.newNode("Node Four");
+nodeView.newNode("Node Five");
+nodeView.newNode("Node Six");
+nodeView.connectNodes("Node One", "Node Two");
+nodeView.connectNodes("Node Two", "Node Three");
+nodeView.connectNodes("Node Three", "Node One");
+nodeView.connectNodes("Node Two", "Node Six");
+nodeView.connectNodes("Node Two", "Node Five");
 
 
 //Working file details specific events

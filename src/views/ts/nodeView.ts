@@ -7,24 +7,34 @@
 
 import Konva from "konva";
 
-const sceneWidth  = 500;
-const sceneHeight  = 500;
-let selectedNode : Konva.Group; //selected node
+const sceneWidth = 500;
+const sceneHeight = 500;
+let selectedNode: Konva.Group; //selected node
+const nodeMap = new Map();
 
-const stage : Konva.Stage = new Konva.Stage({
+
+const stage: Konva.Stage = new Konva.Stage({
     draggable: true,
     container: "nodeContainer",   // id of container <div>
     width: sceneWidth,
     height: sceneHeight,
 });
 
-const layer : Konva.Layer = new Konva.Layer();
+const layer: Konva.Layer = new Konva.Layer();
+
+//Add the layer to the stage.
 stage.add(layer);
+
+//Draw the layer.
 layer.draw();
 
-// * Stage Mouse Events
-// Zoom in/out by mouse scroll event
-
+//Resize the stage appropriately, recall on window resize.
+responsiveSize();
+window.addEventListener("resize", responsiveSize);
+/**
+ * * Zooming Functionality
+ * 
+ */
 const scaleBy = 1.1;
 stage.on("wheel", (e) => 
 {
@@ -33,46 +43,27 @@ stage.on("wheel", (e) =>
     const oldScale = stage.scaleX();
     const mPos = stage.getPointerPosition();
 
-    if(mPos)
+    if (mPos) 
     {
         const mousePosition = {
             x: (mPos.x - stage.x()) / oldScale,
             y: (mPos.y - stage.y()) / oldScale
         };
 
-        if (scrollDirection > 0 && oldScale < 4)
+        if (scrollDirection > 0 && oldScale < 4) 
         {
-            stage.scale({x:(oldScale * scaleBy), y:(oldScale * scaleBy)});
+            stage.scale({ x: (oldScale * scaleBy), y: (oldScale * scaleBy) });
         }
-        else if (scrollDirection < 0 && oldScale > 0.5)
+        else if (scrollDirection < 0 && oldScale > 0.5) 
         {
-            stage.scale({x:(oldScale / scaleBy), y:(oldScale / scaleBy)});
+            stage.scale({ x: (oldScale / scaleBy), y: (oldScale / scaleBy) });
         }
 
         stage.x(mPos.x - mousePosition.x * stage.scaleX());
         stage.y(mPos.y - mousePosition.y * stage.scaleY());
     }
- 
+
 });
-
-/**
- * Initialise and draw the konva stage
- * 
- * @returns {void}
- */
-export function init() : void 
-{
-  
-    //Add the layer to the stage.
-    stage.add(layer);
-
-    //Draw the layer.
-    layer.draw();
-
-    //Resize the stage appropriately, recall on window resize.
-    responsiveSize();
-    window.addEventListener("resize", responsiveSize);
-}
 
 /**  
  * Function for creating a new node externally.
@@ -81,9 +72,9 @@ export function init() : void
  * 
  * @returns {void}
  */
-export function newNode(title : string) : void
+export function newNode(title: string): void 
 {
-    const node : Konva.Group = createNewGroupNode(title, 70, 70);
+    const node: Konva.Group = createNewGroupNode(title, 70, 70);
     node.name(title);
     layer.add(node);
     layer.draw();
@@ -100,7 +91,7 @@ export function newNode(title : string) : void
  */
 function createNewGroupNode(text: string, height: number, width: number) 
 {
-    const nodeGroup : Konva.Group = new Konva.Group({
+    const nodeGroup: Konva.Group = new Konva.Group({
         draggable: true,
         name: text
     });
@@ -110,7 +101,7 @@ function createNewGroupNode(text: string, height: number, width: number)
     // Add the rectangle using both h + w parameters.
     nodeGroup.add(
         new Konva.Rect({
-            name:"bigSquare",
+            name: "bigSquare",
             width: width,
             height: height,
             fill: "#f5f0b0",
@@ -122,11 +113,11 @@ function createNewGroupNode(text: string, height: number, width: number)
             shadowOpacity: 0.2,
         })
     );
-    
+
     nodeGroup.add(
         new Konva.Rect({
             width: width,
-            height: height/5,
+            height: height / 5,
             fill: "#f2deac",
             stroke: "#f2deac",
             strokeWidth: 1,
@@ -147,7 +138,7 @@ function createNewGroupNode(text: string, height: number, width: number)
             // + ((width / 2) - (text.length * 2.75))
             y: 2,
             width: width,
-            height: height/5,
+            height: height / 5,
             text: text,
             fill: "black",
             stroke: "black",
@@ -157,10 +148,10 @@ function createNewGroupNode(text: string, height: number, width: number)
 
     //* Node Mouse Event
     // show software reaction to selection
-    nodeGroup.on("click", function() 
+    nodeGroup.on("click", function () 
     {
-        let selectedSquare : Konva.Shape;
-        if(selectedNode)
+        let selectedSquare: Konva.Shape;
+        if (selectedNode) 
         {
             selectedSquare = selectedNode.findOne(".bigSquare");
             selectedSquare.shadowColor("black");
@@ -174,7 +165,7 @@ function createNewGroupNode(text: string, height: number, width: number)
     });
 
     // double click to center on screen [test]
-    nodeGroup.on("dblclick", function() 
+    nodeGroup.on("dblclick", function () 
     {
         const portCenter = {
             x: stage.width() / 2,
@@ -189,6 +180,13 @@ function createNewGroupNode(text: string, height: number, width: number)
         stage.x(-this.x() * stage.scaleX() + portCenter.x - (nodeCenter.x * stage.scaleX()));
         stage.y(-this.y() * stage.scaleY() + portCenter.y - (nodeCenter.y * stage.scaleY()));
     });
+    nodeGroup.on("click", function () 
+    {
+        nodeGroup.moveToTop();
+    });
+    nodeGroup.moveToTop();
+
+    nodeMap.set(text, nodeGroup);
     return nodeGroup;
 }
 
@@ -199,34 +197,42 @@ function createNewGroupNode(text: string, height: number, width: number)
  * 
  * @returns {void}
  */
-export function connectNodes(from : string, to : string) : void
+export function connectNodes(from: string, to: string): void 
 {
-  
-    const nodeFrom = stage.findOne("."+from);
-    const nodeTo = stage.findOne("."+to);
-  
-    // ! DEBUG
-    console.log(stage.findOne("."+from));
 
-    const nodeCenterLength = nodeTo.width() / 2;
+    const nodeFrom: Konva.Group = nodeMap.get(from);
+    const nodeTo: Konva.Group = nodeMap.get(to);
+
+    const nodeCenterLength : number = nodeTo.children![0].width() / 2;
+    
+    console.log(nodeTo);
 
     //Draw the line between the center of each node. 
-    const line = new Konva.Line({
+    const line = new Konva.Arrow({
         points: [nodeFrom.x() + nodeCenterLength, nodeFrom.y() + nodeCenterLength, nodeTo.x() + nodeCenterLength, nodeTo.y() + nodeCenterLength],
         stroke: "black",
-        tension: 1
-    });  
+        tension: 1,
+        pointerLength: 50,
+        pointerWidth: 15,
+        fill: "black",
+    });
+    layer.add(line);
+    line.moveToBottom();
+    layer.draw;
+
     //Redraw the line when moving the from node.
     nodeFrom.on("dragmove", () => 
     {
-        line.points([nodeFrom.x() + nodeCenterLength, nodeFrom.y() + nodeCenterLength, nodeTo.x() + nodeCenterLength, nodeTo.y() + nodeCenterLength]);
+        const nodeCenterLength : number = nodeTo.children![0].width() / 2;
+        line.points([ (nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
         layer.draw();
     });
 
     //Redraw the line when moving the to node.
     nodeTo.on("dragmove", () => 
     {
-        line.points([nodeFrom.x() + nodeCenterLength, nodeFrom.y() + nodeCenterLength, nodeTo.x() + nodeCenterLength, nodeTo.y() + nodeCenterLength]);
+        const nodeCenterLength : number = nodeTo.children![0].width() / 2;
+        line.points([ (nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
         layer.draw();
     });
 }
@@ -236,22 +242,22 @@ export function connectNodes(from : string, to : string) : void
  * 
  * @returns {void}
  */
-function responsiveSize() : void
+function responsiveSize(): void 
 {
     //Retrieves the element that the Konva stage is in.
     const container = document.getElementById("nodeContainer");
 
     //Gets the width and height of the element.
-    if (container != null)
+    if (container != null) 
     {
-        const containerWidth : number = container.offsetWidth;
-        const containerHeight : number = container.offsetHeight;
-    
+        const containerWidth: number = container.offsetWidth;
+        const containerHeight: number = container.offsetHeight;
+
         const scale = containerWidth / sceneWidth;
         //Sets the width and height of the stage to fit the element, scales the layer appropriately.
         stage.width(containerWidth);
         stage.height(containerHeight);
         stage.scale({ x: scale, y: scale });
     }
-  
+
 }

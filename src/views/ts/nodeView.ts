@@ -111,6 +111,7 @@ function createNewGroupNode(text: string, height: number, width: number)
             shadowBlur: 10,
             shadowOffset: { x: 3, y: 3 },
             shadowOpacity: 0.2,
+            perfectDrawEnabled: false,
         })
     );
 
@@ -121,6 +122,7 @@ function createNewGroupNode(text: string, height: number, width: number)
             fill: "#f2deac",
             stroke: "#f2deac",
             strokeWidth: 1,
+            perfectDrawEnabled: false,
         })
     );
 
@@ -143,6 +145,7 @@ function createNewGroupNode(text: string, height: number, width: number)
             fill: "black",
             stroke: "black",
             strokeWidth: 0,
+            perfectDrawEnabled: false,
         })
     );
 
@@ -215,6 +218,7 @@ export function connectNodes(from: string, to: string): void
         pointerLength: 50,
         pointerWidth: 15,
         fill: "black",
+        perfectDrawEnabled: false,
     });
     layer.add(line);
     line.moveToBottom();

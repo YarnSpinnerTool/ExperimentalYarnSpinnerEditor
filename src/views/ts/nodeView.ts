@@ -7,66 +7,43 @@
 
 import Konva from "konva";
 
-const sceneWidth = 500;
-const sceneHeight = 500;
-let selectedNode: Konva.Group; //selected node
-const nodeMap = new Map();
+const sceneWidth = 500;         // For comparing scale in responsizeSize()
+const nodeMap = new Map();      // Map for storing all nodes.
+let selectedNode: Konva.Group;  // Currently selected node for highlighting purposes.
+let miniNodeY = 5;              // Variable to increment height of miniNodes.
 
-
+//Create the main stage.
 const stage: Konva.Stage = new Konva.Stage({
-    draggable: true,
-    container: "nodeContainer",   // id of container <div>
+    container: "nodeContainer", // id of html element to contain the stage.
     width: sceneWidth,
-    height: sceneHeight,
+    height: sceneWidth,
+    draggable: true,            // Crucial. For panning the stage.
 });
 
-const layer: Konva.Layer = new Konva.Layer();
+const miniStage: Konva.Stage = new Konva.Stage({
+    container: "miniNodeContainer", //id of html element to contain the mini left stage.
+    width: 35,
+    height: 420,
+});
 
-//Add the layer to the stage.
+
+const layer: Konva.Layer = new Konva.Layer();       //Main layer.
+const miniLayer: Konva.Layer = new Konva.Layer();   //Mini layer.
+
+//Add both layers to the stage.
 stage.add(layer);
+miniStage.add(miniLayer);
 
-//Draw the layer.
+//Draw the layers.
 layer.draw();
 
 //Resize the stage appropriately, recall on window resize.
 responsiveSize();
+zoomOnCursor();
 window.addEventListener("resize", responsiveSize);
-/**
- * * Zooming Functionality
- * 
- */
-const scaleBy = 1.1;
-stage.on("wheel", (e) => 
-{
-    e.evt.preventDefault();
-    const scrollDirection = e.evt.deltaY;
-    const oldScale = stage.scaleX();
-    const mPos = stage.getPointerPosition();
-
-    if (mPos) 
-    {
-        const mousePosition = {
-            x: (mPos.x - stage.x()) / oldScale,
-            y: (mPos.y - stage.y()) / oldScale
-        };
-
-        if (scrollDirection > 0 && oldScale < 4) 
-        {
-            stage.scale({ x: (oldScale * scaleBy), y: (oldScale * scaleBy) });
-        }
-        else if (scrollDirection < 0 && oldScale > 0.5) 
-        {
-            stage.scale({ x: (oldScale / scaleBy), y: (oldScale / scaleBy) });
-        }
-
-        stage.x(mPos.x - mousePosition.x * stage.scaleX());
-        stage.y(mPos.y - mousePosition.y * stage.scaleY());
-    }
-
-});
 
 /**  
- * Function for creating a new node externally.
+ * Function for creating a new node, and related mini node, externally.
  * 
  * @param {string} title The title of the node.
  * 
@@ -78,6 +55,78 @@ export function newNode(title: string): void
     node.name(title);
     layer.add(node);
     layer.draw();
+
+    const miniRect = new Konva.Rect({
+        width: 30,
+        height: 30,
+        fill: "#f5f0b0",
+        stroke: "#f2deac",
+        strokeWidth: 2,
+        shadowColor: "black",
+        shadowBlur: 10,
+        shadowOffset: { x: 1, y: 1 },
+        shadowOpacity: 0.1,
+        perfectDrawEnabled: false,
+        x: miniStage.width() / 2 - (15),
+        y: miniNodeY,
+    });
+    const miniText = new Konva.Text({
+        width: 30,
+        height: 30,
+        fill: "black",
+        ellipsis: true,
+        perfectDrawEnabled: false,
+        text: title,
+        wrap: "word",
+        fontSize: 8,
+        x: miniStage.width() / 2 - (15),
+        y: miniNodeY,
+        strokeWidth: 0,
+    });
+    // Adds all onclick functionality for the mini node.
+    miniText.on("click", function () 
+    {
+        //For centering the selected node.
+        const node = nodeMap.get(title);
+        const width = node.getChildren()[0].width();
+        const portCenter = {
+            x: stage.width() / 2,
+            y: stage.height() / 2,
+        };
+
+        const nodeCenter = {
+            x: width / 2,
+            y: width / 2,    
+        };
+        
+        stage.x(-node.x() * stage.scaleX() + portCenter.x - (nodeCenter.x * stage.scaleX()));
+        stage.y(-node.y() * stage.scaleY() + portCenter.y - (nodeCenter.y * stage.scaleY()));
+
+        //For highlighting the selected node.
+        let selectedSquare: Konva.Shape;
+        
+        if (selectedNode) 
+        {
+            selectedSquare = selectedNode.findOne(".bigSquare");
+            selectedSquare.shadowColor("black");
+            selectedSquare.shadowOpacity(0.2);
+        }
+        
+        selectedNode = node;
+        selectedSquare = node.findOne(".bigSquare");
+        selectedSquare.shadowColor("yellow");
+        selectedSquare.shadowOpacity(0.8);
+
+        //For bringing the selected node to the top layer.
+        node.moveToTop();
+    });
+
+    
+    miniLayer.add(miniRect);
+    miniLayer.add(miniText);
+    miniText.moveToTop();
+    miniLayer.draw();
+    miniNodeY += 36;
 }
 
 /**  
@@ -126,13 +175,6 @@ function createNewGroupNode(text: string, height: number, width: number)
         })
     );
 
-    if (text.length > 12) 
-    {
-        text = text.substring(0, 10);
-        text += "...";
-    }
-
-
     // Add text using the parameter.
     nodeGroup.add(
         new Konva.Text({
@@ -146,6 +188,7 @@ function createNewGroupNode(text: string, height: number, width: number)
             stroke: "black",
             strokeWidth: 0,
             perfectDrawEnabled: false,
+            ellipsis: true,
         })
     );
 
@@ -183,6 +226,7 @@ function createNewGroupNode(text: string, height: number, width: number)
         stage.x(-this.x() * stage.scaleX() + portCenter.x - (nodeCenter.x * stage.scaleX()));
         stage.y(-this.y() * stage.scaleY() + portCenter.y - (nodeCenter.y * stage.scaleY()));
     });
+    //Move selected node to top.
     nodeGroup.on("click", function () 
     {
         nodeGroup.moveToTop();
@@ -206,7 +250,7 @@ export function connectNodes(from: string, to: string): void
     const nodeFrom: Konva.Group = nodeMap.get(from);
     const nodeTo: Konva.Group = nodeMap.get(to);
 
-    const nodeCenterLength : number = nodeTo.children![0].width() / 2;
+    const nodeCenterLength : number = nodeTo.getChildren()[0].width() / 2;
     
     console.log(nodeTo);
 
@@ -227,7 +271,7 @@ export function connectNodes(from: string, to: string): void
     //Redraw the line when moving the from node.
     nodeFrom.on("dragmove", () => 
     {
-        const nodeCenterLength : number = nodeTo.children![0].width() / 2;
+        const nodeCenterLength : number = nodeTo.getChildren()[0].width() / 2;
         line.points([ (nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
         layer.draw();
     });
@@ -235,9 +279,47 @@ export function connectNodes(from: string, to: string): void
     //Redraw the line when moving the to node.
     nodeTo.on("dragmove", () => 
     {
-        const nodeCenterLength : number = nodeTo.children![0].width() / 2;
+        const nodeCenterLength : number = nodeTo.getChildren()[0].width() / 2;
         line.points([ (nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
         layer.draw();
+    });
+}
+
+/**
+ * * Zooming Functionality
+ *   Zoom's relative to the cursor position.
+ *   @returns {void}
+ */
+function zoomOnCursor()
+{
+    const scaleBy = 1.1;
+    stage.on("wheel", (e) => 
+    {
+        e.evt.preventDefault();
+        const scrollDirection = e.evt.deltaY;
+        const oldScale = stage.scaleX();
+        const mPos = stage.getPointerPosition();
+    
+        if (mPos) 
+        {
+            const mousePosition = {
+                x: (mPos.x - stage.x()) / oldScale,
+                y: (mPos.y - stage.y()) / oldScale
+            };
+    
+            if (scrollDirection > 0 && oldScale < 4) 
+            {
+                stage.scale({ x: (oldScale * scaleBy), y: (oldScale * scaleBy) });
+            }
+            else if (scrollDirection < 0 && oldScale > 0.5) 
+            {
+                stage.scale({ x: (oldScale / scaleBy), y: (oldScale / scaleBy) });
+            }
+    
+            stage.x(mPos.x - mousePosition.x * stage.scaleX());
+            stage.y(mPos.y - mousePosition.y * stage.scaleY());
+        }
+    
     });
 }
 
@@ -250,6 +332,7 @@ function responsiveSize(): void
 {
     //Retrieves the element that the Konva stage is in.
     const container = document.getElementById("nodeContainer");
+    const miniContainer = document.getElementById("miniNodeContainer");
 
     //Gets the width and height of the element.
     if (container != null) 
@@ -262,6 +345,15 @@ function responsiveSize(): void
         stage.width(containerWidth);
         stage.height(containerHeight);
         stage.scale({ x: scale, y: scale });
+    }
+    if (miniContainer != null)
+    {
+        const miniContainerWidth: number = miniContainer.offsetWidth;
+        const miniContainerHeight: number = miniContainer.offsetHeight;
+
+        //Sets the width and height of the stage to fit the element, scales the layer appropriately.
+        miniStage.width(miniContainerWidth);
+        miniStage.height(miniContainerHeight);
     }
 
 }

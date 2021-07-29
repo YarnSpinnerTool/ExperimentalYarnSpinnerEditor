@@ -54,6 +54,14 @@ nodeView.connectNodes("Node Three", "Node One");
 nodeView.connectNodes("Node Two", "Node Six");
 nodeView.connectNodes("Node Two", "Node Five");
 
+nodeView.changeNodeName("Node One", "Other 1");
+nodeView.changeNodeName("Node Two", "Other 2");
+nodeView.changeNodeName("Node Three", "Other 3");
+nodeView.changeNodeName("Node Four", "Other 4");
+nodeView.changeNodeName("Node Five", "Other 5");
+nodeView.changeNodeName("Node Six", "Other 6");
+
+
 
 //Working file details specific events
 const workingFiles = document.getElementById("workingFilesDetail");

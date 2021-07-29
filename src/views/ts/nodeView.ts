@@ -8,7 +8,8 @@
 import Konva from "konva";
 
 const sceneWidth = 500;         // For comparing scale in responsizeSize()
-const nodeMap = new Map();      // Map for storing all nodes.
+var nodeMap = new Map();      // Map for storing all nodes.
+var miniNodeMap = new Map();
 let selectedNode: Konva.Group;  // Currently selected node for highlighting purposes.
 let miniNodeY = 5;              // Variable to increment height of miniNodes.
 
@@ -51,12 +52,15 @@ window.addEventListener("resize", responsiveSize);
  */
 export function newNode(title: string): void 
 {
-    const node: Konva.Group = createNewGroupNode(title, 70, 70);
+    var node: Konva.Group = createNewGroupNode(title, 70, 70);
     node.name(title);
     layer.add(node);
     layer.draw();
 
-    const miniRect = new Konva.Rect({
+    var miniGroup = new Konva.Group({
+        name: title,
+    });
+    var miniRect = new Konva.Rect({
         width: 30,
         height: 30,
         fill: "#f5f0b0",
@@ -70,7 +74,8 @@ export function newNode(title: string): void
         x: miniStage.width() / 2 - (15),
         y: miniNodeY,
     });
-    const miniText = new Konva.Text({
+    var miniText = new Konva.Text({
+        name: "text",
         width: 30,
         height: 30,
         fill: "black",
@@ -83,11 +88,18 @@ export function newNode(title: string): void
         y: miniNodeY,
         strokeWidth: 0,
     });
+
     // Adds all onclick functionality for the mini node.
-    miniText.on("click", function () 
+    
+    miniText.moveToTop();
+    miniGroup.add(miniRect);
+    miniGroup.add(miniText);
+
+    miniLayer.add(miniGroup);
+    miniGroup.on("click", function () 
     {
         //For centering the selected node.
-        const node = nodeMap.get(title);
+        const node = nodeMap.get(miniGroup.name());
         const width = node.getChildren()[0].width();
         const portCenter = {
             x: stage.width() / 2,
@@ -120,14 +132,14 @@ export function newNode(title: string): void
         //For bringing the selected node to the top layer.
         node.moveToTop();
     });
-
-    
-    miniLayer.add(miniRect);
-    miniLayer.add(miniText);
-    miniText.moveToTop();
     miniLayer.draw();
+
+    //Increment the y value at which the mini node is drawn.
     miniNodeY += 36;
+
+    miniNodeMap.set(title,miniGroup);
 }
+
 
 /**  
  * Creating a new group with a rectangle and text shape.
@@ -181,6 +193,7 @@ function createNewGroupNode(text: string, height: number, width: number)
             x: 1,
             // + ((width / 2) - (text.length * 2.75))
             y: 2,
+            name: "text",
             width: width,
             height: height / 5,
             text: text,
@@ -324,7 +337,7 @@ function zoomOnCursor()
 }
 
 /**  
- * Function for responsively resizing the Konva stage.
+ * * Function for responsively resizing the Konva stage.
  * 
  * @returns {void}
  */
@@ -356,4 +369,31 @@ function responsiveSize(): void
         miniStage.height(miniContainerHeight);
     }
 
+}
+/**  
+ * * Function for updating the name of a node.
+ * @param {string} oldName The current name of the node.
+ * @param {string} newName The new name to update the node to.
+ * @returns {void}
+ */
+export function changeNodeName(oldName: string, newName: string) {
+    //get value from both miniNodeMap and nodeMap
+    const tempNode : Konva.Group = nodeMap.get(oldName);
+    const tempMiniNode : Konva.Group = miniNodeMap.get(oldName);
+
+    //update the text
+    tempNode.findOne(".text").text(newName);
+    tempMiniNode.findOne(".text").text(newName);
+      
+    //update the name
+    tempNode.name(newName);
+    tempMiniNode.name(newName);
+
+    //change the reference in the maps to the new name
+    nodeMap.set(newName, tempNode)
+    miniNodeMap.set(newName, tempMiniNode);
+
+    //delete old values
+    nodeMap.delete(oldName);
+    nodeMap.delete(oldName);
 }

@@ -425,11 +425,11 @@ select{
     background-color: #CFD8DC;
 }
 
-
-
-
-
-
-
-
-
+.miniMapView{
+    position: absolute;
+    width: 200px;
+    height: 130px;
+    bottom: 2px;
+    border: 1px solid blue;
+    background: darkcyan;
+}

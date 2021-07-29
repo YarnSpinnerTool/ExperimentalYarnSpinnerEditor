@@ -28,13 +28,19 @@ const miniStage: Konva.Stage = new Konva.Stage({
     height: 420,
 });
 
+const miniMapStage: Konva.Stage = new Konva.Stage({
+    container: "miniMapContainer",  // id of html element to contain the minimap in the bottom left.
+    width: 200,
+    height: 130,
+});
 
 const layer: Konva.Layer = new Konva.Layer();       //Main layer.
 const miniLayer: Konva.Layer = new Konva.Layer();   //Mini layer.
-
-//Add both layers to the stage.
+const miniMapLayer: Konva.Layer = new Konva.Layer();//Minimap Layer.
+//Add layers to the stage.
 stage.add(layer);
 miniStage.add(miniLayer);
+miniMapStage.add(miniMapLayer);
 
 //Draw the layers.
 layer.draw();
@@ -198,6 +204,11 @@ function createNewGroupNode(text: string, height: number, width: number)
     nodeGroup.on("click", function () 
     {
         nodeGroup.moveToTop();
+    });
+
+    nodeGroup.on("dragend", function ()
+    {
+        updateMiniMap();
     });
     nodeGroup.moveToTop();
 
@@ -369,6 +380,31 @@ function responsiveSize(): void
         miniStage.height(miniContainerHeight);
     }
 
+}
+
+function updateMiniMap() 
+{
+    const scale = 0.25;
+    const canvasCopy = layer.toCanvas({
+        pixelRatio: scale,
+        x:0,
+        y:0,
+    });
+
+    if(!miniMapLayer.getChildren()[0])
+    {
+        miniMapLayer.add(
+            new Konva.Image({
+                name: "background",
+                image: canvasCopy,
+            })
+        );
+    }
+    else
+    {
+        const image: Konva.Image = miniMapLayer.findOne(".background");
+        image.image(canvasCopy);
+    }
 }
 
 

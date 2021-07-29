@@ -101,34 +101,10 @@ export function newNode(title: string): void
     {
         //For centering the selected node.
         const node = nodeMap.get(miniGroup.name());
-        const width = node.getChildren()[0].width();
-        const portCenter = {
-            x: stage.width() / 2,
-            y: stage.height() / 2,
-        };
-
-        const nodeCenter = {
-            x: width / 2,
-            y: width / 2,    
-        };
-        
-        stage.x(-node.x() * stage.scaleX() + portCenter.x - (nodeCenter.x * stage.scaleX()));
-        stage.y(-node.y() * stage.scaleY() + portCenter.y - (nodeCenter.y * stage.scaleY()));
+        centerNode(node);
 
         //For highlighting the selected node.
-        let selectedSquare: Konva.Shape;
-        
-        if (selectedNode) 
-        {
-            selectedSquare = selectedNode.findOne(".bigSquare");
-            selectedSquare.shadowColor("black");
-            selectedSquare.shadowOpacity(0.2);
-        }
-        
-        selectedNode = node;
-        selectedSquare = node.findOne(".bigSquare");
-        selectedSquare.shadowColor("yellow");
-        selectedSquare.shadowOpacity(0.8);
+        selectNode(node);
 
         //For bringing the selected node to the top layer.
         node.moveToTop();
@@ -209,36 +185,15 @@ function createNewGroupNode(text: string, height: number, width: number)
     // show software reaction to selection
     nodeGroup.on("click", function () 
     {
-        let selectedSquare: Konva.Shape;
-        if (selectedNode) 
-        {
-            selectedSquare = selectedNode.findOne(".bigSquare");
-            selectedSquare.shadowColor("black");
-            selectedSquare.shadowOpacity(0.2);
-        }
-
-        selectedNode = this;
-        selectedSquare = this.findOne(".bigSquare");
-        selectedSquare.shadowColor("yellow");
-        selectedSquare.shadowOpacity(0.8);
+        selectNode(this);
     });
 
     // double click to center on screen [test]
     nodeGroup.on("dblclick", function () 
     {
-        const portCenter = {
-            x: stage.width() / 2,
-            y: stage.height() / 2,
-        };
-
-        const nodeCenter = {
-            x: width / 2,
-            y: height / 2,    // TODO: work out a better way to center the shape vertically
-        };
-
-        stage.x(-this.x() * stage.scaleX() + portCenter.x - (nodeCenter.x * stage.scaleX()));
-        stage.y(-this.y() * stage.scaleY() + portCenter.y - (nodeCenter.y * stage.scaleY()));
+        centerNode(this);
     });
+    
     //Move selected node to top.
     nodeGroup.on("click", function () 
     {
@@ -336,6 +291,51 @@ function zoomOnCursor()
     });
 }
 
+/**
+ * * Center Node
+ *   Center a node in the stage.
+ *   @param {Konva.Group} focus node that will become center of the stage
+ *   @returns {void}
+ */
+function centerNode(focus : Konva.Group): void
+{
+    const width = focus.getChildren()[0].width();
+    const portCenter = {
+        x: stage.width() / 2,
+        y: stage.height() / 2,
+    };
+
+    const nodeCenter = {
+        x: width / 2,
+        y: width / 2,  // TODO: work out a better way to center the shape vertically
+    };
+    
+    stage.x(-focus.x() * stage.scaleX() + portCenter.x - nodeCenter.x * stage.scaleX());
+    stage.y(-focus.y() * stage.scaleY() + portCenter.y - nodeCenter.y * stage.scaleY());
+}
+
+/**
+ * * On Select Node
+ *   Update selected and changes visual state as node is clicked/selected.
+ *   @param {Konva.Group} node the node being selected
+ *   @returns {void}
+ */
+function selectNode(node : Konva.Group): void
+{
+    let selectedSquare: Konva.Shape;
+    if (selectedNode) 
+    {
+        selectedSquare = selectedNode.findOne(".bigSquare");
+        selectedSquare.shadowColor("black");
+        selectedSquare.shadowOpacity(0.2);
+    }
+
+    selectedNode = node;
+    selectedSquare = node.findOne(".bigSquare");
+    selectedSquare.shadowColor("yellow");
+    selectedSquare.shadowOpacity(0.8);
+}
+
 /**  
  * * Function for responsively resizing the Konva stage.
  * 
@@ -379,7 +379,8 @@ function responsiveSize(): void
  * @param {string} newName The new name to update the node to.
  * @returns {void}
  */
-export function changeNodeName(oldName: string, newName: string) {
+export function changeNodeName(oldName: string, newName: string) 
+{
     //get value from both miniNodeMap and nodeMap
     const tempNode : Konva.Group = nodeMap.get(oldName);
     const tempMiniNode : Konva.Group = miniNodeMap.get(oldName);
@@ -395,7 +396,7 @@ export function changeNodeName(oldName: string, newName: string) {
     tempMiniNode.name(newName);
 
     //change the reference in the maps to the new name
-    nodeMap.set(newName, tempNode)
+    nodeMap.set(newName, tempNode);
     miniNodeMap.set(newName, tempMiniNode);
 
     //delete old values

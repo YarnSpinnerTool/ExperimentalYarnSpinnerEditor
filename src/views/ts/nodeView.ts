@@ -6,6 +6,7 @@
  */
 
 import Konva from "konva";
+import { forEachChild } from "typescript";
 
 const sceneWidth = 500;         // For comparing scale in responsizeSize()
 var nodeMap = new Map();      // Map for storing all nodes.
@@ -140,10 +141,9 @@ export function newNode(title: string): void
     miniNodeMap.set(title,miniGroup);
 }
 
-
 /**  
  * Creating a new group with a rectangle and text shape.
- * 
+ * TODO CHECK FOR DUPLICATE TITLE NAME
  * @param {string} text String: The text of the node
  * @param {number} height Int: The height of the node
  * @param {number} width Int: The width of the node
@@ -370,8 +370,11 @@ function responsiveSize(): void
     }
 
 }
+
+
 /**  
  * * Function for updating the name of a node.
+ * TODO CHECK FOR DUPLICATE TITLE NAME
  * @param {string} oldName The current name of the node.
  * @param {string} newName The new name to update the node to.
  * @returns {void}
@@ -381,7 +384,9 @@ export function changeNodeName(oldName: string, newName: string) {
     const tempNode : Konva.Group = nodeMap.get(oldName);
     const tempMiniNode : Konva.Group = miniNodeMap.get(oldName);
 
-    //update the text
+    
+    //update the text 
+    // ! Type mismatch, findOne returns any shape
     tempNode.findOne(".text").text(newName);
     tempMiniNode.findOne(".text").text(newName);
       
@@ -396,4 +401,31 @@ export function changeNodeName(oldName: string, newName: string) {
     //delete old values
     nodeMap.delete(oldName);
     nodeMap.delete(oldName);
+}
+
+/**  
+ * * Function for getting info on all nodes, including x & y position, and title.
+ * Behaviour not finalised.
+ * @returns {string}
+ */
+export function printAll(){
+    var output : string = "";
+
+    nodeMap.forEach((node) => {
+        output += "Title: " + node.name() + ", x value: " + node.x() + ", y value: " + node.y() + "\n";
+    });
+    return (output);
+}
+/**  
+ * * Function for getting the x, y position of one node, given the title.
+ *  Behaviour not finalised.
+ * 
+ * @param {string} name The name of the node to be printed
+ * 
+ * @returns {string}
+ */
+export function printByName(name : string) {
+    const node = nodeMap.get(name);
+    var output : string = "Title: " + node.name() + ", x value: " + node.x() + ", y value: " + node.y() + "\n";
+    return output;
 }

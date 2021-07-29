@@ -48,6 +48,7 @@ nodeView.newNode("Node Three");
 nodeView.newNode("Node Four");
 nodeView.newNode("Node Five");
 nodeView.newNode("Node Six");
+
 nodeView.connectNodes("Node One", "Node Two");
 nodeView.connectNodes("Node Two", "Node Three");
 nodeView.connectNodes("Node Three", "Node One");
@@ -60,6 +61,9 @@ nodeView.changeNodeName("Node Three", "Other 3");
 nodeView.changeNodeName("Node Four", "Other 4");
 nodeView.changeNodeName("Node Five", "Other 5");
 nodeView.changeNodeName("Node Six", "Other 6");
+
+console.log(nodeView.printAll());
+console.log(nodeView.printByName("Other 5"));
 
 
 

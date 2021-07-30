@@ -6,11 +6,12 @@
  */
 
 import Konva from "konva";
+import { NodeJump, YarnNode } from "../../controllers/NodeTranslator"; 
 import { forEachChild } from "typescript";
 
 const sceneWidth = 500;         // For comparing scale in responsizeSize()
-var nodeMap = new Map();      // Map for storing all nodes.
-var miniNodeMap = new Map();
+var nodeMap = new Map<string,Konva.Group>();      // Map for storing all nodes.
+var miniNodeMap = new Map<string,Konva.Group>();
 let selectedNode: Konva.Group;  // Currently selected node for highlighting purposes.
 let miniNodeY = 5;              // Variable to increment height of miniNodes.
 
@@ -120,7 +121,7 @@ export function newNode(title: string): void
     //Increment the y value at which the mini node is drawn.
     miniNodeY += 36;
 
-    miniNodeMap.set(title,miniGroup);
+    miniNodeMap.set(title, miniGroup);
 }
 
 /**  
@@ -212,7 +213,7 @@ function createNewGroupNode(text: string, height: number, width: number)
     });
     nodeGroup.moveToTop();
 
-    nodeMap.set(text, nodeGroup);
+    nodeMap.set(text.trim(), nodeGroup);
     return nodeGroup;
 }
 
@@ -226,13 +227,11 @@ function createNewGroupNode(text: string, height: number, width: number)
 export function connectNodes(from: string, to: string): void 
 {
 
-    const nodeFrom: Konva.Group = nodeMap.get(from);
-    const nodeTo: Konva.Group = nodeMap.get(to);
+    const nodeFrom: Konva.Group = nodeMap.get(from.trim());
+    const nodeTo: Konva.Group = nodeMap.get(to.trim());
 
     const nodeCenterLength : number = nodeTo.getChildren()[0].width() / 2;
     
-    console.log(nodeTo);
-
     //Draw the line between the center of each node. 
     const line = new Konva.Arrow({
         points: [nodeFrom.x() + nodeCenterLength, nodeFrom.y() + nodeCenterLength, nodeTo.x() + nodeCenterLength, nodeTo.y() + nodeCenterLength],
@@ -262,6 +261,7 @@ export function connectNodes(from: string, to: string): void
         line.points([ (nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
         layer.draw();
     });
+    
 }
 
 /**
@@ -461,8 +461,58 @@ export function printAll(){
  * 
  * @returns {string}
  */
-export function printByName(name : string) {
+export function printByName(name : string) 
+{
     const node = nodeMap.get(name);
     var output : string = "Title: " + node.name() + ", x value: " + node.x() + ", y value: " + node.y() + "\n";
     return output;
+}
+
+/**  
+ * * Function for removing a node.
+ *  Behaviour not finalised.
+ * 
+ * @param {string} name The name of the node to be removed
+ * 
+ * @returns {void}
+ */
+export function removeNode(name: string)
+{
+    
+    //REMOVE MINI NODE AND NORMAL NODE FROM MAP
+    //REMOVE GROUP FROM LAYER 
+    nodeMap.get(name).destroy();
+    nodeMap.delete(name);
+
+    miniNodeMap.get(name).destroy();
+    miniNodeMap.delete(name);
+    
+    //TODO MOVE ALL MINI NODES
+
+    //TODO REMOVE JUMPS
+
+
+}
+
+
+//TODO convert to full node passthrough for further functionality
+export function addNode(node: YarnNode)
+{
+    console.log("Add node called");
+    newNode(node.getTitle());
+    console.log("Node called added");
+
+}
+
+
+export function receiveJumps(jumps: NodeJump[])
+{
+    for (var i = 0; i < jumps.length; i++) 
+    {
+        // ! DEBUG
+        console.log("from receiveJumps: source = "+jumps[i].getSource());
+        console.log("from receiveJumps: target = "+jumps[i].getTarget());
+        
+        connectNodes(jumps[i].getSource(), jumps[i].getTarget());
+    } 
 }

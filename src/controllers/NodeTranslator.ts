@@ -5,6 +5,39 @@
  *---------------------------------------------------------------------------------------------
 */
 
+export enum ReturnCode{
+    Error = -1,
+    None = 0,
+    Add = 1,
+    Delete = 2,
+    Update = 3,
+    Jumps = 4
+}
+
+//TODO WORKING TITLE
+export class ReturnObject
+{
+    returnCode: ReturnCode;
+    returnJumps: NodeJump[]; 
+    returnNode?: YarnNode;
+    returnTitles?: [string, string];//  [0] old title, [1] new title
+
+    constructor(returnCode: ReturnCode, returnJumps: NodeJump[], returnNode?: YarnNode, returnTitles?: [string, string])
+    {
+        this.returnCode = returnCode;
+        this.returnJumps = returnJumps;
+
+        if (returnNode){
+            this.returnNode = returnNode;
+        }
+
+        if (returnTitles){
+            this.returnTitles = returnTitles;
+        }
+    }
+}
+
+
 export class NodeJump
 {
     private sourceTitle: string;
@@ -14,8 +47,8 @@ export class NodeJump
 
     constructor(sourceTitle: string, targetTitle: string)
     {
-        this.sourceTitle = sourceTitle;
-        this.targetTitle = targetTitle;
+        this.sourceTitle = sourceTitle.trim();
+        this.targetTitle = targetTitle.trim();
     }
 
     getSource(): string
@@ -63,6 +96,7 @@ export class NodeJump
         this.isValidJump = false;
     }
 
+    //TODO make into some sane function rather than a shallow return
     isValidJumpCheck(): boolean
     {
         return this.isValidJump;
@@ -78,6 +112,7 @@ export class YarnNode
     private title: string;
     private lineStart: number;
     private lineEnd: number;
+    private metadata: Map<string,string>;//first string is metadata name, second is metadata content
 
     constructor(title: string, lineStart?: number, lineEnd?: number)
     {
@@ -85,6 +120,7 @@ export class YarnNode
         this.title = title;
         this.lineStart = -1;
         this.lineEnd = -1;
+        this.metadata = new Map<string,string>();
 
         if (lineStart)
         {
@@ -177,31 +213,31 @@ export class YarnNodeList
         });
     }
 
-    convertFromContentToNode(content: string) : void
+    convertFromContentToNode(content: string) : ReturnObject[]
     {
         /*
 
         test string to copy paste in
 
-        #This is a file tag
-        //This is a comment
-        Title: eee
-        headerTag: otherTest
-        ---
-        <<jump 333>>
-        <<jump ttt>>
-        ===
+#This is a file tag
+//This is a comment
+Title: eee
+headerTag: otherTest
+---
+<<jump 333>>
+<<jump ttt>>
+===
 
-        Title: 333
-        headerTag: otherTest
-        ---
-        <<jump ttt>>
-        ===
+Title: 333
+headerTag: otherTest
+---
+<<jump ttt>>
+===
 
-        Title: ttt
-        headerTag: otherTest
-        ---
-        ===
+Title: ttt
+headerTag: otherTest
+---
+===
         */
 
         const titleRegexExp = /(Title:.*)/g;//Get title match
@@ -224,14 +260,16 @@ export class YarnNodeList
             if (allLines[i].match(titleRegexExp))
             {
                 let word = allLines[i]; //Get line match
-                word = word.replace("Title:","").replace(" ", "");
-                //word = word.replace(" ","");
+                word = word.replace("Title:","");
+                word = word.replace(" ","");
+                word.trim();
 
                 lastNode = word; //Assign lastNode as the last title found
-                
-                tempTitles.push(lastNode); //Push to title list
 
-                newNode.set(lastNode, new YarnNode(lastNode, i+1)); //Set in map
+                if (word.length > 1){
+                    tempTitles.push(lastNode); //Push to title list
+                    newNode.set(lastNode, new YarnNode(lastNode, i+1)); //Set in map
+                }
             }
             
             else if (allLines[i].match(jumpRegexExp))
@@ -239,7 +277,7 @@ export class YarnNodeList
                 const w = allLines[i].match(jumpTitleRegexExp);
                 if (w)
                 {
-                    newJumps.push(new NodeJump(lastNode, w[1]));
+                    newJumps.push(new NodeJump(lastNode.trim(), w[1].trim()));
                 }
             }
 
@@ -250,10 +288,10 @@ export class YarnNodeList
 
         }
 
-        //Run comparison
-        this.compareTranslation(tempTitles, newNode, newJumps);
-
         console.log(this.nodes);
+
+        //Run comparison
+        return this.compareTranslation(tempTitles, newNode, newJumps);
     }
 
     convertFromNodeToContent(): string
@@ -292,8 +330,11 @@ export class YarnNodeList
         });
     }
 
-    compareTranslation(recentTitles: string[], recentTranslation: Map<string,YarnNode>, newJumps: NodeJump[]) : void
+    compareTranslation(recentTitles: string[], recentTranslation: Map<string,YarnNode>, newJumps: NodeJump[]) : ReturnObject[]
     {
+
+        var returnList = [] as ReturnObject[];
+
         if (recentTranslation.size !== this.nodes.size)
         {
             // * Changes are afoot
@@ -305,8 +346,8 @@ export class YarnNodeList
                 {
                     if (!this.nodes.has(title))
                     {
-                        console.log(title + " has been added");
-                        this.notifyAddition(title);
+                        console.log(node + " has been added");
+                        returnList.push(this.notifyAddition(node));
                     }
                 });
             }
@@ -318,8 +359,8 @@ export class YarnNodeList
                 {
                     if (!recentTranslation.has(title))
                     {
-                        console.log(title + " has been removed");
-                        this.notifyRemoval(title);
+                        console.log(node + " has been removed");
+                        returnList.push(this.notifyRemoval(node));
                     }
                 });
             }
@@ -333,7 +374,8 @@ export class YarnNodeList
             const oldTitle = "test";
             const newTitle = "newTest";
 
-            this.notifyTitleChange(oldTitle, newTitle);
+            
+            //returnList.push(this.notifyTitleChange(oldTitle, newTitle));
         }
 
         //Assign the new translation
@@ -341,7 +383,8 @@ export class YarnNodeList
         this.jumps = newJumps;
 
         //Tell NodeView about the jumps
-        this.notifyOfJumps();
+        returnList.push(this.notifyOfJumps());
+        return returnList;     
     }
 
 
@@ -350,25 +393,30 @@ export class YarnNodeList
     /*
         For use with connecting NodeView with the Translated Nodes
     */
-    notifyAddition(title: string): void
+    notifyAddition(newNode: YarnNode): ReturnObject
     {
         //Outputs the title of node to draw
+
+        return new ReturnObject(ReturnCode.Add, this.jumps, newNode);
     }
 
-    notifyRemoval(title: string): void
+    notifyRemoval(delNode: YarnNode): ReturnObject
     {
         //Outputs the title of node to undraw and remove
+        return new ReturnObject(ReturnCode.Delete, this.jumps, delNode);
     }
 
-    notifyTitleChange(newTitle: string, oldTitle: string): void
+    notifyTitleChange(oldTitle: string, newTitle: string): ReturnObject
     {
         //Outputs the title to change of a node
+        return new ReturnObject(ReturnCode.Update, this.jumps, new YarnNode("TODO, fix this parameter"), [oldTitle, newTitle]);
     }
 
-    notifyOfJumps(): void
+    notifyOfJumps(): ReturnObject
     {
         this.validateJumps();
-
+        
+        return new ReturnObject(ReturnCode.Jumps, this.jumps);
         //Outputs this.jumps to nodeView
     }
 

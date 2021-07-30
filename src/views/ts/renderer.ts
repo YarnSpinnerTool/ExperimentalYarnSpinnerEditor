@@ -22,7 +22,6 @@ import { ThemeReader } from "../../controllers/themeReader";
 import { YarnFileManager } from "../../models/YarnFileManager";
 import { YarnFile } from "../../models/YarnFile";
 import { YarnNodeList } from "../../controllers/NodeTranslator";
-import * as nodeView from "./nodeView";
 import { EditorController } from "../../controllers/editorController";
 
 const yarnFileManager = new YarnFileManager();
@@ -42,6 +41,8 @@ document.documentElement.style.setProperty("--primary_text", theme.default);
 document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
 
 // * Initialise and create a node in the node view.
+//TODO REMOVE, SAMPLE CODE
+/*
 nodeView.newNode("Node One");
 nodeView.newNode("Node Two");
 nodeView.newNode("Node Three");
@@ -62,10 +63,8 @@ nodeView.changeNodeName("Node Four", "Other 4");
 nodeView.changeNodeName("Node Five", "Other 5");
 nodeView.changeNodeName("Node Six", "Other 6");
 
-console.log(nodeView.printAll());
-console.log(nodeView.printByName("Other 5"));
-
-
+nodeView.removeNode("Node Five");
+*/
 
 //Working file details specific events
 const workingFiles = document.getElementById("workingFilesDetail");
@@ -87,7 +86,7 @@ if (workingFiles)
     //Add all listeners
     workingFiles.addEventListener("click", (event) => 
     {
-        alert(yarnNodeList.getTitles());
+        //!remove alert(yarnNodeList.getTitles());
         //Button clicked event
         if (event && event.target && (event.target as HTMLElement).tagName === "BUTTON") 
         {

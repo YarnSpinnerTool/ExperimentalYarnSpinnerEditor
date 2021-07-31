@@ -320,13 +320,16 @@ select{
     border-style: solid hidden solid solid;
     border-width: thin;
 }
-
+	
 #workingFilesDetail > div > p {
     text-align: justify;
     align-self: flex-start;
     word-wrap: break-word;
     font-size: smaller;
     margin: auto 0px auto 0px; 
+	text-overflow: ellipsis;
+	white-space: nowrap;
+    overflow: hidden;
 }
 
 #workingFilesDetail > div > button {

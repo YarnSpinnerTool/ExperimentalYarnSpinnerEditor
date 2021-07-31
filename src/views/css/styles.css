@@ -430,6 +430,8 @@ select{
     width: 200px;
     height: 130px;
     bottom: 2px;
+    z-index: 1000; /* only needs to be higher than nodeEditor container */
     border: 1px solid blue;
     background: darkcyan;
+    opacity: 0.8;
 }

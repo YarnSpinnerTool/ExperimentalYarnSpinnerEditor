@@ -382,13 +382,27 @@ function responsiveSize(): void
 
 }
 
+
+
+/**
+ * * Mini Map Update
+ * function updates the view on the mini map on each call
+ * @returns {void}
+ */
 function updateMiniMap() 
 {
     const scale = 0.25;
-    const canvasCopy = layer.toCanvas({
+    const mapGroup: Konva.Group = new Konva.Group;
+    for(const i of layer.getChildren())   // TODO: make mapGroup variable and add nodes and arrows once added to main stage.
+    {
+        const asd = i.clone();
+        mapGroup.add(asd);
+        // TODO: calculate the distances between furthest nodes of x and y for proper scaling.
+    }
+    const canvasCopy = mapGroup.toCanvas({
         pixelRatio: scale,
-        x:0,
-        y:0,
+        x: 5,
+        y: 5,
     });
 
     if(!miniMapLayer.getChildren()[0])
@@ -407,6 +421,7 @@ function updateMiniMap()
     }
 }
 
+// *Draggable viewport square in minimap for movement???  If not then make minimap stage a basic image.
 
 /**  
  * * Function for updating the name of a node.

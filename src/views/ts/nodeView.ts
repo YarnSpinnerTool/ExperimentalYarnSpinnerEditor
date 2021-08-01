@@ -140,8 +140,8 @@ function createNewGroupNode(text: string, height: number, width: number)
         name: text
     });
 
-    nodeGroup.x(Math.random() * stage.width());
-    nodeGroup.y(Math.random() * stage.height());
+    nodeGroup.x(-stage.x() * stage.scaleX() + (Math.random() * stage.width()));
+    nodeGroup.y(-stage.y() * stage.scaleX() + (Math.random() * stage.height()));
     // Add the rectangle using both h + w parameters.
     nodeGroup.add(
         new Konva.Rect({
@@ -311,6 +311,7 @@ function zoomOnCursor()
 function centerNode(focus : Konva.Group): void
 {
     const width = focus.getChildren()[0].width();
+
     const portCenter = {
         x: stage.width() / 2,
         y: stage.height() / 2,
@@ -318,7 +319,7 @@ function centerNode(focus : Konva.Group): void
 
     const nodeCenter = {
         x: width / 2,
-        y: width / 2,  // TODO: work out a better way to center the shape vertically
+        y: width / 2,
     };
     
     stage.x(-focus.x() * stage.scaleX() + portCenter.x - nodeCenter.x * stage.scaleX());

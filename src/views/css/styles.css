@@ -335,9 +335,16 @@ select{
 #workingFilesDetail > div > button {
     margin-left: auto; 
     justify-content: right;
-    background-color: var(--workingFile);
+	background-color: var(--workingFile);
     border-style: hidden;
-    
+}
+
+#workingFilesDetail > div.active-file {
+	background-color: var(--selectedFileBg);
+}
+
+#workingFilesDetail > div.active-file > button {
+	background-color: white
 }
 
 

@@ -183,10 +183,11 @@ export class EditorController
     }
 
     /**
- * 
- * @param {YarnFile} fileToAdd The file of which contents to push to the editor
- * @returns {void}
- */
+	 * Set the editor to match the file content. 
+	 * 
+	 * @param {YarnFile} fileToAdd The file of which contents to push to the editor
+	 * @returns {void}
+	*/
     updateEditor(fileToAdd: YarnFile) : void
     {
         //TODO Swap to push edit operations? https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.itextmodel.html#pusheditoperations

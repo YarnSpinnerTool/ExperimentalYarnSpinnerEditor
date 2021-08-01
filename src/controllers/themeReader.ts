@@ -41,7 +41,8 @@ export class ThemeReader
         editor: "#CFD8DC",
         editorMinimap: "#d7dcde",
         workingFile: "#d5dee2",
-        tabGap: "#546E7A"
+        tabGap: "#546E7A",
+        selectedFileBg: "#b6d1db",
     };
 
     //Pink theme //TODO

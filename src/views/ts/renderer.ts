@@ -39,6 +39,7 @@ document.documentElement.style.setProperty("--tabGap", theme.tabGap);
 document.documentElement.style.setProperty("--dividerColour", theme.invertDefault);
 document.documentElement.style.setProperty("--primary_text", theme.default);
 document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
+document.documentElement.style.setProperty("--selectedFileBg", theme.selectedFileBg);
 
 // * Initialise and create a node in the node view.
 //TODO REMOVE, SAMPLE CODE
@@ -50,21 +51,8 @@ nodeView.newNode("Node Four");
 nodeView.newNode("Node Five");
 nodeView.newNode("Node Six");
 
-nodeView.connectNodes("Node One", "Node Two");
-nodeView.connectNodes("Node Two", "Node Three");
-nodeView.connectNodes("Node Three", "Node One");
-nodeView.connectNodes("Node Two", "Node Six");
-nodeView.connectNodes("Node Two", "Node Five");
 
-nodeView.changeNodeName("Node One", "Other 1");
-nodeView.changeNodeName("Node Two", "Other 2");
-nodeView.changeNodeName("Node Three", "Other 3");
-nodeView.changeNodeName("Node Four", "Other 4");
-nodeView.changeNodeName("Node Five", "Other 5");
-nodeView.changeNodeName("Node Six", "Other 6");
 
-nodeView.removeNode("Node Five");
-*/
 
 //Working file details specific events
 const workingFiles = document.getElementById("workingFilesDetail");
@@ -75,18 +63,12 @@ if (workingFiles)
     addFileToDisplay(yarnFileManager.getCurrentOpenFile());
     editor.setReadOnly(false);
 
-    let lastOpenDiv = document.getElementById(String(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier()));//Get the last opened (current open) div
-    if (lastOpenDiv)
-    {
-        //Last file changes back to workingFile colour
-        console.log("Changing colour of generated");
-        lastOpenDiv.style.color = theme.tabGap;
-    }
+    setActiveFile(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier());
+
 
     //Add all listeners
     workingFiles.addEventListener("click", (event) => 
     {
-        //!remove alert(yarnNodeList.getTitles());
         //Button clicked event
         if (event && event.target && (event.target as HTMLElement).tagName === "BUTTON") 
         {
@@ -95,7 +77,7 @@ if (workingFiles)
             const parentDiv = button.parentElement;
             const fileIdentifier = Number(parentDiv?.id);
 
-            if (Number.isNaN(fileIdentifier) || !parentDiv) 
+            if (!parentDiv || Number.isNaN(fileIdentifier)) 
             {
                 console.error("Attempted to remove broken file instance, please file a bug at https://github.com/setho246/YarnSpinnerEditor/issues");
                 return;
@@ -107,30 +89,20 @@ if (workingFiles)
                 editor.setReadOnly(true);
             }
 
-            if (fileIdentifier === yarnFileManager.getCurrentOpenFile().getUniqueIdentifier()) 
-            {
-                editor.setValue("");
-                yarnFileManager.removeFromFiles(fileIdentifier);
-                const arrayOfFiles = Array.from(yarnFileManager.getFiles().keys());//Get new list of files
+            const wasActiveFile = fileIdentifier === yarnFileManager.getCurrentOpenFile().getUniqueIdentifier();
 
-                if (arrayOfFiles.length) 
-                {
-                    yarnFileManager.setCurrentOpenYarnFile(arrayOfFiles[0]);
-                    editor.updateEditor(yarnFileManager.getCurrentOpenFile());
-                }
-
-                lastOpenDiv = document.getElementById(String(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier()));
-                if (lastOpenDiv)
-                {
-                    //Sets the colour of the selected file
-                    lastOpenDiv.style.color = theme.tabGap;
-                }
-            }
-            else 
+            editor.setValue("");
+            yarnFileManager.removeFromFiles(fileIdentifier);
+			
+            const arrayOfFiles = Array.from(yarnFileManager.getFiles().keys());//Get new list of files
+            if(wasActiveFile && arrayOfFiles.length) 
             {
-                yarnFileManager.removeFromFiles(fileIdentifier);
+                yarnFileManager.setCurrentOpenYarnFile(arrayOfFiles[0]);
                 editor.updateEditor(yarnFileManager.getCurrentOpenFile());
             }
+
+            setActiveFile(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier());
+
 
             //Remove the HTML elements from working files
             parentDiv.parentElement?.removeChild(parentDiv);
@@ -139,11 +111,6 @@ if (workingFiles)
         //Swap between files, (button not clicked but element was)
         else if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY") 
         {
-            if (lastOpenDiv)
-            {
-                //Sets the colour of the now unselected file
-                lastOpenDiv.style.color = theme.default;
-            }
 
             let fileIdentifier: number;
 
@@ -157,26 +124,16 @@ if (workingFiles)
                 fileIdentifier = Number(divElement.id);
             }
 
-            const openedFile = yarnFileManager.getYarnFile(fileIdentifier);//Gets the new thing
+            //Swapping between files update, so update the file content to match editor
+            editor.syncCurrentFile();
+			
+            //Change currentOpen
+            yarnFileManager.setCurrentOpenYarnFile(fileIdentifier);
+			
+            setActiveFile(fileIdentifier);
 
-            if (openedFile) 
-            {
-                //Swapping between files
-                //update currentOpen content
-                editor.syncCurrentFile();
-                
-                //Change currentOpen
-                yarnFileManager.setCurrentOpenYarnFile(fileIdentifier);
-
-                lastOpenDiv = document.getElementById(String(openedFile.getUniqueIdentifier()));
-                if (lastOpenDiv)
-                {
-                    //Sets the colour of the selected file
-                    lastOpenDiv.style.color = theme.tabGap;
-                }
-
-                editor.updateEditor(yarnFileManager.getCurrentOpenFile());
-            }
+            editor.updateEditor(yarnFileManager.getCurrentOpenFile());
+            
         }
     });
 
@@ -191,6 +148,28 @@ if (workingFiles)
             console.log((event.target as HTMLParagraphElement).parentElement?.id);
         }
     });
+}
+
+/**
+ * Add and remove classes to correctly highlight the active file.
+ * 
+ * @param {string|number} fileToMarkCurrent The file to mark current.
+ * 
+ * @returns {void}
+ */
+function setActiveFile(fileToMarkCurrent: string|number) 
+{
+    // Convert mixed type to string.
+    fileToMarkCurrent = fileToMarkCurrent.toString();
+	
+    const activeFiles = document.getElementsByClassName("active-file");
+    Array.from(activeFiles).forEach((value) => 
+    {
+        value.classList.remove("active-file");
+    });
+
+    document.getElementById(fileToMarkCurrent)?.classList.add("active-file");
+	
 }
 
 //Set selection to BOLD
@@ -299,6 +278,8 @@ function addFileToDisplay(file: YarnFile): void
     {
         console.error("OpenFileError: Cannot append file to display list");
     }
+	
+    setActiveFile(file.getUniqueIdentifier());
 }
 
 
@@ -323,8 +304,8 @@ ipcRenderer.on("openFile", (event, path, contents, name) =>
 
     const openedFile = new YarnFile(path, contents, name, Date.now());
     yarnFileManager.addToFiles(openedFile);
-    addFileToDisplay(openedFile);
     yarnFileManager.setCurrentOpenYarnFile(openedFile.getUniqueIdentifier());
+    addFileToDisplay(openedFile);
     editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
     editor.setReadOnly(false);
 });

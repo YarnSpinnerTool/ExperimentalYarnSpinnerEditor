@@ -7,9 +7,8 @@
 
 import Konva from "konva";
 import { NodeJump, YarnNode } from "../../controllers/NodeTranslator"; 
-import { forEachChild } from "typescript";
 
-const sceneWidth = 500;         // For comparing scale in responsizeSize()
+const sceneWidth = 500;         // For comparing scale in responsiveSize()
 var nodeMap = new Map<string,Konva.Group>();      // Map for storing all nodes.
 var miniNodeMap = new Map<string,Konva.Group>();
 let selectedNode: Konva.Group;  // Currently selected node for highlighting purposes.
@@ -64,6 +63,7 @@ export function newNode(title: string): void
     node.name(title);
     layer.add(node);
     layer.draw();
+    updateMiniMap();
 
     var miniGroup = new Konva.Group({
         name: title,
@@ -382,8 +382,6 @@ function responsiveSize(): void
 
 }
 
-
-
 /**
  * * Mini Map Update
  * function updates the view on the mini map on each call
@@ -418,23 +416,37 @@ function updateMiniMap()
         miniMapStage.width() / (maxX - minX + 100),
         defaultScale);  // if default scale is smaller, use that
     
-    const canvasCopy = mapGroup.toCanvas({
+    const layerCopy = mapGroup.toCanvas({
         pixelRatio: idealScale,
     });
+
+    const mapCenter = {
+        x: miniMapStage.width() / 2,
+        y: miniMapStage.height() / 2
+    };
+
+    const imageCenter = {
+        x: layerCopy.width /2,
+        y: layerCopy.height /2,
+    };
 
     if(!miniMapLayer.getChildren()[0])
     {
         miniMapLayer.add(
             new Konva.Image({
                 name: "background",
-                image: canvasCopy,
+                image: layerCopy,
+                x: mapCenter.x - imageCenter.x,
+                y: mapCenter.y - imageCenter.y,
             })
         );
     }
     else
     {
         const image: Konva.Image = miniMapLayer.findOne(".background");
-        image.image(canvasCopy);
+        image.image(layerCopy);
+        image.x(mapCenter.x - imageCenter.x);
+        image.y(mapCenter.y - imageCenter.y);
     }
     //console.log("mapScale:" + idealScale.toFixed(5) + " MaxX:" + maxX.toFixed(2) + " MinX:" + minX.toFixed(2) + " MaxY:" + maxY.toFixed(2) + " MinY:" + minY.toFixed(2));  // ! debug
 }

@@ -5,17 +5,20 @@ import { YarnFileManager } from "../models/YarnFileManager";
 import { YarnFile } from "../models/YarnFile";
 import { ReturnCode, ReturnObject, YarnNodeList } from "./NodeTranslator";
 
-export class EditorController {
+export class EditorController 
+{
     editor: monaco.editor.IStandaloneCodeEditor;
     yarnFileManager: YarnFileManager;
     yarnNodeList: YarnNodeList;
 
-    constructor(editorContainerId: string, theme: Record<string, string>, yarnFileManager: YarnFileManager, yarnNodeList: YarnNodeList) {
+    constructor(editorContainerId: string, theme: Record<string, string>, yarnFileManager: YarnFileManager, yarnNodeList: YarnNodeList) 
+    {
         this.yarnFileManager = yarnFileManager;
         this.yarnNodeList = yarnNodeList;
         const containerElement = document.getElementById(editorContainerId);
 
-        if (!containerElement) {
+        if (!containerElement) 
+        {
             throw new Error("Container element not found");
         }
         //Register our new custom language
@@ -96,15 +99,18 @@ export class EditorController {
         this.editor.onDidChangeModelContent((e: monaco.editor.IModelContentChangedEvent) => this.modelChangeHandler(e));
 
         //Override monaco's default commands to add our own
-        this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_I, () => {
+        this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_I, () => 
+        {
             this.wrapTextWithTag("[i]", "[\\i]");
         });
 
-        this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_U, () => {
+        this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_U, () => 
+        {
             this.wrapTextWithTag("[u]", "[\\u]");
         });
 
-        this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_B, () => {
+        this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_B, () => 
+        {
             this.wrapTextWithTag("[b]", "[\\b]");
         });
     }
@@ -117,7 +123,8 @@ export class EditorController {
     * 
     * @returns {void}
     */
-    wrapTextWithTag(textFront: string, textBack: string): void {
+    wrapTextWithTag(textFront: string, textBack: string): void 
+    {
 
         const selection = this.editor.getSelection() as monaco.IRange;
         const selectFront = new monaco.Selection(selection.startLineNumber, selection.startColumn, selection.startLineNumber, selection.startColumn);
@@ -184,19 +191,24 @@ export class EditorController {
         this.syncCurrentFile();//Update the contents at each point
         const unsavedIdentifier = "*";//Can change to anything
 
-        if (workingDetailDiv) {
+        if (workingDetailDiv) 
+        {
             const paraElementContent = workingDetailDiv.children[0].innerHTML;//Access the paragraph text
 
             //Checks if it is not saved
-            if (this.yarnFileManager.getCurrentOpenFile().getSaved() === false) {
-                if (paraElementContent.substr(paraElementContent.length - unsavedIdentifier.length) !== unsavedIdentifier) {
+            if (this.yarnFileManager.getCurrentOpenFile().getSaved() === false) 
+            {
+                if (paraElementContent.substr(paraElementContent.length - unsavedIdentifier.length) !== unsavedIdentifier) 
+                {
                     workingDetailDiv.children[0].innerHTML = paraElementContent.concat(unsavedIdentifier);
                 }
             }
             //Checks if it is saved
-            else if (this.yarnFileManager.getCurrentOpenFile().getSaved()) {
+            else if (this.yarnFileManager.getCurrentOpenFile().getSaved()) 
+            {
                 //check if it is saved, but still has the *
-                if (paraElementContent.substr(paraElementContent.length - unsavedIdentifier.length) === unsavedIdentifier) {
+                if (paraElementContent.substr(paraElementContent.length - unsavedIdentifier.length) === unsavedIdentifier) 
+                {
                     workingDetailDiv.children[0].innerHTML = paraElementContent.slice(0, - unsavedIdentifier.length);
                 }
             }
@@ -208,21 +220,25 @@ export class EditorController {
  * @param {YarnFile} fileToAdd The file of which contents to push to the editor
  * @returns {void}
  */
-    updateEditor(fileToAdd: YarnFile): void {
+    updateEditor(fileToAdd: YarnFile): void 
+    {
         //TODO Swap to push edit operations? https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.itextmodel.html#pusheditoperations
         this.setValue(fileToAdd.getContents());
         this.setReadOnly(false);
     }
 
-    setReadOnly(value: boolean): void {
+    setReadOnly(value: boolean): void 
+    {
         this.editor.updateOptions({ readOnly: value });
     }
 
-    setValue(value: string): void {
+    setValue(value: string): void 
+    {
         this.editor.setValue(value);
     }
 
-    getValue(): string {
+    getValue(): string 
+    {
         return this.editor.getValue();
     }
 
@@ -232,7 +248,8 @@ export class EditorController {
      * 
      * @returns {void}
      */
-    showFindDialog(): void {
+    showFindDialog(): void 
+    {
         this.editor.focus();
         this.editor.trigger(null, "actions.find", null);
     }
@@ -242,7 +259,8 @@ export class EditorController {
      * 
      * @returns {void}
      */
-    showFindAndReplaceDialog(): void {
+    showFindAndReplaceDialog(): void 
+    {
         this.editor.focus();
         this.editor.trigger(null, "editor.action.startFindReplaceAction", null);
     }
@@ -252,7 +270,8 @@ export class EditorController {
      * 
      * @returns {void}
      */
-    actionUndo(): void {
+    actionUndo(): void 
+    {
         this.editor.focus();
         this.editor.trigger("keyboard", "undo", null);
     }
@@ -262,7 +281,8 @@ export class EditorController {
     * 
      * @returns {void}
      */
-    actionRedo(): void {
+    actionRedo(): void 
+    {
         this.editor.focus();
         this.editor.trigger("keyboard", "redo", null);
     }
@@ -272,7 +292,8 @@ export class EditorController {
      * 
      * @returns {void}
      */
-    syncCurrentFile(): void {
+    syncCurrentFile(): void 
+    {
         this.yarnFileManager.getCurrentOpenFile().setContents(this.editor.getValue());
     }
     

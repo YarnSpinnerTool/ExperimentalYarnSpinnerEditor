@@ -391,18 +391,35 @@ function responsiveSize(): void
  */
 function updateMiniMap() 
 {
-    const scale = 0.25;
+    const defaultScale = 0.25;
+    let idealScale: number;
     const mapGroup: Konva.Group = new Konva.Group;
+    let maxY: number = layer.getChildren()[0].y();   // for distance between shapes
+    let minY: number = layer.getChildren()[0].y();
+    let maxX: number = layer.getChildren()[0].x();
+    let minX: number = layer.getChildren()[0].x();
     for(const i of layer.getChildren())   // TODO: make mapGroup variable and add nodes and arrows once added to main stage.
     {
-        const asd = i.clone();
-        mapGroup.add(asd);
-        // TODO: calculate the distances between furthest nodes of x and y for proper scaling.
+        if (maxY < i.y())   {   maxY = i.y();   }
+        
+        if (minY > i.y())   {   minY = i.y();   }
+        
+        if (maxX < i.x())   {   maxX = i.x();   }
+
+        if (minX > i.x())   {   minX = i.x();   }
+        
+        const clonedShape = i.clone();
+        mapGroup.add(clonedShape);
     }
+
+    // works out square ratio on a rectangle
+    idealScale = Math.min(
+        miniMapStage.height() / (maxY - minY + 100),
+        miniMapStage.width() / (maxX - minX + 100),
+        defaultScale);  // if default scale is smaller, use that
+    
     const canvasCopy = mapGroup.toCanvas({
-        pixelRatio: scale,
-        x: 5,
-        y: 5,
+        pixelRatio: idealScale,
     });
 
     if(!miniMapLayer.getChildren()[0])
@@ -419,9 +436,10 @@ function updateMiniMap()
         const image: Konva.Image = miniMapLayer.findOne(".background");
         image.image(canvasCopy);
     }
+    //console.log("mapScale:" + idealScale.toFixed(5) + " MaxX:" + maxX.toFixed(2) + " MinX:" + minX.toFixed(2) + " MaxY:" + maxY.toFixed(2) + " MinY:" + minY.toFixed(2));  // ! debug
 }
 
-// *Draggable viewport square in minimap for movement???  If not then make minimap stage a basic image.
+// * Draggable viewport square in minimap for movement???  If not then make minimap stage a basic image.
 
 /**  
  * * Function for updating the name of a node.

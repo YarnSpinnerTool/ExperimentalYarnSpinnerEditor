@@ -27,11 +27,13 @@ export class ReturnObject
         this.returnCode = returnCode;
         this.returnJumps = returnJumps;
 
-        if (returnNode){
+        if (returnNode)
+        {
             this.returnNode = returnNode;
         }
 
-        if (returnTitles){
+        if (returnTitles)
+        {
             this.returnTitles = returnTitles;
         }
     }
@@ -266,7 +268,8 @@ headerTag: otherTest
 
                 lastNode = word; //Assign lastNode as the last title found
 
-                if (word.length > 1){
+                if (word.length > 1)
+                {
                     tempTitles.push(lastNode); //Push to title list
                     newNode.set(lastNode, new YarnNode(lastNode, i+1)); //Set in map
                 }
@@ -333,7 +336,7 @@ headerTag: otherTest
     compareTranslation(recentTitles: string[], recentTranslation: Map<string,YarnNode>, newJumps: NodeJump[]) : ReturnObject[]
     {
 
-        var returnList = [] as ReturnObject[];
+        const returnList = [] as ReturnObject[];
 
         if (recentTranslation.size !== this.nodes.size)
         {

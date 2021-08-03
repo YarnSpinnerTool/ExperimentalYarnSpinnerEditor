@@ -22,7 +22,6 @@ import { ThemeReader } from "../../controllers/themeReader";
 import { YarnFileManager } from "../../models/YarnFileManager";
 import { YarnFile } from "../../models/YarnFile";
 import { YarnNodeList } from "../../controllers/NodeTranslator";
-import * as Konva from "./nodeView";
 import { EditorController } from "../../controllers/editorController";
 
 const yarnFileManager = new YarnFileManager();
@@ -43,13 +42,14 @@ document.documentElement.style.setProperty("--secondary_text", theme.invertDefau
 document.documentElement.style.setProperty("--selectedFileBg", theme.selectedFileBg);
 
 // * Initialise and create a node in the node view.
-Konva.init();
-Konva.newNode("Node One");
-Konva.newNode("Node Two");
-Konva.newNode("Node Three");
-Konva.newNode("Node Four");
-Konva.newNode("Node Five");
-Konva.newNode("Node Six");
+//TODO REMOVE, SAMPLE CODE
+/*
+nodeView.newNode("Node One");
+nodeView.newNode("Node Two");
+nodeView.newNode("Node Three");
+nodeView.newNode("Node Four");
+nodeView.newNode("Node Five");
+nodeView.newNode("Node Six");
 
 
 

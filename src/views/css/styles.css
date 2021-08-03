@@ -413,30 +413,34 @@ select{
 
 .editorView {
     margin-top: 5px;
+    margin-left: 5px;
     height: 98vh;
-    width: 54%;
+    width: 49%;
     float: left;
-
-    /* border: var(--clr5);
-    border-style: groove hidden hidden groove;  */
-    
     left: 0px;
     top: 0px;
-    /* border-width: 1px; */
 }
 
 .nodeEditorView {
-    width: 45%;
+    width: 44%;
     height: 98vh;
     float: left;
     background-color: #CFD8DC;
 }
 
+.miniNodeEditorView{
+    width: 38px;
+    height: 98vh;
+    float: left;
+    background-color: #CFD8DC;
+}
 
-
-
-
-
-
-
-
+.miniMapView{
+    position: absolute;
+    width: 200px;
+    height: 130px;
+    bottom: 2px;
+    z-index: 2; /* only needs to be higher than nodeEditor container */
+    border: 1px solid darkcyan;
+    background: #92a7af50;
+}

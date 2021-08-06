@@ -411,27 +411,36 @@ select{
     color: var(--primary_text);
 }
 
-.editorView {
-    margin-top: 5px;
-    margin-left: 5px;
+.mainEditorView {
     height: 98vh;
+}
+
+.editorView {
+    margin-top: 1vh;
+    margin-right: 2vw;
+    height: 82vh;
     width: 49%;
-    float: left;
-    left: 0px;
-    top: 0px;
+    z-index: 3;
+    float: right;
+}
+
+.nodeView{
+    position: relative;
+    width: 48.5%;
 }
 
 .nodeEditorView {
-    width: 44%;
-    height: 98vh;
-    float: left;
+    position: absolute;
+    width: 100%;
+    height: 84vh;
     background-color: #CFD8DC;
 }
 
 .miniNodeEditorView{
+    position: absolute;
     width: 38px;
     height: 98vh;
-    float: left;
+    z-index: 2;
     background-color: #CFD8DC;
 }
 
@@ -439,8 +448,13 @@ select{
     position: absolute;
     width: 200px;
     height: 130px;
-    bottom: 2px;
-    z-index: 2; /* only needs to be higher than nodeEditor container */
+    right: 0;
+    z-index: 1; /* only needs to be higher than nodeEditor container */
     border: 1px solid darkcyan;
     background: #92a7af50;
+}
+
+.miniMapPositioner{
+    position:absolute;
+    right:0;
 }

@@ -427,6 +427,8 @@ select{
 .nodeView{
     position: relative;
     width: 48.5%;
+    height: 82vh;
+    float: left;
 }
 
 .nodeEditorView {
@@ -449,12 +451,8 @@ select{
     width: 200px;
     height: 130px;
     right: 0;
+    bottom: 0;
     z-index: 1; /* only needs to be higher than nodeEditor container */
     border: 1px solid darkcyan;
     background: #92a7af50;
-}
-
-.miniMapPositioner{
-    position:absolute;
-    right:0;
 }

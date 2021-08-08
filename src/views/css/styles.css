@@ -456,3 +456,9 @@ select{
     border: 1px solid darkcyan;
     background: #92a7af50;
 }
+
+@media only screen and (max-width: 700px) {
+	.miniMapView {
+		display: none;
+	}
+}

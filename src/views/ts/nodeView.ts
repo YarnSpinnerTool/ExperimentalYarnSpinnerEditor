@@ -13,6 +13,7 @@ var nodeMap = new Map<string,Konva.Group>();      // Map for storing all nodes.
 var miniNodeMap = new Map<string,Konva.Group>();
 let selectedNode: Konva.Group;  // Currently selected node for highlighting purposes.
 let miniNodeY = 5;              // Variable to increment height of miniNodes.
+var miniMapCoords: {x: number, y: number};          // Global variable for storing the top right of the minimap image.
 
 //Create the main stage.
 const stage: Konva.Stage = new Konva.Stage({
@@ -20,6 +21,10 @@ const stage: Konva.Stage = new Konva.Stage({
     width: sceneWidth,
     height: sceneWidth,
     draggable: true,            // Crucial. For panning the stage.
+});
+
+stage.on("dragend", function () {
+    updateMapPort();
 });
 
 const miniStage: Konva.Stage = new Konva.Stage({
@@ -262,6 +267,7 @@ export function connectNodes(from: string, to: string): void
         layer.draw();
     });
     
+    updateMiniMap();
 }
 
 /**
@@ -297,6 +303,7 @@ function zoomOnCursor()
     
             stage.x(mPos.x - mousePosition.x * stage.scaleX());
             stage.y(mPos.y - mousePosition.y * stage.scaleY());
+            updateMapPort();
         }
     
     });
@@ -391,13 +398,14 @@ function responsiveSize(): void
 function updateMiniMap() 
 {
     const defaultScale = 0.25;
-    let idealScale: number;
     const mapGroup: Konva.Group = new Konva.Group;
+
+    let idealScale: number;
     let maxY: number = layer.getChildren()[0].y();   // for distance between shapes
     let minY: number = layer.getChildren()[0].y();
     let maxX: number = layer.getChildren()[0].x();
     let minX: number = layer.getChildren()[0].x();
-    for(const i of layer.getChildren())   // TODO: make mapGroup variable and add nodes and arrows once added to main stage.
+    for(const i of layer.getChildren())
     {
         if (maxY < i.y())   {   maxY = i.y();   }
         
@@ -411,11 +419,17 @@ function updateMiniMap()
         mapGroup.add(clonedShape);
     }
 
+    miniMapCoords = {
+        x: minX,
+        y: minY
+    }
+
     // works out square ratio on a rectangle
     idealScale = Math.min(
-        miniMapStage.height() / (maxY - minY + 100),
-        miniMapStage.width() / (maxX - minX + 100),
-        defaultScale);  // if default scale is smaller, use that
+    miniMapStage.height() / (maxY - minY + 100),
+    miniMapStage.width() / (maxX - minX + 100),
+    defaultScale);  // if default scale is smaller, use that
+    
     
     const layerCopy = mapGroup.toCanvas({
         pixelRatio: idealScale,
@@ -431,9 +445,9 @@ function updateMiniMap()
         y: layerCopy.height /2,
     };
 
-    if(!miniMapLayer.getChildren()[0])
+    if(!miniMapLayer.getChildren()[0])  // Initialise map image
     {
-        miniMapLayer.add(
+        miniMapLayer.add(   // add layer copy as image
             new Konva.Image({
                 name: "background",
                 image: layerCopy,
@@ -441,18 +455,60 @@ function updateMiniMap()
                 y: mapCenter.y - imageCenter.y,
             })
         );
+
+        miniMapLayer.add(   // add viewport square
+            new Konva.Rect({
+                name: "viewPort",
+                stroke: "black",
+                fill: "#f5f0b040",
+                strokeWidth: 2,
+                x: 0,
+                y: 0,
+                perfectDrawEnabled: false,
+            })
+        );
     }
     else
     {
         const image: Konva.Image = miniMapLayer.findOne(".background");
+        const view: Konva.Rect = miniMapLayer.findOne(".viewPort");
+
+        view.width((stage.width() / stage.scaleX()) * idealScale);
+        view.height((stage.height() / stage.scaleX()) * idealScale);
         image.image(layerCopy);
         image.x(mapCenter.x - imageCenter.x);
         image.y(mapCenter.y - imageCenter.y);
     }
+    updateMapPort();
     //console.log("mapScale:" + idealScale.toFixed(5) + " MaxX:" + maxX.toFixed(2) + " MinX:" + minX.toFixed(2) + " MaxY:" + maxY.toFixed(2) + " MinY:" + minY.toFixed(2));  // ! debug
 }
 
-// * Draggable viewport square in minimap for movement???  If not then make minimap stage a basic image.
+/**
+* * Update view port position
+*   updates the position of the viewport in minimap
+*   @returns {void}
+*/
+function updateMapPort ()
+{
+    if (miniMapLayer.findOne(".viewPort"))
+    {
+        const view = miniMapLayer.findOne(".viewPort");
+        ///const relativeDistance = Math.sqrt(Math.pow((Math.max(stage.x(), miniMapCoords.x) - Math.min(stage.x(), miniMapCoords.x)), 2) + Math.pow((Math.max(stage.y(), miniMapCoords.y) - Math.min(stage.y(), miniMapCoords.y)),2));
+        const relativePos = 
+        {
+            x: (stage.x() * stage.scaleX()) + (miniMapCoords.x * stage.scaleX()),
+            y: (stage.y() * stage.scaleX()) + (miniMapCoords.y * stage.scaleX())
+        }
+
+        //view.position({x: relativePos.x, y: relativePos.y});
+        view.x(-relativePos.x * 0.25);
+        view.y(-relativePos.y * 0.25);
+
+        console.log(view.position());
+        console.log("minimap top right X: " + miniMapCoords.x + "\t Y: " + miniMapCoords.y);
+        console.log("stage top right X: " + stage.x() + "\t Y:" + stage.y());
+    }
+}
 
 /**  
  * * Function for updating the name of a node.

@@ -6,8 +6,8 @@
 */
 
 /*  ~~IMPORTANT~~
-	IPC Main console.log output will be in the VSCode terminal
-	IPC Renderer console.log output will be in the developer tools window in the actual Electron client
+    IPC Main console.log output will be in the VSCode terminal
+    IPC Renderer console.log output will be in the developer tools window in the actual Electron client
 */
 
 
@@ -93,9 +93,9 @@ if (workingFiles)
 
             editor.setValue("");
             yarnFileManager.removeFromFiles(fileIdentifier);
-			
+
             const arrayOfFiles = Array.from(yarnFileManager.getFiles().keys());//Get new list of files
-            if(wasActiveFile && arrayOfFiles.length) 
+            if (wasActiveFile && arrayOfFiles.length) 
             {
                 yarnFileManager.setCurrentOpenYarnFile(arrayOfFiles[0]);
                 editor.updateEditor(yarnFileManager.getCurrentOpenFile());
@@ -126,23 +126,23 @@ if (workingFiles)
 
             //Swapping between files update, so update the file content to match editor
             editor.syncCurrentFile();
-			
+
             //Change currentOpen
             yarnFileManager.setCurrentOpenYarnFile(fileIdentifier);
-			
+
             setActiveFile(fileIdentifier);
 
             editor.updateEditor(yarnFileManager.getCurrentOpenFile());
-            
+
         }
     });
 
     //Early beginnings of right click menu on working files
-    workingFiles.addEventListener("contextmenu", (event) =>
+    workingFiles.addEventListener("contextmenu", (event) => 
     {
         event.preventDefault();
-        
-        if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY" && (event.target as HTMLParagraphElement).parentElement?.id !== "workingFilesDetail" ) 
+
+        if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY" && (event.target as HTMLParagraphElement).parentElement?.id !== "workingFilesDetail") 
         {
             console.log("We right click the P erlement not the div");
             console.log((event.target as HTMLParagraphElement).parentElement?.id);
@@ -157,11 +157,11 @@ if (workingFiles)
  * 
  * @returns {void}
  */
-function setActiveFile(fileToMarkCurrent: string|number) 
+function setActiveFile(fileToMarkCurrent: string | number) 
 {
     // Convert mixed type to string.
     fileToMarkCurrent = fileToMarkCurrent.toString();
-	
+
     const activeFiles = document.getElementsByClassName("active-file");
     Array.from(activeFiles).forEach((value) => 
     {
@@ -169,7 +169,7 @@ function setActiveFile(fileToMarkCurrent: string|number)
     });
 
     document.getElementById(fileToMarkCurrent)?.classList.add("active-file");
-	
+
 }
 
 //Set selection to BOLD
@@ -278,21 +278,21 @@ function addFileToDisplay(file: YarnFile): void
     {
         console.error("OpenFileError: Cannot append file to display list");
     }
-	
+
     setActiveFile(file.getUniqueIdentifier());
 }
 
 
 /*
-	******************************************************************************************************************
-										IPCRenderer Listeners and Emitters                                                                                                                                                                                            
-	******************************************************************************************************************
+    ******************************************************************************************************************
+                                        IPCRenderer Listeners and Emitters                                                                                                                                                                                            
+    ******************************************************************************************************************
 */
 
 /*
-	------------------------------------
-				LISTENERS
-	------------------------------------
+    ------------------------------------
+                LISTENERS
+    ------------------------------------
 */
 
 ipcRenderer.on("openFile", (event, path, contents, name) => 
@@ -361,12 +361,12 @@ ipcRenderer.on("mainRequestFind", () =>
     editor.showFindDialog();
 });
 
-ipcRenderer.on("mainRequestUndo", () =>
+ipcRenderer.on("mainRequestUndo", () => 
 {
-    editor.actionUndo(); 
+    editor.actionUndo();
 });
 
-ipcRenderer.on("mainRequestRedo", () =>
+ipcRenderer.on("mainRequestRedo", () => 
 {
     editor.actionRedo();
 });
@@ -384,16 +384,16 @@ ipcRenderer.on("gotPing", (event, arg) =>
 
 
 /*
-	------------------------------------
-				EMITTERS
-	------------------------------------
+    ------------------------------------
+                EMITTERS
+    ------------------------------------
 */
 
 /*
-	FORMAT:
-		EVENT LISTENER (EVENT, => {
-			ipcRenderer.send(CHANNEL, ARGS)
-		})
+    FORMAT:
+        EVENT LISTENER (EVENT, => {
+            ipcRenderer.send(CHANNEL, ARGS)
+        })
 */
 
 /**
@@ -425,3 +425,81 @@ function openFileEmitter()
 {
     ipcRenderer.send("fileOpenToMain");
 }
+
+/**
+ * Taken from https://htmldom.dev/create-resizable-split-views/
+ */
+// Query the element
+const resizer = document.getElementById("dragDiv");
+if (resizer) 
+{
+    const leftSide = resizer.previousElementSibling as HTMLElement;
+    const rightSide = resizer.nextElementSibling as HTMLElement;
+
+    const parent = resizer.parentNode as HTMLElement;
+
+    if (leftSide && rightSide && parent) 
+    {
+        const parentWidth = parent.getBoundingClientRect().width;
+
+        // The current position of mouse
+        let x = 0;
+
+        // Width of left side
+        let leftWidth = 0;
+        
+        const mouseMoveHandler = function (e: MouseEvent) 
+        {
+            // How far the mouse has been moved
+            const dx = e.clientX - x;
+            document.body.style.cursor = "col-resize";
+
+            leftSide.style.userSelect = "none";
+            leftSide.style.pointerEvents = "none";
+
+            rightSide.style.userSelect = "none";
+            rightSide.style.pointerEvents = "none";
+
+            const newLeftWidth = (leftWidth + dx) * 100 / parentWidth;
+            leftSide.style.width = `${newLeftWidth}%`;
+
+            if (newLeftWidth % 0.0001 > 0.00005) 
+            {
+                Konva.responsiveSize();
+            }
+        };
+        
+        const mouseUpHandler = function () 
+        {
+            resizer.style.removeProperty("cursor");
+            document.body.style.removeProperty("cursor");
+
+            leftSide.style.removeProperty("user-select");
+            leftSide.style.removeProperty("pointer-events");
+
+            rightSide.style.removeProperty("user-select");
+            rightSide.style.removeProperty("pointer-events");
+
+            // Remove the handlers of `mousemove` and `mouseup`
+            document.removeEventListener("mousemove", mouseMoveHandler);
+            document.removeEventListener("mouseup", mouseUpHandler);
+        };
+
+        // Handle the mousedown event
+        // that's triggered when user drags the resizer
+        const mouseDownHandler = function (e: MouseEvent) 
+        {
+            // Get the current mouse position
+            x = e.clientX;
+            leftWidth = leftSide.getBoundingClientRect().width;
+
+            // Attach the listeners to `document`
+            document.addEventListener("mousemove", mouseMoveHandler);
+            document.addEventListener("mouseup", mouseUpHandler);
+        };
+        // Attach the handler
+        resizer.addEventListener("mousedown", mouseDownHandler);
+    }
+
+}
+

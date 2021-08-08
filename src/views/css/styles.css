@@ -363,12 +363,13 @@ select{
 
 .outerEditor{
     border-style: hidden;
-    border-radius: 15px;
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
     background-color: var(--editor);
     margin-left: 15px;
     margin-top: 15px;
-    padding-bottom: 20px;
     width: 100%;
+    display: flex;
     /* padding-top: 5px; */
 }
 
@@ -378,12 +379,10 @@ select{
     border-color: var(--dividerColour);
     display: flex;
     margin-left: 10px;
-
     height: 20px;
 }
 
 .tabItem{
-
     margin-top: 2px;
     padding-left: 10px;
     margin-bottom: 2px;
@@ -404,6 +403,23 @@ select{
     background-color: var(--editor);
 }
 
+.divider {
+    writing-mode: vertical-rl;
+    width: 1%;
+    text-decoration: solid;
+    font-weight: bold;
+    line-height: 20%;
+    color: white;
+    text-align: center;
+    vertical-align: text-top;
+    background-color: var(--tabGap);
+    user-select: none;
+}
+
+.divider:hover {
+cursor: col-resize;
+}
+
 .tabItem > p {
     margin-left: 5px;
     font-size: 12px;
@@ -414,8 +430,10 @@ select{
 .editorView {
     margin-top: 5px;
     height: 98vh;
-    width: 54%;
+    min-width: 5%;
     float: left;
+    
+    flex: 1 1 0%;
 
     /* border: var(--clr5);
     border-style: groove hidden hidden groove;  */
@@ -426,7 +444,7 @@ select{
 }
 
 .nodeEditorView {
-    width: 45%;
+    width: auto;
     height: 98vh;
     float: left;
     background-color: #CFD8DC;

@@ -2,17 +2,22 @@ import * as Canvas from "./nodeView";
 
 /**
  * Taken from https://htmldom.dev/create-resizable-split-views/ under the MIT license.
+ * 
+ * @returns {void}
  */
-export function setUpResizing() {
+export function setUpResizing() : void
+{
     // Query the element
     const resizer = document.getElementById("dragDiv");
-    if (resizer) {
+    if (resizer) 
+    {
         const leftSide = resizer.previousElementSibling as HTMLElement;
         const rightSide = resizer.nextElementSibling as HTMLElement;
 
         const parent = resizer.parentNode as HTMLElement;
 
-        if (leftSide && rightSide && parent) {
+        if (leftSide && rightSide && parent) 
+        {
             const parentWidth = parent.getBoundingClientRect().width;
 
             // The current position of mouse
@@ -21,7 +26,8 @@ export function setUpResizing() {
             // Width of left side
             let leftWidth = 0;
 
-            const mouseMoveHandler = function (e: MouseEvent) {
+            const mouseMoveHandler = function (e: MouseEvent) 
+            {
                 // How far the mouse has been moved
                 const dx = e.clientX - x;
                 document.body.style.cursor = "col-resize";
@@ -35,12 +41,14 @@ export function setUpResizing() {
                 const newLeftWidth = (leftWidth + dx) * 100 / parentWidth;
                 leftSide.style.width = `${newLeftWidth}%`;
 
-                if (newLeftWidth % 0.0001 > 0.00005) {
+                if (newLeftWidth % 0.0001 > 0.00005) 
+                {
                     Canvas.responsiveSize();
                 }
             };
 
-            const mouseUpHandler = function () {
+            const mouseUpHandler = function () 
+            {
                 resizer.style.removeProperty("cursor");
                 document.body.style.removeProperty("cursor");
 
@@ -57,7 +65,8 @@ export function setUpResizing() {
 
             // Handle the mousedown event
             // that's triggered when user drags the resizer
-            const mouseDownHandler = function (e: MouseEvent) {
+            const mouseDownHandler = function (e: MouseEvent) 
+            {
                 // Get the current mouse position
                 x = e.clientX;
                 leftWidth = leftSide.getBoundingClientRect().width;

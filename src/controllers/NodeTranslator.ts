@@ -112,14 +112,16 @@ export class YarnNode
 {
 
     private title: string;
-    private lineStart: number;
-    private lineEnd: number;
+    private lineTitle: number;//Holds the line that the title of the node resides on
+    private lineStart: number;//Holds the first instance of a header, including title
+    private lineEnd: number;//Holds the end '==='
     private metadata: Map<string,string>;//first string is metadata name, second is metadata content
 
-    constructor(title: string, lineStart?: number, lineEnd?: number)
+    constructor(title: string, lineTitle: number,lineStart?: number, lineEnd?: number)
     {
 
         this.title = title;
+        this.lineTitle = lineTitle;
         this.lineStart = -1;
         this.lineEnd = -1;
         this.metadata = new Map<string,string>();
@@ -140,6 +142,11 @@ export class YarnNode
         return this.title;
     }
 
+    getLineTitle(): number
+    {
+        return this.lineTitle;
+    }
+
     getLineStart(): number
     {
         return this.lineStart;
@@ -153,6 +160,11 @@ export class YarnNode
     setTitle(title: string): void
     {
         this.title = title;
+    }
+
+    setLineTitle(lineTitle: number): void
+    {
+        this.lineTitle = lineTitle;
     }
 
     setLineStart(lineStart: number): void
@@ -217,31 +229,6 @@ export class YarnNodeList
 
     convertFromContentToNode(content: string) : ReturnObject[]
     {
-
-/*
-TODO    Check for duplicate titles in list - make the order verify it's a node at the end line(?)
-TODO    Get changes to node titles
-TODO    Pass in current line number
-TODO    Call convert method when line number changes
-!           Unless the line is on the same line as a "Title:", then call it on all char changes
-
-
-
-
-
-- Metadata
-- Introduce unique identifier in number form
-- Pass in current line number
-- Title change
-- More rigid node creation so no errors or missing stuff (or nodes in nodes)
-- Translator call adjustment
-
-
-*/
-
-
-
-
         /*
 
         test string to copy paste in
@@ -268,6 +255,7 @@ headerTag: otherTest
         */
 
         const titleRegexExp = /(Title:.*)/g;//Get title match
+        const metadataRegexExp = /(.*):(.*)/;//Get regex match UNTESTED
         const endRegexExp = /===/g; //Get the end of the node match
         const jumpRegexExp = /<<jump.*?>>/; //Get the jump line match
         const jumpTitleRegexExp = /<<jump(.*?)>>/; //get the title from the jump command
@@ -282,9 +270,8 @@ headerTag: otherTest
         const newJumps = [] as NodeJump[];
         const newNode = new Map<string,YarnNode>();
 
-        let validNode = false;
 
-
+        //! NEEDS TO BE REMADE, REDONE, REBUILT
         for (let i = 0; i < allLines.length; i++)
         {
             if (allLines[i].match(titleRegexExp))
@@ -293,24 +280,17 @@ headerTag: otherTest
                 word = word.replace("Title:","");
                 word = word.replace(" ","");
                 word.trim();
-                validNode = true;
 
                 lastNode = word; //Assign lastNode as the last title found
 
                 if (word.length > 1)
                 {
-                    if (tempTitles.includes(word)){
-                        //Title exists, is no longer a valid node, but need to continue through the file
-                        validNode = false;
-                    }
-                    else{
-                        tempTitles.push(lastNode); //Push to title list
-                        newNode.set(lastNode, new YarnNode(lastNode, i+1)); //Set in map
-                    }
+                    tempTitles.push(lastNode); //Push to title list
+                    newNode.set(lastNode, new YarnNode(lastNode, i+1)); //Set in map
                 }
             }
             
-            else if (allLines[i].match(jumpRegexExp) && validNode)
+            else if (allLines[i].match(jumpRegexExp))
             {
                 const w = allLines[i].match(jumpTitleRegexExp);
                 if (w)
@@ -319,11 +299,13 @@ headerTag: otherTest
                 }
             }
 
-            else if (allLines[i].match(endRegexExp) && validNode)
+            else if (allLines[i].match(endRegexExp))
             {
                 newNode.get(lastNode)?.setLineEnd(i + 1);
             }
+
         }
+
         console.log(this.nodes);
 
         //Run comparison

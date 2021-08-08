@@ -6,8 +6,8 @@
 */
 
 /*  ~~IMPORTANT~~
-	IPC Main console.log output will be in the VSCode terminal
-	IPC Renderer console.log output will be in the developer tools window in the actual Electron client
+    IPC Main console.log output will be in the VSCode terminal
+    IPC Renderer console.log output will be in the developer tools window in the actual Electron client
 */
 
 
@@ -22,12 +22,15 @@ import { ThemeReader } from "../../controllers/themeReader";
 import { YarnFileManager } from "../../models/YarnFileManager";
 import { YarnFile } from "../../models/YarnFile";
 import { YarnNodeList } from "../../controllers/NodeTranslator";
+import * as Konva from "./nodeView";
+import { setUpResizing } from "./WindowResizing";
 import { EditorController } from "../../controllers/editorController";
 
 const yarnFileManager = new YarnFileManager();
 const yarnNodeList = new YarnNodeList();
 const theme = new ThemeReader().OGBlue;
 const editor = new EditorController("container", theme, yarnFileManager, yarnNodeList);
+setUpResizing();
 
 
 //set css variables
@@ -93,9 +96,9 @@ if (workingFiles)
 
             editor.setValue("");
             yarnFileManager.removeFromFiles(fileIdentifier);
-			
+
             const arrayOfFiles = Array.from(yarnFileManager.getFiles().keys());//Get new list of files
-            if(wasActiveFile && arrayOfFiles.length) 
+            if (wasActiveFile && arrayOfFiles.length) 
             {
                 yarnFileManager.setCurrentOpenYarnFile(arrayOfFiles[0]);
                 editor.updateEditor(yarnFileManager.getCurrentOpenFile());
@@ -126,23 +129,23 @@ if (workingFiles)
 
             //Swapping between files update, so update the file content to match editor
             editor.syncCurrentFile();
-			
+
             //Change currentOpen
             yarnFileManager.setCurrentOpenYarnFile(fileIdentifier);
-			
+
             setActiveFile(fileIdentifier);
 
             editor.updateEditor(yarnFileManager.getCurrentOpenFile());
-            
+
         }
     });
 
     //Early beginnings of right click menu on working files
-    workingFiles.addEventListener("contextmenu", (event) =>
+    workingFiles.addEventListener("contextmenu", (event) => 
     {
         event.preventDefault();
-        
-        if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY" && (event.target as HTMLParagraphElement).parentElement?.id !== "workingFilesDetail" ) 
+
+        if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY" && (event.target as HTMLParagraphElement).parentElement?.id !== "workingFilesDetail") 
         {
             console.log("We right click the P erlement not the div");
             console.log((event.target as HTMLParagraphElement).parentElement?.id);
@@ -157,11 +160,11 @@ if (workingFiles)
  * 
  * @returns {void}
  */
-function setActiveFile(fileToMarkCurrent: string|number) 
+function setActiveFile(fileToMarkCurrent: string | number) 
 {
     // Convert mixed type to string.
     fileToMarkCurrent = fileToMarkCurrent.toString();
-	
+
     const activeFiles = document.getElementsByClassName("active-file");
     Array.from(activeFiles).forEach((value) => 
     {
@@ -169,7 +172,7 @@ function setActiveFile(fileToMarkCurrent: string|number)
     });
 
     document.getElementById(fileToMarkCurrent)?.classList.add("active-file");
-	
+
 }
 
 //Set selection to BOLD
@@ -278,21 +281,21 @@ function addFileToDisplay(file: YarnFile): void
     {
         console.error("OpenFileError: Cannot append file to display list");
     }
-	
+
     setActiveFile(file.getUniqueIdentifier());
 }
 
 
 /*
-	******************************************************************************************************************
-										IPCRenderer Listeners and Emitters                                                                                                                                                                                            
-	******************************************************************************************************************
+    ******************************************************************************************************************
+                                        IPCRenderer Listeners and Emitters                                                                                                                                                                                            
+    ******************************************************************************************************************
 */
 
 /*
-	------------------------------------
-				LISTENERS
-	------------------------------------
+    ------------------------------------
+                LISTENERS
+    ------------------------------------
 */
 
 ipcRenderer.on("openFile", (event, path, contents, name) => 
@@ -361,12 +364,12 @@ ipcRenderer.on("mainRequestFind", () =>
     editor.showFindDialog();
 });
 
-ipcRenderer.on("mainRequestUndo", () =>
+ipcRenderer.on("mainRequestUndo", () => 
 {
-    editor.actionUndo(); 
+    editor.actionUndo();
 });
 
-ipcRenderer.on("mainRequestRedo", () =>
+ipcRenderer.on("mainRequestRedo", () => 
 {
     editor.actionRedo();
 });
@@ -384,16 +387,16 @@ ipcRenderer.on("gotPing", (event, arg) =>
 
 
 /*
-	------------------------------------
-				EMITTERS
-	------------------------------------
+    ------------------------------------
+                EMITTERS
+    ------------------------------------
 */
 
 /*
-	FORMAT:
-		EVENT LISTENER (EVENT, => {
-			ipcRenderer.send(CHANNEL, ARGS)
-		})
+    FORMAT:
+        EVENT LISTENER (EVENT, => {
+            ipcRenderer.send(CHANNEL, ARGS)
+        })
 */
 
 /**
@@ -425,3 +428,4 @@ function openFileEmitter()
 {
     ipcRenderer.send("fileOpenToMain");
 }
+

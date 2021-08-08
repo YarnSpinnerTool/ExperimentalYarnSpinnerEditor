@@ -360,7 +360,7 @@ function selectNode(node : Konva.Group): void
  * 
  * @returns {void}
  */
-function responsiveSize(): void 
+export function responsiveSize() : void
 {
     //Retrieves the element that the Konva stage is in.
     const container = document.getElementById("nodeContainer");

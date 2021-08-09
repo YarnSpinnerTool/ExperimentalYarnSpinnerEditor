@@ -369,7 +369,6 @@ select{
     margin-left: 15px;
     margin-top: 15px;
     width: 100%;
-    display: flex;
     /* padding-top: 5px; */
 }
 
@@ -405,15 +404,17 @@ select{
 
 .divider {
     writing-mode: vertical-rl;
+    min-width: 1%;
     width: 1%;
     text-decoration: solid;
     font-weight: bold;
-    line-height: 20%;
+    line-height: 25%;
     color: white;
     text-align: center;
     vertical-align: text-top;
     background-color: var(--tabGap);
     user-select: none;
+    z-index: 2;
 }
 
 .divider:hover {
@@ -428,61 +429,62 @@ cursor: col-resize;
 }
 
 .mainEditorView {
-    height: 98vh;
+    height: 98vh;    
+    border-style: hidden;
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    background-color: var(--editor);
+    margin-top: 15px;
+    width: 100%;
+    display: flex;
+    /* padding-top: 5px; */
 }
 
 .editorView {
     margin-top: 1vh;
     margin-right: 2vw;
     height: 82vh;
-    z-index: 3;
+    /* z-index: 3; */
     flex: 1 1 0%;
-    float: right;
+    /* float: right; */
     min-width: 5%;
 }
 
 .nodeView{
     position: relative;
-    width: 48.5%;
+    width: 45%;
     height: 82vh;
-
+    display:flex;
     float: left;
-    
+}
 
 .nodeEditorView {
-    position: absolute;
-    width: 100%;
+    /* position: absolute; */
     height: 84vh;
+
     background-color: #CFD8DC;
 }
 
 .miniNodeEditorView{
-    position: absolute;
-    width: 38px;
+    /* position: absolute; */
+    width: 75px;
     height: 98vh;
-    z-index: 2;
-    background-color: #CFD8DC;
-}
-
-.nodeEditorView {
-    width: auto;
-    height: 98vh;
-    z-index: 2;
-    background-color: #CFD8DC;
+    background-color: var(--selectedFileBg);
+    /* z-index: 2; */
 }
 
 .miniMapView{
     position: absolute;
     width: 200px;
     height: 130px;
-    right: 0;
-    bottom: 0;
+    right: 10px;
+    bottom: 10px;
     z-index: 1; /* only needs to be higher than nodeEditor container */
     border: 1px solid darkcyan;
     background: #92a7af50;
 }
 
-@media only screen and (max-width: 700px) {
+@media (max-width: 540px) {
 	.miniMapView {
 		display: none;
 	}

@@ -374,8 +374,9 @@ headerTag: otherTest
           
             //TODO SETH - adaptive title changes
 
-            const oldTitle = "test";
-            const newTitle = "newTest";
+            //Commenting for ESLint
+            // const oldTitle = "test";
+            // const newTitle = "newTest";
 
             
             //returnList.push(this.notifyTitleChange(oldTitle, newTitle));

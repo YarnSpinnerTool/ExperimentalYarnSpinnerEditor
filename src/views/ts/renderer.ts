@@ -22,7 +22,6 @@ import { ThemeReader } from "../../controllers/themeReader";
 import { YarnFileManager } from "../../models/YarnFileManager";
 import { YarnFile } from "../../models/YarnFile";
 import { YarnNodeList } from "../../controllers/NodeTranslator";
-import * as Konva from "./nodeView";
 import { setUpResizing } from "./WindowResizing";
 import { EditorController } from "../../controllers/editorController";
 
@@ -53,7 +52,7 @@ nodeView.newNode("Node Three");
 nodeView.newNode("Node Four");
 nodeView.newNode("Node Five");
 nodeView.newNode("Node Six");
-
+*/
 
 
 
@@ -152,6 +151,7 @@ if (workingFiles)
         }
     });
 }
+
 
 /**
  * Add and remove classes to correctly highlight the active file.

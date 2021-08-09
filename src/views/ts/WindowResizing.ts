@@ -38,7 +38,7 @@ export function setUpResizing() : void
                 rightSide.style.userSelect = "none";
                 rightSide.style.pointerEvents = "none";
 
-                const newLeftWidth = (leftWidth + dx) * 100 / parentWidth;
+                const newLeftWidth = ((leftWidth + dx) * 100 / parentWidth) - ((leftWidth + dx) * 1 / parentWidth);
                 leftSide.style.width = `${newLeftWidth}%`;
 
                 if (newLeftWidth % 0.0001 > 0.00005) 

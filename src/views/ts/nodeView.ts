@@ -9,11 +9,11 @@ import Konva from "konva";
 import { NodeJump, YarnNode } from "../../controllers/NodeTranslator"; 
 
 const sceneWidth = 500;         // For comparing scale in responsiveSize()
-var nodeMap = new Map<string,Konva.Group>();      // Map for storing all nodes.
-var miniNodeMap = new Map<string,Konva.Group>();
+const nodeMap = new Map<string,Konva.Group>();      // Map for storing all nodes.
+const miniNodeMap = new Map<string,Konva.Group>();
 let selectedNode: Konva.Group;  // Currently selected node for highlighting purposes.
 let miniNodeY = 5;              // Variable to increment height of miniNodes.
-var miniMapCoords: {x: number, y: number};          // Global variable for storing the top right of the minimap image.
+let miniMapCoords: {x: number, y: number};          // Global variable for storing the top right of the minimap image.
 
 //Create the main stage.
 const stage: Konva.Stage = new Konva.Stage({
@@ -23,7 +23,8 @@ const stage: Konva.Stage = new Konva.Stage({
     draggable: true,            // Crucial. For panning the stage.
 });
 
-stage.on("dragend", function () {
+stage.on("dragend", function () 
+{
     updateMapPort();
 });
 
@@ -64,18 +65,20 @@ window.addEventListener("resize", responsiveSize);
  */
 export function newNode(title: string): void 
 {
-    var node: Konva.Group = createNewGroupNode(title, 70, 70);
+    const node: Konva.Group = createNewGroupNode(title, 70, 70);
     node.name(title);
     layer.add(node);
     layer.draw();
     updateMiniMap();
 
-    var miniGroup = new Konva.Group({
+    const miniNodeSize = 50;
+
+    const miniGroup = new Konva.Group({
         name: title,
     });
-    var miniRect = new Konva.Rect({
-        width: 30,
-        height: 30,
+    const miniRect = new Konva.Rect({
+        width: miniNodeSize,
+        height: miniNodeSize,
         fill: "#f5f0b0",
         stroke: "#f2deac",
         strokeWidth: 2,
@@ -84,26 +87,26 @@ export function newNode(title: string): void
         shadowOffset: { x: 1, y: 1 },
         shadowOpacity: 0.1,
         perfectDrawEnabled: false,
-        x: miniStage.width() / 2 - (15),
+        x: miniStage.width() / 2 - (miniNodeSize / 2),
         y: miniNodeY,
     });
-    var miniText = new Konva.Text({
+    const miniText = new Konva.Text({
         name: "text",
-        width: 30,
-        height: 30,
+        width: miniNodeSize,
+        height: miniNodeSize,
         fill: "black",
         ellipsis: true,
         perfectDrawEnabled: false,
         text: title,
         wrap: "word",
-        fontSize: 8,
-        x: miniStage.width() / 2 - (15),
+        fontSize: 10,
+        x: miniStage.width() / 2 - (miniNodeSize / 2),
         y: miniNodeY,
         strokeWidth: 0,
     });
 
     // Adds all onclick functionality for the mini node.
-    
+
     miniText.moveToTop();
     miniGroup.add(miniRect);
     miniGroup.add(miniText);
@@ -205,14 +208,14 @@ function createNewGroupNode(text: string, height: number, width: number)
     {
         centerNode(this);
     });
-    
+
     //Move selected node to top.
     nodeGroup.on("click", function () 
     {
         nodeGroup.moveToTop();
     });
 
-    nodeGroup.on("dragend", function ()
+    nodeGroup.on("dragend", function () 
     {
         updateMiniMap();
     });
@@ -235,8 +238,8 @@ export function connectNodes(from: string, to: string): void
     const nodeFrom: Konva.Group = nodeMap.get(from.trim());
     const nodeTo: Konva.Group = nodeMap.get(to.trim());
 
-    const nodeCenterLength : number = nodeTo.getChildren()[0].width() / 2;
-    
+    const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+
     //Draw the line between the center of each node. 
     const line = new Konva.Arrow({
         points: [nodeFrom.x() + nodeCenterLength, nodeFrom.y() + nodeCenterLength, nodeTo.x() + nodeCenterLength, nodeTo.y() + nodeCenterLength],
@@ -254,19 +257,19 @@ export function connectNodes(from: string, to: string): void
     //Redraw the line when moving the from node.
     nodeFrom.on("dragmove", () => 
     {
-        const nodeCenterLength : number = nodeTo.getChildren()[0].width() / 2;
-        line.points([ (nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
+        const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+        line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
         layer.draw();
     });
 
     //Redraw the line when moving the to node.
     nodeTo.on("dragmove", () => 
     {
-        const nodeCenterLength : number = nodeTo.getChildren()[0].width() / 2;
-        line.points([ (nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
+        const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+        line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
         layer.draw();
     });
-    
+
     updateMiniMap();
 }
 
@@ -275,7 +278,7 @@ export function connectNodes(from: string, to: string): void
  *   Zoom's relative to the cursor position.
  *   @returns {void}
  */
-function zoomOnCursor()
+function zoomOnCursor() 
 {
     const scaleBy = 1.1;
     stage.on("wheel", (e) => 
@@ -284,14 +287,14 @@ function zoomOnCursor()
         const scrollDirection = e.evt.deltaY;
         const oldScale = stage.scaleX();
         const mPos = stage.getPointerPosition();
-    
+
         if (mPos) 
         {
             const mousePosition = {
                 x: (mPos.x - stage.x()) / oldScale,
                 y: (mPos.y - stage.y()) / oldScale
             };
-    
+
             if (scrollDirection > 0 && oldScale < 4) 
             {
                 stage.scale({ x: (oldScale * scaleBy), y: (oldScale * scaleBy) });
@@ -300,12 +303,12 @@ function zoomOnCursor()
             {
                 stage.scale({ x: (oldScale / scaleBy), y: (oldScale / scaleBy) });
             }
-    
+
             stage.x(mPos.x - mousePosition.x * stage.scaleX());
             stage.y(mPos.y - mousePosition.y * stage.scaleY());
             updateMapPort();
         }
-    
+
     });
 }
 
@@ -315,7 +318,7 @@ function zoomOnCursor()
  *   @param {Konva.Group} focus node that will become center of the stage
  *   @returns {void}
  */
-function centerNode(focus : Konva.Group): void
+function centerNode(focus: Konva.Group): void 
 {
     const width = focus.getChildren()[0].width();
 
@@ -328,7 +331,7 @@ function centerNode(focus : Konva.Group): void
         x: width / 2,
         y: width / 2,
     };
-    
+
     stage.x(-focus.x() * stage.scaleX() + portCenter.x - nodeCenter.x * stage.scaleX());
     stage.y(-focus.y() * stage.scaleY() + portCenter.y - nodeCenter.y * stage.scaleY());
 }
@@ -339,7 +342,7 @@ function centerNode(focus : Konva.Group): void
  *   @param {Konva.Group} node the node being selected
  *   @returns {void}
  */
-function selectNode(node : Konva.Group): void
+function selectNode(node: Konva.Group): void 
 {
     let selectedSquare: Konva.Shape;
     if (selectedNode) 
@@ -360,39 +363,54 @@ function selectNode(node : Konva.Group): void
  * 
  * @returns {void}
  */
-export function responsiveSize() : void
+export function responsiveSize(): void 
 {
     //Retrieves the element that the Konva stage is in.
     const container = document.getElementById("nodeContainer");
     const miniContainer = document.getElementById("miniNodeContainer");
+    const miniMapContainer = document.getElementById("miniMapContainer");
 
     //Gets the width and height of the element.
-    if (container != null) 
+    if (container && miniContainer && miniMapContainer) 
     {
-        const containerWidth: number = container.offsetWidth;
-        const containerHeight: number = container.offsetHeight;
+        const miniNodeWidth = 75;
+        miniStage.width(miniNodeWidth);
 
-        const scale = containerWidth / sceneWidth;
-        //Sets the width and height of the stage to fit the element, scales the layer appropriately.
-        stage.width(containerWidth);
-        stage.height(containerHeight);
-        stage.scale({ x: scale, y: scale });
-    }
-    if (miniContainer != null)
-    {
-        const miniContainerWidth: number = miniContainer.offsetWidth;
-        const miniContainerHeight: number = miniContainer.offsetHeight;
+        const parentContainer = container.parentElement;
 
-        //Sets the width and height of the stage to fit the element, scales the layer appropriately.
-        miniStage.width(miniContainerWidth);
-        miniStage.height(miniContainerHeight);
+        if (parentContainer && parentContainer.offsetHeight) 
+        {
+            // const containerWidth: number = container.clientWidth;
+            const containerWidth: number = parentContainer.offsetWidth - miniNodeWidth;
+            const containerHeight: number = parentContainer.offsetHeight;
+
+            console.log("Width is: " + containerWidth);
+            //Sets the width and height of the stage to fit the element, scales the layer appropriately.
+            
+            stage.width(containerWidth);
+            stage.height(containerHeight);
+            
+            // To scale on screen resize, uncomment.
+            // const scale = (containerWidth - miniNodeWidth) / sceneWidth; 
+            // stage.scale({ x: scale, y: scale });
+            
+            if(parentContainer.offsetWidth < 400) 
+            {
+                miniMapContainer.style.display = "none";
+            }
+            else 
+            {
+                miniMapContainer.style.removeProperty("display");
+            }
+            
+        }
     }
 
 }
 
 /**
- * * Mini Map Update
- * function updates the view on the mini map on each call
+ * Mini Map Update function updates the view on the mini map on each call
+ * 
  * @returns {void}
  */
 function updateMiniMap() 
@@ -400,21 +418,20 @@ function updateMiniMap()
     const defaultScale = 0.25;
     const mapGroup: Konva.Group = new Konva.Group;
 
-    let idealScale: number;
     let maxY: number = layer.getChildren()[0].y();   // for distance between shapes
     let minY: number = layer.getChildren()[0].y();
     let maxX: number = layer.getChildren()[0].x();
     let minX: number = layer.getChildren()[0].x();
-    for(const i of layer.getChildren())
+    for (const i of layer.getChildren()) 
     {
-        if (maxY < i.y())   {   maxY = i.y();   }
-        
-        if (minY > i.y())   {   minY = i.y();   }
-        
-        if (maxX < i.x())   {   maxX = i.x();   }
+        if (maxY < i.y()) { maxY = i.y(); }
 
-        if (minX > i.x())   {   minX = i.x();   }
-        
+        if (minY > i.y()) { minY = i.y(); }
+
+        if (maxX < i.x()) { maxX = i.x(); }
+
+        if (minX > i.x()) { minX = i.x(); }
+
         const clonedShape = i.clone();
         mapGroup.add(clonedShape);
     }
@@ -422,15 +439,15 @@ function updateMiniMap()
     miniMapCoords = {
         x: minX,
         y: minY
-    }
+    };
 
     // works out square ratio on a rectangle
-    idealScale = Math.min(
-    miniMapStage.height() / (maxY - minY + 100),
-    miniMapStage.width() / (maxX - minX + 100),
-    defaultScale);  // if default scale is smaller, use that
-    
-    
+    const idealScale = Math.min(
+        miniMapStage.height() / (maxY - minY + 100),
+        miniMapStage.width() / (maxX - minX + 100),
+        defaultScale);  // if default scale is smaller, use that
+
+
     const layerCopy = mapGroup.toCanvas({
         pixelRatio: idealScale,
     });
@@ -441,11 +458,11 @@ function updateMiniMap()
     };
 
     const imageCenter = {
-        x: layerCopy.width /2,
-        y: layerCopy.height /2,
+        x: layerCopy.width / 2,
+        y: layerCopy.height / 2,
     };
 
-    if(!miniMapLayer.getChildren()[0])  // Initialise map image
+    if (!miniMapLayer.getChildren()[0])  // Initialise map image
     {
         miniMapLayer.add(   // add layer copy as image
             new Konva.Image({
@@ -468,7 +485,7 @@ function updateMiniMap()
             })
         );
     }
-    else
+    else 
     {
         const image: Konva.Image = miniMapLayer.findOne(".background");
         const view: Konva.Rect = miniMapLayer.findOne(".viewPort");
@@ -488,17 +505,17 @@ function updateMiniMap()
 *   updates the position of the viewport in minimap
 *   @returns {void}
 */
-function updateMapPort ()
+function updateMapPort() 
 {
-    if (miniMapLayer.findOne(".viewPort"))
+    if (miniMapLayer.findOne(".viewPort")) 
     {
         const view = miniMapLayer.findOne(".viewPort");
         ///const relativeDistance = Math.sqrt(Math.pow((Math.max(stage.x(), miniMapCoords.x) - Math.min(stage.x(), miniMapCoords.x)), 2) + Math.pow((Math.max(stage.y(), miniMapCoords.y) - Math.min(stage.y(), miniMapCoords.y)),2));
-        const relativePos = 
+        const relativePos =
         {
             x: (stage.x() * stage.scaleX()) + (miniMapCoords.x * stage.scaleX()),
             y: (stage.y() * stage.scaleX()) + (miniMapCoords.y * stage.scaleX())
-        }
+        };
 
         //view.position({x: relativePos.x, y: relativePos.y});
         view.x(-relativePos.x * 0.25);
@@ -517,18 +534,18 @@ function updateMapPort ()
  * @param {string} newName The new name to update the node to.
  * @returns {void}
  */
-export function changeNodeName(oldName: string, newName: string) 
+export function changeNodeName(oldName: string, newName: string) : void
 {
     //get value from both miniNodeMap and nodeMap
-    const tempNode : Konva.Group = nodeMap.get(oldName);
-    const tempMiniNode : Konva.Group = miniNodeMap.get(oldName);
+    const tempNode: Konva.Group = nodeMap.get(oldName);
+    const tempMiniNode: Konva.Group = miniNodeMap.get(oldName);
 
-    
+
     //update the text 
     // ! Type mismatch, findOne returns any shape
     tempNode.findOne(".text").text(newName);
     tempMiniNode.findOne(".text").text(newName);
-      
+
     //update the name
     tempNode.name(newName);
     tempMiniNode.name(newName);
@@ -543,14 +560,16 @@ export function changeNodeName(oldName: string, newName: string)
 }
 
 /**  
- * * Function for getting info on all nodes, including x & y position, and title.
+ * Function for getting info on all nodes, including x & y position, and title.
  * Behaviour not finalised.
- * @returns {string}
+ * @returns {string} String values of all nodes.
  */
-export function printAll(){
-    var output : string = "";
+export function printAll() : string
+{
+    let output = "";
 
-    nodeMap.forEach((node) => {
+    nodeMap.forEach((node) => 
+    {
         output += "Title: " + node.name() + ", x value: " + node.x() + ", y value: " + node.y() + "\n";
     });
     return (output);
@@ -561,12 +580,12 @@ export function printAll(){
  * 
  * @param {string} name The name of the node to be printed
  * 
- * @returns {string}
+ * @returns {string} The value the node.
  */
-export function printByName(name : string) 
+export function printByName(name: string) : string
 {
     const node = nodeMap.get(name);
-    var output : string = "Title: " + node.name() + ", x value: " + node.x() + ", y value: " + node.y() + "\n";
+    const output: string = "Title: " + node.name() + ", x value: " + node.x() + ", y value: " + node.y() + "\n";
     return output;
 }
 
@@ -578,9 +597,9 @@ export function printByName(name : string)
  * 
  * @returns {void}
  */
-export function removeNode(name: string)
+export function removeNode(name: string) : void
 {
-    
+
     //REMOVE MINI NODE AND NORMAL NODE FROM MAP
     //REMOVE GROUP FROM LAYER 
     nodeMap.get(name).destroy();
@@ -588,7 +607,7 @@ export function removeNode(name: string)
 
     miniNodeMap.get(name).destroy();
     miniNodeMap.delete(name);
-    
+
     //TODO MOVE ALL MINI NODES
 
     //TODO REMOVE JUMPS
@@ -598,7 +617,14 @@ export function removeNode(name: string)
 
 
 //TODO convert to full node passthrough for further functionality
-export function addNode(node: YarnNode)
+/**
+ * Add node to display.
+ * 
+ * @param {YarnNode} node The node to add.
+ * 
+ * @returns {void}
+ */
+export function addNode(node: YarnNode) : void
 {
     console.log("Add node called");
     newNode(node.getTitle());
@@ -606,15 +632,21 @@ export function addNode(node: YarnNode)
 
 }
 
-
-export function receiveJumps(jumps: NodeJump[])
+/**
+ * Draw lines between nodes.
+ * 
+ * @param {NodeJump[]} jumps The list of jumps to draw.
+ * 
+ * @returns {void}
+ */
+export function receiveJumps(jumps: NodeJump[]) : void
 {
-    for (var i = 0; i < jumps.length; i++) 
+    for (let i = 0; i < jumps.length; i++) 
     {
         // ! DEBUG
-        console.log("from receiveJumps: source = "+jumps[i].getSource());
-        console.log("from receiveJumps: target = "+jumps[i].getTarget());
-        
+        console.log("from receiveJumps: source = " + jumps[i].getSource());
+        console.log("from receiveJumps: target = " + jumps[i].getTarget());
+
         connectNodes(jumps[i].getSource(), jumps[i].getTarget());
-    } 
+    }
 }

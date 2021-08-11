@@ -110,6 +110,8 @@ export class NodeJump
 
 }
 
+let uniqueIncrement = 0;
+
 export class YarnNode
 {
 
@@ -118,8 +120,9 @@ export class YarnNode
     private lineStart: number;//Holds the first instance of a header, including title
     private lineEnd: number;//Holds the end '==='
     private metadata: Map<string,string>;//first string is metadata name, second is metadata content
+    private uniqueIdentifier = uniqueIncrement++;
 
-    constructor(title: string, lineTitle: number,lineStart?: number, lineEnd?: number)
+    constructor(title: string, lineTitle: number,lineStart?: number, lineEnd?: number, metadata: Map<string,string>)
     {
 
         this.title = title;
@@ -136,6 +139,11 @@ export class YarnNode
         if (lineEnd)
         {
             this.lineEnd = lineEnd;
+        }
+
+        if (metadata)
+        {
+            this.metadata = metadata;
         }
     }
 
@@ -157,6 +165,11 @@ export class YarnNode
     getLineEnd(): number
     {
         return this.lineEnd;
+    }
+
+    getUniqueIdentifier(): number
+    {
+        return this.uniqueIdentifier;
     }
 
     setTitle(title: string): void
@@ -244,6 +257,7 @@ headerTag: otherTest
 <<jump ttt>>
 ===
 
+preceedingTag; wahoo
 Title: 333
 headerTag: otherTest
 ---
@@ -254,9 +268,16 @@ Title: ttt
 headerTag: otherTest
 ---
 ===
+
+
+Title: ttt2ElectricBoogaloo
+headerTag: otherTest
+--- 
+=== 
         */
 
         const titleRegexExp = /(Title:.*)/g;//Get title match
+        const dialogueDeliminterExp = /---/; //Get the --- of the node that begins the dialogue
         const metadataRegexExp = /(.*):(.*)/;//Get regex match UNTESTED
         const endRegexExp = /===/g; //Get the end of the node match
         const jumpRegexExp = /<<jump.*?>>/; //Get the jump line match
@@ -266,83 +287,200 @@ headerTag: otherTest
 
         //Variables to hold to create new nodes
         let lastNode = "";
+        let currentNodeFinishedState = false;
+        let lastNodeFinishedState = false;
+        let dialogueStartFound = false;
+        let ignoreNode = false;
+
+        let titleLineNumber = -1;
+        let nodeStartNumber = -1;
+        
 
         //Should this just have another instance of the YarnNodeList object?
-        let tempTitles = [] as string[];
-        let newJumps = [] as NodeJump[];
-        let newNode = new Map<string,YarnNode>();
+        const tempTitles = [] as string[];
+        const newJumps = [] as NodeJump[];
+        const newNode = new Map<string,YarnNode>();
         let newMetadata = new Map<string,string>();
 
+        const runRegexCheck = true;
 
-        for (let documentLineNumber = 0; documentLineNumber < allLines.length; documentLineNumber++)
+        if (runRegexCheck)
         {
-            //Cases
-            /*
-                ! Title:
-                    Store title and line number until === is found
-                        May need to also find --- to confirm? ValidNode = startHyphensFound == endFound
-
-                ! Any header
-                    Store this metadata in the map, left name of data, right the data
-                
-                If these have not been found, it doesn't begin
-
-            TODO    If a title has been found, and the end hasn't been found, "complete" the node but set it to an invalid node and don't pass it through
-
-            */
-
-
-            if (allLines[documentLineNumber].match(titleRegexExp)){
-                let titleFound = allLines[documentLineNumber];
-                titleFound = titleFound.replace("Title:","");
-                titleFound = titleFound.replace(" ", "");
-                titleFound.trim();
-
-
-                console.log(e);
-
-            }
-
-
-        }
-
-
-        //! NEEDS TO BE REMADE, REDONE, REBUILT
-        for (let i = 0; i < allLines.length; i++)
-        {
-            if (allLines[i].match(titleRegexExp))
+            for (let documentLineNumber = 0; documentLineNumber < allLines.length; documentLineNumber++)
             {
-                let word = allLines[i]; //Get line match
-                word = word.replace("Title:","");
-                word = word.replace(" ","");
-                word.trim();
-
-                lastNode = word; //Assign lastNode as the last title found
-
-                if (word.length > 1)
+                if (documentLineNumber === e.changes[0].range.startLineNumber)
                 {
-                    tempTitles.push(lastNode); //Push to title list
-                    newNode.set(lastNode, new YarnNode(lastNode, i+1)); //Set in map
+                    if (allLines[documentLineNumber].match(titleRegexExp))
+                    {
+                        let titleFound = allLines[documentLineNumber];
+                        titleFound = titleFound.replace("Title:","");
+                        titleFound = titleFound.replace(" ", "");
+                        titleFound.trim();
+
+                        console.log("TODO IMPLEMENT TITLE CHANGE");
+                        documentLineNumber = allLines.length;
+                        console.log("Skipping loop because user is still typing title");
+                        console.log("EVENT OUTPUT");
+                        console.log(e);
+                    }
+                    
+                }
+    
+                //Cases
+                /*
+                    ! Title:
+                        Store title and line number until === is found
+                            May need to also find --- to confirm? ValidNode = startHyphensFound == endFound
+    
+                    ! Any header
+                        Store this metadata in the map, left name of data, right the data
+                    
+                    If these have not been found, it doesn't begin
+    
+                TODO    If a title has been found, and the end hasn't been found, "complete" the node but set it to an invalid node and don't pass it through
+    
+                */
+    
+                if (allLines[documentLineNumber].match(metadataRegexExp))
+                {
+                    if (lastNode === "" && dialogueStartFound === false)
+                    {
+                        //If these are both set to default empty values (lastNode and dialogue) then we are outside a node?
+                        const splitInfo = allLines[documentLineNumber].split(":");
+                        newMetadata.set(splitInfo[0], splitInfo[1]);
+                    }
+                    else
+                    {
+                        //ignore this because we should be inside a node
+                    }
+                    
+                }
+    
+                if (allLines[documentLineNumber].match(titleRegexExp))
+                {
+                       
+                    let titleFound = allLines[documentLineNumber];
+                    titleFound = titleFound.replace("Title:","");
+                    titleFound = titleFound.replace(" ", "");
+                    titleFound.trim();
+    
+    
+                    if (titleFound !== lastNode && currentNodeFinishedState == false)
+                    {
+                        //TODO Last node is now invalid and a new one begins
+                        lastNodeFinishedState = false;
+                        dialogueStartFound = false;
+                    }
+    
+                    if (this.nodes.get(titleFound.trim()))
+                    {
+                        console.log("FOUND this node and not caring about the regex:");
+                        console.log(this.nodes.get(lastNode));
+                        ignoreNode = true;
+                    }
+
+                    
+
+                    tempTitles.push(titleFound);
+                    lastNode = titleFound;
+                    titleLineNumber = documentLineNumber + 1;
+    
+                }
+    
+                if (allLines[documentLineNumber].match(dialogueDeliminterExp))
+                {
+                    dialogueStartFound = true;
+                    nodeStartNumber = documentLineNumber + 1;
+                }
+    
+                if (allLines[documentLineNumber].match(jumpRegexExp))
+                {
+                    const w = allLines[documentLineNumber].match(jumpTitleRegexExp);
+                    if (w)
+                    {
+                        newJumps.push(new NodeJump(lastNode.trim(), w[1].trim()));
+                    }
+                }
+    
+                if (allLines[documentLineNumber].match(endRegexExp))
+                {
+                    console.log("STATE OF IGNORE NODE " + ignoreNode);
+                    if (dialogueStartFound && !ignoreNode)
+                    {
+                        newNode.set(lastNode.trim(), new YarnNode(
+                            lastNode.trim(),
+                            titleLineNumber,
+                            nodeStartNumber,
+                            documentLineNumber + 1,
+                            newMetadata
+                        ));
+                        //Assign current node to the last node
+    
+                        
+    
+                        console.log("TITLE MATCHED and node added");
+                    }
+                    else if (ignoreNode)
+                    {
+                        const existingNode = this.nodes.get(lastNode.trim());
+                        if (existingNode)
+                        {
+                            console.log("Node exists adding:");
+                            console.log(existingNode);
+                            newNode.set(lastNode.trim(), existingNode);
+                        }
+                    }
+
+                    currentNodeFinishedState = false;
+                    dialogueStartFound = false;
+                    ignoreNode = false;
+                    lastNodeFinishedState = true;
+                    newMetadata = new Map<string,string>();
+                    lastNode = "";
                 }
             }
+        }
+
+        
+
+        
+        
+        // //! NEEDS TO BE REMADE, REDONE, REBUILT
+        // for (let i = 0; i < allLines.length; i++)
+        // {
+        //     if (allLines[i].match(titleRegexExp))
+        //     {
+        //         let word = allLines[i]; //Get line match
+        //         word = word.replace("Title:","");
+        //         word = word.replace(" ","");
+        //         word.trim();
+
+        //         lastNode = word; //Assign lastNode as the last title found
+
+        //         if (word.length > 1)
+        //         {
+        //             tempTitles.push(lastNode); //Push to title list
+        //             newNode.set(lastNode, new YarnNode(lastNode, i+1)); //Set in map
+        //         }
+        //     }
             
-            else if (allLines[i].match(jumpRegexExp))
-            {
-                const w = allLines[i].match(jumpTitleRegexExp);
-                if (w)
-                {
-                    newJumps.push(new NodeJump(lastNode.trim(), w[1].trim()));
-                }
-            }
+        //     else if (allLines[i].match(jumpRegexExp))
+        //     {
+        //         const w = allLines[i].match(jumpTitleRegexExp);
+        //         if (w)
+        //         {
+        //             newJumps.push(new NodeJump(lastNode.trim(), w[1].trim()));
+        //         }
+        //     }
 
-            else if (allLines[i].match(endRegexExp))
-            {
-                newNode.get(lastNode)?.setLineEnd(i + 1);
-            }
+        //     else if (allLines[i].match(endRegexExp))
+        //     {
+        //         newNode.get(lastNode)?.setLineEnd(i + 1);
+        //     }
 
-        }
+        // }
 
-        console.log(this.nodes);
+        console.log(newNode);
 
         //Run comparison
         return this.compareTranslation(tempTitles, newNode, newJumps);
@@ -435,6 +573,7 @@ headerTag: otherTest
 
         //Assign the new translation
         this.nodes = recentTranslation;
+        this.titles = recentTitles;
         this.jumps = newJumps;
 
         //Tell NodeView about the jumps

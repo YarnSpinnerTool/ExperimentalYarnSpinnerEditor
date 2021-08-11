@@ -5,6 +5,8 @@
  *---------------------------------------------------------------------------------------------
 */
 
+import * as monaco from "monaco-editor";
+
 export enum ReturnCode{
     Error = -1,
     None = 0,
@@ -227,7 +229,7 @@ export class YarnNodeList
         });
     }
 
-    convertFromContentToNode(content: string) : ReturnObject[]
+    convertFromContentToNode(content: string, e :monaco.editor.IModelContentChangedEvent) : ReturnObject[]
     {
         /*
 
@@ -266,9 +268,43 @@ headerTag: otherTest
         let lastNode = "";
 
         //Should this just have another instance of the YarnNodeList object?
-        const tempTitles = [] as string[];
-        const newJumps = [] as NodeJump[];
-        const newNode = new Map<string,YarnNode>();
+        let tempTitles = [] as string[];
+        let newJumps = [] as NodeJump[];
+        let newNode = new Map<string,YarnNode>();
+        let newMetadata = new Map<string,string>();
+
+
+        for (let documentLineNumber = 0; documentLineNumber < allLines.length; documentLineNumber++)
+        {
+            //Cases
+            /*
+                ! Title:
+                    Store title and line number until === is found
+                        May need to also find --- to confirm? ValidNode = startHyphensFound == endFound
+
+                ! Any header
+                    Store this metadata in the map, left name of data, right the data
+                
+                If these have not been found, it doesn't begin
+
+            TODO    If a title has been found, and the end hasn't been found, "complete" the node but set it to an invalid node and don't pass it through
+
+            */
+
+
+            if (allLines[documentLineNumber].match(titleRegexExp)){
+                let titleFound = allLines[documentLineNumber];
+                titleFound = titleFound.replace("Title:","");
+                titleFound = titleFound.replace(" ", "");
+                titleFound.trim();
+
+
+                console.log(e);
+
+            }
+
+
+        }
 
 
         //! NEEDS TO BE REMADE, REDONE, REBUILT
@@ -428,7 +464,7 @@ headerTag: otherTest
     notifyTitleChange(oldTitle: string, newTitle: string): ReturnObject
     {
         //Outputs the title to change of a node
-        return new ReturnObject(ReturnCode.Update, this.jumps, new YarnNode("TODO, fix this parameter"), [oldTitle, newTitle]);
+        return new ReturnObject(ReturnCode.Update, this.jumps, undefined, [oldTitle, newTitle]);
     }
 
     notifyOfJumps(): ReturnObject

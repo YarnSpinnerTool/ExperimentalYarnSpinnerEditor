@@ -363,11 +363,11 @@ select{
 
 .outerEditor{
     border-style: hidden;
-    border-radius: 15px;
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
     background-color: var(--editor);
     margin-left: 15px;
     margin-top: 15px;
-    padding-bottom: 20px;
     width: 100%;
     /* padding-top: 5px; */
 }
@@ -378,12 +378,10 @@ select{
     border-color: var(--dividerColour);
     display: flex;
     margin-left: 10px;
-
     height: 20px;
 }
 
 .tabItem{
-
     margin-top: 2px;
     padding-left: 10px;
     margin-bottom: 2px;
@@ -404,6 +402,25 @@ select{
     background-color: var(--editor);
 }
 
+.divider {
+    writing-mode: vertical-rl;
+    min-width: 1%;
+    width: 1%;
+    text-decoration: solid;
+    font-weight: bold;
+    line-height: 25%;
+    color: white;
+    text-align: center;
+    vertical-align: text-top;
+    background-color: var(--tabGap);
+    user-select: none;
+    z-index: 2;
+}
+
+.divider:hover {
+cursor: col-resize;
+}
+
 .tabItem > p {
     margin-left: 5px;
     font-size: 12px;
@@ -411,36 +428,64 @@ select{
     color: var(--primary_text);
 }
 
+.mainEditorView {
+    height: 98vh;    
+    border-style: hidden;
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    background-color: var(--editor);
+    margin-top: 15px;
+    width: 100%;
+    display: flex;
+    /* padding-top: 5px; */
+}
+
 .editorView {
-    margin-top: 5px;
-    margin-left: 5px;
-    height: 98vh;
-    width: 49%;
+    margin-top: 1vh;
+    margin-right: 2vw;
+    height: 82vh;
+    /* z-index: 3; */
+    flex: 1 1 0%;
+    /* float: right; */
+    min-width: 5%;
+}
+
+.nodeView{
+    position: relative;
+    width: 45%;
+    height: 82vh;
+    display:flex;
     float: left;
-    left: 0px;
-    top: 0px;
 }
 
 .nodeEditorView {
-    width: 44%;
-    height: 98vh;
-    float: left;
+    /* position: absolute; */
+    height: 84vh;
+
     background-color: #CFD8DC;
 }
 
 .miniNodeEditorView{
-    width: 38px;
+    /* position: absolute; */
+    width: 75px;
     height: 98vh;
-    float: left;
-    background-color: #CFD8DC;
+    background-color: var(--selectedFileBg);
+    /* z-index: 2; */
 }
 
 .miniMapView{
     position: absolute;
     width: 200px;
     height: 130px;
-    bottom: 2px;
-    z-index: 2; /* only needs to be higher than nodeEditor container */
+    right: 10px;
+    bottom: 10px;
+    z-index: 1; /* only needs to be higher than nodeEditor container */
     border: 1px solid darkcyan;
     background: #92a7af50;
+}
+
+@media (max-width: 540px) {
+	.miniMapView {
+		display: none;
+	}
 }

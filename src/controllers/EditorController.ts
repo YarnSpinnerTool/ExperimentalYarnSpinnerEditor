@@ -147,40 +147,55 @@ export class EditorController
     }
 
     //Editor specific events
-    modelChangeHandler(e: monaco.editor.IModelContentChangedEvent): void {
+    modelChangeHandler(e: monaco.editor.IModelContentChangedEvent): void 
+    {
         //TODO SETH - Maybe pass the ILineChange event info into this method too?
-        
-        var returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue());
 
-        for (var i = 0; i < returnedObjectList.length; i++) {
-            var currentObject: ReturnObject = returnedObjectList[i];
+        const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue());
 
-            switch (currentObject.returnCode) {
+        for (let i = 0; i < returnedObjectList.length; i++) 
+        {
+            const currentObject: ReturnObject = returnedObjectList[i];
+
+            if (currentObject.returnCode) 
+            {
+                switch (currentObject.returnCode) 
+                {
                 case ReturnCode.Error:
                     //Do smth
-                    throw new Error('how did we let this happen');
+                    throw new Error("how did we let this happen");
                     break;
                 case ReturnCode.Add:
                     console.log("Adding node");
-                    nodeView.addNode(currentObject.returnNode!);
+                    if (currentObject.returnNode) 
+                    {
+                        nodeView.addNode(currentObject.returnNode);
+                    }
                     break;
                 case ReturnCode.Delete:
                     console.log("Delete node");
-                    nodeView.removeNode(currentObject.returnNode!.getTitle());
+                    if (currentObject.returnNode) 
+                    {
+                        nodeView.removeNode(currentObject.returnNode.getTitle());
+                    }
                     break;
                 case ReturnCode.Update:
                     console.log("Updating node");
-                    nodeView.changeNodeName(currentObject.returnTitles![0], currentObject.returnTitles![1]);
+                    if(currentObject.returnTitles)
+                    {
+                        nodeView.changeNodeName(currentObject.returnTitles[0], currentObject.returnTitles[1]);   
+                    }
                     break;
                 case ReturnCode.Jumps:
                     console.log("Doing the jumps");
                     console.log(currentObject.returnJumps[0].getTarget());
 
-                    nodeView.receiveJumps(currentObject.returnJumps);               
+                    nodeView.receiveJumps(currentObject.returnJumps);
                     break;
-                case ReturnCode.None:
-                    //TODO something here, maybe a return from nodeView to get metadata info from nodes
-                    break;
+                    // case ReturnCode.None:
+                    //     //TODO something here, maybe a return from nodeView to get metadata info from nodes
+                    //     break;
+                }
             }
         }
 
@@ -296,5 +311,5 @@ export class EditorController
     {
         this.yarnFileManager.getCurrentOpenFile().setContents(this.editor.getValue());
     }
-    
+
 }

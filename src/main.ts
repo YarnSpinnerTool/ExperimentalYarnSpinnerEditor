@@ -5,7 +5,7 @@
  *---------------------------------------------------------------------------------------------
 */
 
-import { app, BrowserWindow, Menu, ipcMain, shell } from "electron";
+import { app, BrowserWindow, Menu, ipcMain, shell, screen } from "electron";
 import * as path from "path";
 import { openFile as YarnOpenFile } from "./controllers/fileSystem/fileOpenController";
 import { writeFile as YarnWriteFile } from "./controllers/fileSystem/fileWriteController";
@@ -20,9 +20,13 @@ function createWindow()
 {
 
     // Create the browser window.
+    // Create a window that fills the screen's available work area.
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { width, height } = primaryDisplay.workAreaSize;
+
     const mainWindow = new BrowserWindow({
-        height: 545,
-        width: 960,
+        height: height - 50,
+        width: width - 50,
         minHeight: 480,
         minWidth: 540,
         webPreferences: {

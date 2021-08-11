@@ -13,7 +13,7 @@ const nodeMap = new Map<string,Konva.Group>();      // Map for storing all nodes
 const miniNodeMap = new Map<string,Konva.Group>();
 let selectedNode: Konva.Group;  // Currently selected node for highlighting purposes.
 let miniNodeY = 5;              // Variable to increment height of miniNodes.
-let miniMapCoords: {x: number, y: number};          // Global variable for storing the top right of the minimap image.
+let miniMapDetails: {x: number, y: number, scale: number};          // Global variable for storing the top right of the minimap image.
 
 //Create the main stage.
 const stage: Konva.Stage = new Konva.Stage({
@@ -415,7 +415,7 @@ export function responsiveSize(): void
  */
 function updateMiniMap() 
 {
-    const defaultScale = 0.25;
+    const defaultScale = 0.2;
     const mapGroup: Konva.Group = new Konva.Group;
 
     let maxY: number = layer.getChildren()[0].y();   // for distance between shapes
@@ -436,17 +436,17 @@ function updateMiniMap()
         mapGroup.add(clonedShape);
     }
 
-    miniMapCoords = {
-        x: minX,
-        y: minY
-    };
-
     // works out square ratio on a rectangle
     const idealScale = Math.min(
         miniMapStage.height() / (maxY - minY + 100),
         miniMapStage.width() / (maxX - minX + 100),
         defaultScale);  // if default scale is smaller, use that
 
+    miniMapDetails = {
+        x: minX,
+        y: minY,
+        scale: idealScale,
+    };
 
     const layerCopy = mapGroup.toCanvas({
         pixelRatio: idealScale,
@@ -488,10 +488,7 @@ function updateMiniMap()
     else 
     {
         const image: Konva.Image = miniMapLayer.findOne(".background");
-        const view: Konva.Rect = miniMapLayer.findOne(".viewPort");
 
-        view.width((stage.width() / stage.scaleX()) * idealScale);
-        view.height((stage.height() / stage.scaleX()) * idealScale);
         image.image(layerCopy);
         image.x(mapCenter.x - imageCenter.x);
         image.y(mapCenter.y - imageCenter.y);
@@ -510,20 +507,25 @@ function updateMapPort()
     if (miniMapLayer.findOne(".viewPort")) 
     {
         const view = miniMapLayer.findOne(".viewPort");
+        const back = miniMapLayer.findOne(".background");
         ///const relativeDistance = Math.sqrt(Math.pow((Math.max(stage.x(), miniMapCoords.x) - Math.min(stage.x(), miniMapCoords.x)), 2) + Math.pow((Math.max(stage.y(), miniMapCoords.y) - Math.min(stage.y(), miniMapCoords.y)),2));
         const relativePos =
         {
-            x: (stage.x() * stage.scaleX()) + (miniMapCoords.x * stage.scaleX()),
-            y: (stage.y() * stage.scaleX()) + (miniMapCoords.y * stage.scaleX())
+            x: (stage.x() / stage.scaleX()) + miniMapDetails.x,
+            y: (stage.y() / stage.scaleX()) + miniMapDetails.y
         };
 
         //view.position({x: relativePos.x, y: relativePos.y});
-        view.x(-relativePos.x * 0.25);
-        view.y(-relativePos.y * 0.25);
+        view.x((-relativePos.x * miniMapDetails.scale) + ((miniMapStage.width() - back.width()) / 2));
+        view.y((-relativePos.y * miniMapDetails.scale) + ((miniMapStage.height() - back.height()) / 2));
 
-        console.log(view.position());
-        console.log("minimap top right X: " + miniMapCoords.x + "\t Y: " + miniMapCoords.y);
-        console.log("stage top right X: " + stage.x() + "\t Y:" + stage.y());
+        view.width((stage.width() / stage.scaleX()) * miniMapDetails.scale);
+        view.height((stage.height() / stage.scaleX()) * miniMapDetails.scale);
+
+        ////console.log("minimap width:( " + stage.width() + " / " + stage.scaleX().toFixed(2) + ") * " + miniMapDetails.scale.toFixed(2) + " = " + view.width());
+        ////console.log("minimap top right X: " + miniMapDetails.x + "\t Y: " + miniMapDetails.y);
+        //console.log("stage top left:  X: " + stage.x() + "\t Y:" + stage.y());
+        //console.log("view top left: X: " + view.y() + "\t Y:" + view.y());
     }
 }
 

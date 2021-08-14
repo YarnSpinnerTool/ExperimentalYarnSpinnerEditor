@@ -302,7 +302,7 @@ headerTag: otherTest
         const newNode = new Map<string,YarnNode>();
         let newMetadata = new Map<string,string>();
 
-        const runRegexCheck = true;
+        const runRegexCheck = encodeURI(e.changes[0].text) === "%0D%0A" ? true : false ;
 
         if (runRegexCheck)
         {

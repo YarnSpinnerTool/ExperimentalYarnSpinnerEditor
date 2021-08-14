@@ -436,12 +436,13 @@ function updateMiniMap()
         mapGroup.add(clonedShape);
     }
 
-    // works out square ratio on a rectangle
+    // find the smallest ratio
     const idealScale = Math.min(
         miniMapStage.height() / (maxY - minY + 100),
         miniMapStage.width() / (maxX - minX + 100),
         defaultScale);  // if default scale is smaller, use that
-
+    
+    // store map details for view port estimates
     miniMapDetails = {
         x: minX,
         y: minY,
@@ -476,9 +477,9 @@ function updateMiniMap()
         miniMapLayer.add(   // add viewport square
             new Konva.Rect({
                 name: "viewPort",
-                stroke: "black",
-                fill: "#f5f0b040",
-                strokeWidth: 2,
+                stroke: "white",
+                fill: "#abbec220",
+                strokeWidth: 1,
                 x: 0,
                 y: 0,
                 perfectDrawEnabled: false,
@@ -494,7 +495,6 @@ function updateMiniMap()
         image.y(mapCenter.y - imageCenter.y);
     }
     updateMapPort();
-    //console.log("mapScale:" + idealScale.toFixed(5) + " MaxX:" + maxX.toFixed(2) + " MinX:" + minX.toFixed(2) + " MaxY:" + maxY.toFixed(2) + " MinY:" + minY.toFixed(2));  // ! debug
 }
 
 /**
@@ -504,28 +504,23 @@ function updateMiniMap()
 */
 function updateMapPort() 
 {
-    if (miniMapLayer.findOne(".viewPort")) 
+    if (miniMapLayer.findOne(".viewPort"))
     {
-        const view = miniMapLayer.findOne(".viewPort");
-        const back = miniMapLayer.findOne(".background");
-        ///const relativeDistance = Math.sqrt(Math.pow((Math.max(stage.x(), miniMapCoords.x) - Math.min(stage.x(), miniMapCoords.x)), 2) + Math.pow((Math.max(stage.y(), miniMapCoords.y) - Math.min(stage.y(), miniMapCoords.y)),2));
-        const relativePos =
+        const view = miniMapLayer.findOne(".viewPort"); // get view port square
+        const back = miniMapLayer.findOne(".background");   // get the image of the background
+        const relativePos = // get the position of the mini map image inside the stage
         {
             x: (stage.x() / stage.scaleX()) + miniMapDetails.x,
             y: (stage.y() / stage.scaleX()) + miniMapDetails.y
         };
 
-        //view.position({x: relativePos.x, y: relativePos.y});
+        // position the view then incorporate the center distance of the image
         view.x((-relativePos.x * miniMapDetails.scale) + ((miniMapStage.width() - back.width()) / 2));
         view.y((-relativePos.y * miniMapDetails.scale) + ((miniMapStage.height() - back.height()) / 2));
 
+        // make the view size relative to the main stage
         view.width((stage.width() / stage.scaleX()) * miniMapDetails.scale);
         view.height((stage.height() / stage.scaleX()) * miniMapDetails.scale);
-
-        ////console.log("minimap width:( " + stage.width() + " / " + stage.scaleX().toFixed(2) + ") * " + miniMapDetails.scale.toFixed(2) + " = " + view.width());
-        ////console.log("minimap top right X: " + miniMapDetails.x + "\t Y: " + miniMapDetails.y);
-        //console.log("stage top left:  X: " + stage.x() + "\t Y:" + stage.y());
-        //console.log("view top left: X: " + view.y() + "\t Y:" + view.y());
     }
 }
 

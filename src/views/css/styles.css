@@ -481,7 +481,7 @@ cursor: col-resize;
     bottom: 10px;
     z-index: 1; /* only needs to be higher than nodeEditor container */
     border: 1px solid darkcyan;
-    background: #92a7af50;
+    background-color: var(--editorMinimap);
 }
 
 @media (max-width: 540px) {

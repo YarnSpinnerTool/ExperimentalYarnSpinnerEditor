@@ -51,7 +51,8 @@ const renderConfig = merge(commonConfig, {
     module: loaders,
     resolve: {
         extensions: [".ts", '...'],
-    }
+    },
+    watch: true,
 
 });
 

@@ -502,8 +502,7 @@ headerTag: otherTest
     
                         console.log("Creating node");
                     
-                        this.nodes.set(this.incrementIdentifier(), 
-                        );
+                        this.nodes.set(this.incrementIdentifier(), nodeUnderConstruction.finalizeNode());
     
                         this.titles.push(nodeUnderConstruction.currentTitle);
     

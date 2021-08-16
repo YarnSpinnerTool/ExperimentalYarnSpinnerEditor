@@ -6,9 +6,8 @@
 */
 
 import * as monaco from "monaco-editor";
-import { title } from "process";
-import { newNode } from "src/views/ts/nodeView";
-import { node } from "webpack";
+import { YarnNode } from "../models/YarnNode";
+import { NodeJump } from "../models/NodeJump";
 
 export enum ReturnCode {
     Error = -1,
@@ -40,81 +39,23 @@ export class ReturnObject {
     }
 }
 
-
-export class NodeJump {
-    private sourceTitle: string;
-    private targetTitle: string;
-    private drawn = false;
-    private isValidJump = false;
-
-    constructor(sourceTitle: string, targetTitle: string) {
-        this.sourceTitle = sourceTitle.trim();
-        this.targetTitle = targetTitle.trim();
-    }
-
-    getSource(): string {
-        return this.sourceTitle;
-    }
-
-    getTarget(): string {
-        return this.targetTitle;
-    }
-
-    setSource(source: string): void {
-        this.sourceTitle = source;
-    }
-
-    setTarget(target: string): void {
-        this.targetTitle = target;
-    }
-
-    drawJump(): void {
-        this.drawn = true;
-    }
-
-    removeDrawnJump(): void {
-        this.drawn = false;
-    }
-
-    isDrawn(): boolean {
-        return this.drawn;
-    }
-
-    validateJump(): void {
-        this.isValidJump = true;
-    }
-
-    invalidateJump(): void {
-        this.isValidJump = false;
-    }
-
-    //TODO make into some sane function rather than a shallow return
-    isValidJumpCheck(): boolean {
-        return this.isValidJump;
-    }
-
-    //TODO remainder of functions that this may need
-
-}
-
 let uniqueIncrement = 0;
 
 
-class temporaryNode{
+class TemporaryNode{
     public currentTitle = "";
     public currentLineTitle = -1;
     public currentLineStart = -1;
     public currentLineEnd = -1;
+	public metadata: Map<string, string> = new Map<string, string>();
 
-    constructor(){
-
-    }
 
     resetVariables(): void{
         this.currentTitle = "";
         this.currentLineTitle = -1;
         this.currentLineStart = -1;
         this.currentLineEnd = -1;
+		this.metadata = new Map<string, string>()
     }
 
     validateParameters(): boolean{
@@ -127,81 +68,14 @@ class temporaryNode{
     
     finalizeNode(): YarnNode {
         return new YarnNode(
+			uniqueIncrement,
             this.currentTitle,
             this.currentLineTitle,
             this.currentLineStart,
             this.currentLineEnd,
-            undefined
+            this.metadata
         )
     }
-}
-
-export class YarnNode {
-
-    private title: string;
-    private lineTitle: number;//Holds the line that the title of the node resides on
-    private lineStart: number;//Holds the first instance of a header, including title
-    private lineEnd: number;//Holds the end '==='
-    private metadata: Map<string, string>;//first string is metadata name, second is metadata content
-    private uniqueIdentifier = uniqueIncrement;
-
-    constructor(title: string, lineTitle: number, lineStart?: number, lineEnd?: number, metadata?: Map<string, string>) {
-
-        this.title = title;
-        this.lineTitle = lineTitle;
-        this.lineStart = -1;
-        this.lineEnd = -1;
-        this.metadata = new Map<string, string>();
-
-        if (lineStart) {
-            this.lineStart = lineStart;
-        }
-
-        if (lineEnd) {
-            this.lineEnd = lineEnd;
-        }
-
-        if (metadata) {
-            this.metadata = metadata;
-        }
-    }
-
-    getTitle(): string {
-        return this.title;
-    }
-
-    getLineTitle(): number {
-        return this.lineTitle;
-    }
-
-    getLineStart(): number {
-        return this.lineStart;
-    }
-
-    getLineEnd(): number {
-        return this.lineEnd;
-    }
-
-    getUniqueIdentifier(): number {
-        return this.uniqueIdentifier;
-    }
-
-    setTitle(title: string): void {
-        this.title = title;
-    }
-
-    setLineTitle(lineTitle: number): void {
-        this.lineTitle = lineTitle;
-    }
-
-    setLineStart(lineStart: number): void {
-        this.lineStart = lineStart;
-    }
-
-    setLineEnd(lineEnd: number): void {
-        this.lineEnd = lineEnd;
-    }
-
 }
 
 
@@ -248,7 +122,7 @@ export class YarnNodeList {
     formatTitleString(titleLine: string): string{
         let titleFound = titleLine.replace("Title:", "");
         titleFound = titleFound.replace(" ", "");
-        titleFound.trim();
+        titleFound = titleFound.trim();
         return titleFound;
     }
 
@@ -267,7 +141,6 @@ export class YarnNodeList {
 
         this.nodes.forEach((node, key) => {
             if (title.trim() == node.getTitle().trim()){
-                console.log("Title has been found: " + title);
                 returnedNode = node;
             }
         });
@@ -354,6 +227,47 @@ export class YarnNodeList {
             console.log("Title not found, creating node GOTO line whateever " + contentChangeEvent.changes[0].range.startLineNumber);
         }
     }
+	
+	checkForMetadataUpdate(allLines: string[], content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent) {
+		let currentCursor = contentChangeEvent.changes[0].range.startLineNumber - 1
+		let nodeTitle = '';
+		let node: YarnNode | null;
+		let metadata = new Map<string, string>();
+
+		while (!allLines[currentCursor].match(/---/)) {
+
+			if (allLines[currentCursor].match(/(Title:.*)/g)) {
+				nodeTitle = allLines[currentCursor];
+			}
+
+			if (allLines[currentCursor].match(/(.*):(.*)/) && !allLines[currentCursor].match(/(Title:.*)/g)) {
+				let lineSplit = allLines[currentCursor].split(':');
+				metadata.set(lineSplit[0].trim(), lineSplit[1].trim())
+			}
+			currentCursor++;
+		}
+		
+		currentCursor = contentChangeEvent.changes[0].range.startLineNumber - 1
+
+		while (!allLines[currentCursor].match(/===/) && currentCursor > 0) {
+			if (allLines[currentCursor].match(/(Title:.*)/g)) {
+				nodeTitle = allLines[currentCursor];
+			}
+
+			if (allLines[currentCursor].match(/(.*):(.*)/) && !allLines[currentCursor].match(/(Title:.*)/g)) {
+				let lineSplit = allLines[currentCursor].split(':');
+				metadata.set(lineSplit[0].trim(), lineSplit[1].trim())
+			}
+			currentCursor--;
+		}
+
+		nodeTitle = this.formatTitleString(nodeTitle);
+		
+		node = this.getNodeByTitle(nodeTitle);
+		if(node) {
+			node.setMetadata(metadata);
+		}
+	}
 
 
 
@@ -454,8 +368,12 @@ headerTag: otherTest
             {
                 this.checkForTitleUpdate(content, contentChangeEvent);
             }
+			
+			if (allLines[lineStart - 1].match(metadataRegexExp))
+            {
+                this.checkForMetadataUpdate(allLines, content, contentChangeEvent);
+            }
 
-            
             /**
                 Three sections
                     - Updation
@@ -465,10 +383,10 @@ headerTag: otherTest
                     */
             
             let newNodeBuildStatus = false;
-            let nodeUnderConstruction = new temporaryNode();
+            let nodeUnderConstruction = new TemporaryNode();
 
             //If the change is an addition
-            for(let documentLineNumber = lineStart - 1; documentLineNumber < lineStart + splitLinesToRegexCheck.length -1; documentLineNumber++){
+            for(let documentLineNumber = lineStart - 1; documentLineNumber < lineStart + splitLinesToRegexCheck.length - 1; documentLineNumber++){
 
                 if (allLines[documentLineNumber].match(titleRegexExp)){
 
@@ -486,8 +404,10 @@ headerTag: otherTest
                 }
 
                 if (newNodeBuildStatus){
-                    if (allLines[documentLineNumber].match(metadataRegexExp)){
-
+					// Doesn't find nodes before title.
+                    if (allLines[documentLineNumber].match(metadataRegexExp) && !allLines[documentLineNumber].match(titleRegexExp)){
+						let lineSplit = allLines[documentLineNumber].split(':');
+						nodeUnderConstruction.metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
                     }
     
                     if (allLines[documentLineNumber].match(dialogueDeliminterExp)){

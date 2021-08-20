@@ -92,6 +92,14 @@ export class YarnNodeList {
     private nodes: Map<number, YarnNode>
     private jumps: NodeJump[];
 
+    private titleRegexExp = /(Title:.*)/g;//Get title match
+    private dialogueDeliminterExp = /---/; //Get the --- of the node that begins the dialogue
+    private metadataRegexExp = /(.*):(.*)/;//Get regex match UNTESTED
+    private endRegexExp = /===/g; //Get the end of the node match
+    private jumpRegexExp = /<<jump.*?>>/; //Get the jump line match
+    private jumpTitleRegexExp = /<<jump(.*?)>>/; //get the title from the jump command
+
+
     constructor() {
         this.titles = [];
         this.nodes = new Map<number, YarnNode>();
@@ -186,7 +194,7 @@ export class YarnNodeList {
             console.log(node);
 
             //Title line
-            if (node.getLineTitle() > contentChangeEvent.changes[0].range.startLineNumber) {
+            if (node.getLineTitle() >= contentChangeEvent.changes[0].range.startLineNumber) {
                 node.setLineTitle(node.getLineTitle() + numberOfNewLines);
             }
 
@@ -205,26 +213,34 @@ export class YarnNodeList {
         });
     }
     
-    checkForTitleUpdate(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent) {
+    renameNodeTitle(node: YarnNode, titles: string[], content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent){
+        let nodeEdited = node;
+        this.titles.splice(this.titles.indexOf(node.getTitle()), 1); //Remove from reference
+
+        let titleFound = this.formatTitleString(content.split("\n")[contentChangeEvent.changes[0].range.startLineNumber - 1]);
+        console.log("Renaming " + nodeEdited.getTitle() + " with: " + titleFound.trim());
+        this.titles.push(titleFound.trim());
+        node.setTitle(titleFound.trim());
+    }
+
+    checkForNewTitle(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent) {
         let nodeEdited;
-        
+        console.log("Checking for title update");
+
         this.nodes.forEach((node, key) => {
 
-            if(node.getLineTitle() === contentChangeEvent.changes[0].range.startLineNumber) {
-                nodeEdited = node;
-                this.titles.splice(this.titles.indexOf(node.getTitle()), 1); //Remove from reference
-
-                let titleFound = this.formatTitleString(content.split("\n")[contentChangeEvent.changes[0].range.startLineNumber - 1]);
-                
-                this.titles.push(titleFound.trim());
-                node.setTitle(titleFound.trim());
+            if(node.getLineTitle() === contentChangeEvent.changes[0].range.endLineNumber) {
+                this.renameNodeTitle(node, this.titles, content, contentChangeEvent);
+            }
+            else{
             }
         });
         
         if (nodeEdited){
+            return false;
         }
         else{
-            console.log("Title not found, creating node GOTO line whateever " + contentChangeEvent.changes[0].range.startLineNumber);
+            return true;
         }
     }
 	
@@ -269,10 +285,152 @@ export class YarnNodeList {
 		}
 	}
 
+    reverseSearchTextForNode(content: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[])
+    {
+        let searchingStatus = true;
+        let lineNumber = contentChangeEvent.changes[0].range.startLineNumber - 2;//No need to check for the -1 as it's the end regex
 
+        let reverseNodeUnderConstruction = new TemporaryNode();
+        reverseNodeUnderConstruction.currentLineEnd = contentChangeEvent.changes[0].range.startLineNumber;
+
+        while (searchingStatus){
+            console.log(reverseNodeUnderConstruction);
+
+            console.log("Currently searching " + lineNumber);
+            if (content[lineNumber].match(this.dialogueDeliminterExp))
+            {
+                console.log("Delimiter found");
+                reverseNodeUnderConstruction.currentLineStart = lineNumber + 1;
+            }
+
+            // if (allLines[lineNumber].match(metadataRegexExp) && !allLines[lineStart - 1].match(titleRegexExp))
+            // {
+            //     console.log("Metadata found");
+            //     let lineSplit = allLines[lineNumber].split(':');
+            // 	reverseNodeUnderConstruction.metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
+            // }
+
+            if (content[lineNumber].match(this.titleRegexExp))
+            {
+                console.log("Title found");
+                let titleFound = this.formatTitleString(content[lineNumber]);
+                let returnNode = this.getNodeByTitle(titleFound);
+
+                if (returnNode != null)
+                {
+                    searchingStatus = false;
+                }
+                else
+                {
+                    reverseNodeUnderConstruction.currentTitle = titleFound;
+                    reverseNodeUnderConstruction.currentLineTitle = lineNumber + 1;
+                }
+            }
+
+            if (content[lineNumber].match(this.endRegexExp))
+            {
+                console.log("found end of other node, cancelling");
+                //End of another node found, preventing creation
+                searchingStatus = false;
+            }
+
+            if (reverseNodeUnderConstruction.validateParameters())
+            {
+                console.log("Creating node");
+                this.nodes.set(this.incrementIdentifier(), reverseNodeUnderConstruction.finalizeNode());
+
+                this.titles.push(reverseNodeUnderConstruction.currentTitle);
+
+                //Push to nodeView
+                let newAddition = this.nodes.get(this.getUniqueIdentifier());
+                if (newAddition) {
+                    listOfReturns.push(this.notifyAddition(newAddition));
+                }
+                searchingStatus = false;
+            }
+
+            lineNumber--;
+
+            if (lineNumber < 0){
+                console.log("back at start of document, cancelling");
+                searchingStatus = false;
+            }
+        }
+    }
+
+    forwardSearchTextForNode(content: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[], lineStart: number, splitLinesToRegexCheck: string[] )
+    {
+        console.log("Beginning forward lookup");
+        let newNodeBuildStatus = false;
+        let nodeUnderConstruction = new TemporaryNode();
+
+        //If the change is an addition
+        for(let documentLineNumber = lineStart - 1; documentLineNumber < lineStart + splitLinesToRegexCheck.length - 1; documentLineNumber++){
+
+            if (content[documentLineNumber].match(this.titleRegexExp)){
+
+                let titleFound = this.formatTitleString(content[documentLineNumber]);
+                let returnNode = this.getNodeByTitle(titleFound);
+
+                if (returnNode != null){
+                    newNodeBuildStatus = false;
+                }
+                else{
+                    newNodeBuildStatus = true;
+                    nodeUnderConstruction.currentTitle = titleFound;
+                    nodeUnderConstruction.currentLineTitle = documentLineNumber + 1;
+                }
+            }
+
+            if (newNodeBuildStatus){
+                // Doesn't find nodes before title.
+                if (content[documentLineNumber].match(this.metadataRegexExp) && !content[documentLineNumber].match(this.titleRegexExp))
+                {
+                    let lineSplit = content[documentLineNumber].split(':');
+                    nodeUnderConstruction.metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
+                }
+
+                if (content[documentLineNumber].match(this.dialogueDeliminterExp)){
+                    nodeUnderConstruction.currentLineStart = documentLineNumber + 1;
+                }
+
+                if (content[documentLineNumber].match(this.endRegexExp)){
+                    nodeUnderConstruction.currentLineEnd = documentLineNumber + 1;
+                }
+                
+                if (nodeUnderConstruction.validateParameters()) {
+
+                    console.log("Creating node");
+                
+                    this.nodes.set(this.incrementIdentifier(), nodeUnderConstruction.finalizeNode());
+
+                    this.titles.push(nodeUnderConstruction.currentTitle);
+
+                    //Push to nodeView
+                    let newAddition = this.nodes.get(this.getUniqueIdentifier());
+                    if (newAddition) {
+                        listOfReturns.push(this.notifyAddition(newAddition));
+                    }
+
+                    newNodeBuildStatus = false;
+                    nodeUnderConstruction.resetVariables();
+
+                    console.log(this.nodes);
+                }
+            }
+            
+
+            //Debug output at end of loop
+            if (documentLineNumber === lineStart + splitLinesToRegexCheck.length -1){
+                console.log("no more node");
+                console.log(this.nodes);
+            }
+        }
+    }
 
     
-    convertFromContentToNode(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): ReturnObject[] {
+    convertFromContentToNode(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): ReturnObject[] 
+    {
 
         let listOfReturns: ReturnObject[] = [];
 
@@ -308,12 +466,7 @@ headerTag: otherTest
 === 
         */
 
-        const titleRegexExp = /(Title:.*)/g;//Get title match
-        const dialogueDeliminterExp = /---/; //Get the --- of the node that begins the dialogue
-        const metadataRegexExp = /(.*):(.*)/;//Get regex match UNTESTED
-        const endRegexExp = /===/g; //Get the end of the node match
-        const jumpRegexExp = /<<jump.*?>>/; //Get the jump line match
-        const jumpTitleRegexExp = /<<jump(.*?)>>/; //get the title from the jump command
+        
 
         const allLines = content.split("\n");//Splits the content into a string array to increment over
 
@@ -333,14 +486,10 @@ headerTag: otherTest
          * DocumentLineNumber needs to have a +1 when doing comparison checks, as it is 0 indexed, and everything else is 1 indexed
          */
 
-        if (runRegexCheck) {
-            console.log(contentChangeEvent)
-            
+        if (runRegexCheck) 
+        {
             let splitLinesToRegexCheck = contentChangeEvent.changes[0].text.split(contentChangeEvent.eol);
             let lineStart = contentChangeEvent.changes[0].range.startLineNumber;
-
-
-            console.log(splitLinesToRegexCheck);
 
             /**
              * Handles veritcal line number changes, additive and substractive
@@ -355,6 +504,8 @@ headerTag: otherTest
                 //Additions may have occured - This just adjusts all nodes line information accordingly
                 this.recalculateLineNumbersAdd(content, contentChangeEvent);
             }
+
+            // End of adjusting lines
             // -------------------------------------------------
             
             /**
@@ -364,103 +515,40 @@ headerTag: otherTest
             
             // console.log(allLines[contentChangeEvent.changes[0].range.startLineNumber - 1]);
 
-            if (allLines[lineStart - 1].match(titleRegexExp))
+            if (allLines[lineStart - 1].match(this.titleRegexExp))
             {
-                this.checkForTitleUpdate(content, contentChangeEvent);
+                if (this.checkForNewTitle(content, contentChangeEvent))
+                {
+                    this.forwardSearchTextForNode(allLines, contentChangeEvent, listOfReturns, lineStart, splitLinesToRegexCheck);
+                }
             }
 			
-			if (allLines[lineStart - 1].match(metadataRegexExp))
+			if (allLines[lineStart - 1].match(this.metadataRegexExp) && !allLines[lineStart - 1].match(this.titleRegexExp))
             {
+                console.log("Metadata regex has been found on line " + lineStart);
                 this.checkForMetadataUpdate(allLines, content, contentChangeEvent);
             }
 
-            /**
-                Three sections
-                    - Updation
-                        - On enter press - iterate over all nodes, if a line no is GREATER than where enter was pressed, update by range change
-                    - Deletion
-                    - Creation
-                    */
-            
-            let newNodeBuildStatus = false;
-            let nodeUnderConstruction = new TemporaryNode();
-
-            //If the change is an addition
-            for(let documentLineNumber = lineStart - 1; documentLineNumber < lineStart + splitLinesToRegexCheck.length - 1; documentLineNumber++){
-
-                if (allLines[documentLineNumber].match(titleRegexExp)){
-
-                    let titleFound = this.formatTitleString(allLines[documentLineNumber]);
-                    let returnNode = this.getNodeByTitle(titleFound);
-
-                    if (returnNode != null){
-                        newNodeBuildStatus = false;
-                    }
-                    else{
-                        newNodeBuildStatus = true;
-                        nodeUnderConstruction.currentTitle = titleFound;
-                        nodeUnderConstruction.currentLineTitle = documentLineNumber + 1;
-                    }
-                }
-
-                if (newNodeBuildStatus){
-					// Doesn't find nodes before title.
-                    if (allLines[documentLineNumber].match(metadataRegexExp) && !allLines[documentLineNumber].match(titleRegexExp)){
-						let lineSplit = allLines[documentLineNumber].split(':');
-						nodeUnderConstruction.metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
-                    }
-    
-                    if (allLines[documentLineNumber].match(dialogueDeliminterExp)){
-                        nodeUnderConstruction.currentLineStart = documentLineNumber + 1;
-                    }
-    
-                    if (allLines[documentLineNumber].match(endRegexExp)){
-                        nodeUnderConstruction.currentLineEnd = documentLineNumber + 1;
-                    }
-                    
-                    if (nodeUnderConstruction.validateParameters()) {
-    
-                        console.log("Creating node");
-                    
-                        this.nodes.set(this.incrementIdentifier(), nodeUnderConstruction.finalizeNode());
-    
-                        this.titles.push(nodeUnderConstruction.currentTitle);
-    
-                        //Push to nodeView
-                        let newAddition = this.nodes.get(this.getUniqueIdentifier());
-                        if (newAddition) {
-                            listOfReturns.push(this.notifyAddition(newAddition));
-                        }
-    
-                        newNodeBuildStatus = false;
-                        nodeUnderConstruction.resetVariables();
-    
-                        console.log(this.nodes);
-                    }
-                }
-                
-
-                //Debug output at end of loop
-                if (documentLineNumber === lineStart + splitLinesToRegexCheck.length -1){
-                    console.log("no more node");
-                    console.log(this.nodes);
-                }
+            if (allLines[lineStart - 1].match(this.endRegexExp))
+            {
+                console.log("End regex has been found on line " + lineStart);
+                this.reverseSearchTextForNode(allLines, contentChangeEvent, listOfReturns);
             }
 
-           
+
+            //TODO - dialogue delimeter to do a split search (two direction, one for title above, one for end below on --- input)
+            //TODO - still need to reimplement the jump regex checking
+            //TODO - still need to implement the notifying of title changes
+            
         }
 
         return listOfReturns;
-        //Run comparison
-        // return this.compareTranslation(tempTitles, newNodes, newJumps);
     }
 
-    convertFromNodeToContent(): string {
-        //TODO is this even needed following our circular one way direction design?
-
+    convertFromNodeToContent(): string 
+    {
         return "TODO Not implemented";
     }
-
 
     //Should these be asynchronous? Wait for the update on addition and title change
     //in order to get the xPos and yPos? Or will something else handle that?

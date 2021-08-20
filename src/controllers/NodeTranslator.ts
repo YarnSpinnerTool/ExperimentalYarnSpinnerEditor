@@ -167,10 +167,9 @@ export class YarnNodeList
 
     getNodeByTitle(title: string): YarnNode | null
     {
-
         let returnedNode: YarnNode | null  = null;
 
-        this.nodes.forEach((node, key) => 
+        this.nodes.forEach((node) => 
         {
             if (title.trim() == node.getTitle().trim())
             {
@@ -189,7 +188,7 @@ export class YarnNodeList
         {
             //Deletion of lines have occured
             console.log("Vertical deletion detected");
-            this.nodes.forEach((node, key) => 
+            this.nodes.forEach((node) => 
             {
                 console.log(node);
                 //Title line
@@ -223,7 +222,7 @@ export class YarnNodeList
     {
         const numberOfNewLines = contentChangeEvent.changes[0].text.split(contentChangeEvent.eol).length -1;
 
-        this.nodes.forEach((node, key) => 
+        this.nodes.forEach((node) => 
         {
             console.log(node);
 
@@ -266,7 +265,7 @@ export class YarnNodeList
         let nodeEdited;
         console.log("Checking for title update");
 
-        this.nodes.forEach((node, key) => 
+        this.nodes.forEach((node) => 
         {
             if(node.getLineTitle() === contentChangeEvent.changes[0].range.endLineNumber) 
             {
@@ -336,7 +335,7 @@ export class YarnNodeList
         }
     }
 
-    reverseSearchTextForNode(content: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[]) : void
+    reverseSearchTextForNode(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[]) : void
     {
         let searchingStatus = true;
         let lineNumber = contentChangeEvent.changes[0].range.startLineNumber - 2;//No need to check for the -1 as it's the end regex
@@ -349,7 +348,7 @@ export class YarnNodeList
             console.log(reverseNodeUnderConstruction);
 
             console.log("Currently searching " + lineNumber);
-            if (content[lineNumber].match(this.dialogueDelimiterExp))
+            if (allLines[lineNumber].match(this.dialogueDelimiterExp))
             {
                 console.log("Delimiter found");
                 reverseNodeUnderConstruction.currentLineStart = lineNumber + 1;
@@ -362,10 +361,10 @@ export class YarnNodeList
             // 	reverseNodeUnderConstruction.metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
             // }
 
-            if (content[lineNumber].match(this.titleRegexExp))
+            if (allLines[lineNumber].match(this.titleRegexExp))
             {
                 console.log("Title found");
-                const titleFound = this.formatTitleString(content[lineNumber]);
+                const titleFound = this.formatTitleString(allLines[lineNumber]);
                 const returnNode = this.getNodeByTitle(titleFound);
 
                 if (returnNode != null)
@@ -379,7 +378,7 @@ export class YarnNodeList
                 }
             }
 
-            if (content[lineNumber].match(this.endRegexExp))
+            if (allLines[lineNumber].match(this.endRegexExp))
             {
                 console.log("found end of other node, cancelling");
                 //End of another node found, preventing creation
@@ -412,7 +411,7 @@ export class YarnNodeList
         }
     }
 
-    forwardSearchTextForNode(content: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[], lineStart: number, splitLinesToRegexCheck: string[]) : void
+    forwardSearchTextForNode(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[], lineStart: number, splitLinesToRegexCheck: string[]) : void
     {
         console.log("Beginning forward lookup");
         let newNodeBuildStatus = false;
@@ -422,10 +421,10 @@ export class YarnNodeList
         for(let documentLineNumber = lineStart - 1; documentLineNumber < lineStart + splitLinesToRegexCheck.length - 1; documentLineNumber++)
         {
 
-            if (content[documentLineNumber].match(this.titleRegexExp))
+            if (allLines[documentLineNumber].match(this.titleRegexExp))
             {
 
-                const titleFound = this.formatTitleString(content[documentLineNumber]);
+                const titleFound = this.formatTitleString(allLines[documentLineNumber]);
                 const returnNode = this.getNodeByTitle(titleFound);
 
                 if (returnNode != null)
@@ -443,18 +442,18 @@ export class YarnNodeList
             if (newNodeBuildStatus)
             {
                 // Doesn't find nodes before title.
-                if (content[documentLineNumber].match(this.metadataRegexExp) && !content[documentLineNumber].match(this.titleRegexExp))
+                if (allLines[documentLineNumber].match(this.metadataRegexExp) && !allLines[documentLineNumber].match(this.titleRegexExp))
                 {
-                    const lineSplit = content[documentLineNumber].split(":");
+                    const lineSplit = allLines[documentLineNumber].split(":");
                     nodeUnderConstruction.metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
                 }
 
-                if (content[documentLineNumber].match(this.dialogueDelimiterExp))
+                if (allLines[documentLineNumber].match(this.dialogueDelimiterExp))
                 {
                     nodeUnderConstruction.currentLineStart = documentLineNumber + 1;
                 }
 
-                if (content[documentLineNumber].match(this.endRegexExp))
+                if (allLines[documentLineNumber].match(this.endRegexExp))
                 {
                     nodeUnderConstruction.currentLineEnd = documentLineNumber + 1;
                 }
@@ -492,6 +491,102 @@ export class YarnNodeList
         }
     }
 
+    divideAndConquerSearchTextForNode(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[]) : void
+    {
+        console.log("within method");
+
+        const lineNumber = contentChangeEvent.changes[0].range.startLineNumber;
+        let incrementNumber = lineNumber;//Goes down the document
+        let decrementNumber = lineNumber;//Goes up the document
+
+        let searchingStartOfDocument = true;
+        let searchingEndOfDocument = true;
+
+        const divideAndConquerBuildNode = new TemporaryNode();
+        divideAndConquerBuildNode.currentLineStart = lineNumber + 1;
+
+        while (searchingStartOfDocument)
+        {
+            console.log("searching upwards");
+
+            if (allLines[decrementNumber].match(this.titleRegexExp))
+            {
+                const titleFound = this.formatTitleString(allLines[decrementNumber]);
+                const returnNode = this.getNodeByTitle(titleFound);
+
+                if (returnNode != null)
+                {
+                    searchingStartOfDocument = false;
+                    searchingEndOfDocument = false;
+                    //Node title already exists, therefore shouldn't do anything
+                }
+                else
+                {
+                    divideAndConquerBuildNode.currentTitle = titleFound;
+                    divideAndConquerBuildNode.currentLineTitle = decrementNumber + 1;
+                }
+            }
+
+            if (allLines[decrementNumber].match(this.metadataRegexExp) && !allLines[decrementNumber].match(this.titleRegexExp))
+            {
+                const lineSplit = allLines[decrementNumber].split(":");
+                divideAndConquerBuildNode.metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
+            }
+
+            decrementNumber--;
+
+            if (decrementNumber < 0)
+            {
+                searchingStartOfDocument = false;
+                console.log("Finished searching downwards wiuth node status of:");
+                console.log(divideAndConquerBuildNode);
+            }
+
+        }
+
+        while (searchingEndOfDocument)
+        {
+            console.log("searching downwards");
+
+            if (allLines[incrementNumber].match(this.endRegexExp))
+            {
+                divideAndConquerBuildNode.currentLineEnd = incrementNumber + 1;
+            }
+
+            incrementNumber++;
+
+            if(incrementNumber >= allLines.length)
+            {
+                searchingEndOfDocument = false;
+                console.log("Finished searching downwards at end of doc, with node status of:");
+                console.log(divideAndConquerBuildNode);
+            }
+        }
+
+        if (divideAndConquerBuildNode.validateParameters())
+        {
+            console.log("Creating node at split");
+                
+            this.nodes.set(this.incrementIdentifier(), divideAndConquerBuildNode.finalizeNode());
+
+            this.titles.push(divideAndConquerBuildNode.currentTitle);
+
+            //Push to nodeView
+            const newAddition = this.nodes.get(this.getUniqueIdentifier());
+            if (newAddition) 
+            {
+                listOfReturns.push(this.notifyAddition(newAddition));
+            }
+
+            divideAndConquerBuildNode.resetVariables();
+        }
+        else
+        {
+            console.log("Node is not valid / not found");
+        }
+
+
+    }
     
     convertFromContentToNode(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): ReturnObject[] 
     {
@@ -575,6 +670,9 @@ headerTag: otherTest
             
             // console.log(allLines[contentChangeEvent.changes[0].range.startLineNumber - 1]);
 
+
+            console.log(allLines[lineStart - 1]);
+
             if (allLines[lineStart - 1].match(this.titleRegexExp))
             {
                 if (this.checkForNewTitle(content, contentChangeEvent))
@@ -598,11 +696,9 @@ headerTag: otherTest
             if (allLines[lineStart - 1].match(this.dialogueDelimiterExp))
             {
                 console.log("Dialogue delimiter found on line: " + lineStart);
-                
+                this.divideAndConquerSearchTextForNode(allLines, contentChangeEvent, listOfReturns);
             }
 
-
-            //TODO - dialogue delimeter to do a split search (two direction, one for title above, one for end below on --- input)
             //TODO - still need to reimplement the jump regex checking
             //TODO - still need to implement the notifying of title changes
             

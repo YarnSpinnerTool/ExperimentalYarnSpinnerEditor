@@ -83,15 +83,6 @@ class TemporaryNode
 	}
 }
 
-
-/*
-    TODO
-        - add to titles and nodes
-        - add jumps to jumps
-        - pass node in "found", "deleted" and modified
-        - adaptive title change
-
-*/
 export class YarnNodeList 
 {
     private titles: string[];
@@ -266,15 +257,15 @@ export class YarnNodeList
         let node: YarnNode | null;
         const metadata = new Map<string, string>();
 
-        while (!allLines[currentCursor].match(/---/)) 
+        while (!allLines[currentCursor].match(this.dialogueDelimiterExp)) 
         {
 
-            if (allLines[currentCursor].match(/(Title:.*)/g)) 
+            if (allLines[currentCursor].match(this.titleRegexExp)) 
             {
                 nodeTitle = allLines[currentCursor];
             }
 
-            if (allLines[currentCursor].match(/(.*):(.*)/) && !allLines[currentCursor].match(/(Title:.*)/g)) 
+            if (allLines[currentCursor].match(this.metadataRegexExp) && !allLines[currentCursor].match(this.titleRegexExp)) 
             {
                 const lineSplit = allLines[currentCursor].split(":");
                 metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
@@ -284,14 +275,14 @@ export class YarnNodeList
 		
         currentCursor = contentChangeEvent.changes[0].range.startLineNumber - 1;
 
-        while (!allLines[currentCursor].match(/===/) && currentCursor > 0) 
+        while (!allLines[currentCursor].match(this.endRegexExp) && currentCursor > 0) 
         {
-            if (allLines[currentCursor].match(/(Title:.*)/g)) 
+            if (allLines[currentCursor].match(this.titleRegexExp)) 
             {
                 nodeTitle = allLines[currentCursor];
             }
 
-            if (allLines[currentCursor].match(/(.*):(.*)/) && !allLines[currentCursor].match(/(Title:.*)/g)) 
+            if (allLines[currentCursor].match(this.metadataRegexExp) && !allLines[currentCursor].match(this.titleRegexExp)) 
             {
                 const lineSplit = allLines[currentCursor].split(":");
                 metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
@@ -746,7 +737,12 @@ headerTag: otherTest
                 this.divideAndConquerSearchTextForNode(allLines, contentChangeEvent, listOfReturns);
             }
 
-            //TODO - still need to reimplement the jump regex checking
+            if (allLines[lineStart - 1].match(this.jumpRegexExp))
+            {
+                //TODO - still need to reimplement the jump regex checking
+                console.log("jump found");
+            }
+
         }
 
         return listOfReturns;

@@ -181,7 +181,7 @@ export class YarnNodeList
     }
 
 
-    recalculateLineNumbersSub(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent)  : void
+    recalculateLineNumbersSub(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[])  : void
     {
         const numberOfChange = contentChangeEvent.changes[0].range.endLineNumber - contentChangeEvent.changes[0].range.startLineNumber;
         if (numberOfChange != 0) 
@@ -221,7 +221,7 @@ export class YarnNodeList
     recalculateLineNumbersAdd(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent) : void
     {
         const numberOfNewLines = contentChangeEvent.changes[0].text.split(contentChangeEvent.eol).length -1;
-
+        
         this.nodes.forEach((node) => 
         {
             console.log(node);
@@ -234,14 +234,14 @@ export class YarnNodeList
 
 
             //Line start
-            if (node.getLineStart() > contentChangeEvent.changes[0].range.startLineNumber) 
+            if (node.getLineStart() >= contentChangeEvent.changes[0].range.startLineNumber) 
             {
                 node.setLineStart(node.getLineStart() + numberOfNewLines);
             }
 
 
             //Line end
-            if (node.getLineEnd() > contentChangeEvent.changes[0].range.startLineNumber) 
+            if (node.getLineEnd() >= contentChangeEvent.changes[0].range.startLineNumber) 
             {
                 node.setLineEnd(node.getLineEnd() + numberOfNewLines);
             }
@@ -651,7 +651,7 @@ headerTag: otherTest
             if (contentChangeEvent.changes[0].text === "") 
             {
                 //Deletion may have occured
-                this.recalculateLineNumbersSub(content, contentChangeEvent);
+                this.recalculateLineNumbersSub(allLines, contentChangeEvent, listOfReturns);
             }
 
             else if (splitLinesToRegexCheck.length > 1) 
@@ -701,7 +701,7 @@ headerTag: otherTest
 
             //TODO - still need to reimplement the jump regex checking
             //TODO - still need to implement the notifying of title changes
-            
+            //TODO - still need to implement removal of nodes
         }
 
         return listOfReturns;

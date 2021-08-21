@@ -181,11 +181,11 @@ export class EditorController
                     }
                     break;
                 case ReturnCode.Update:
-                    console.log("Updating node");
-                    if(currentObject.returnTitles)
-                    {
-                        nodeView.changeNodeName(currentObject.returnTitles[0], currentObject.returnTitles[1]);   
-                    }
+                    // console.log("Updating node");
+                    // if(currentObject.returnTitles)
+                    // {
+                    //     nodeView.changeNodeName(currentObject.returnTitles[0], currentObject.returnTitles[1]);   
+                    // }
                     break;
                 case ReturnCode.Jumps:
                     console.log("Doing the jumps");

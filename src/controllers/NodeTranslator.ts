@@ -24,9 +24,8 @@ export class ReturnObject
     returnCode: ReturnCode;
     returnJumps: NodeJump[];
     returnNode?: YarnNode;
-    returnTitles?: [string, string];//  [0] old title, [1] new title
 
-    constructor(returnCode: ReturnCode, returnJumps: NodeJump[], returnNode?: YarnNode, returnTitles?: [string, string]) 
+    constructor(returnCode: ReturnCode, returnJumps: NodeJump[], returnNode?: YarnNode) 
     {
         this.returnCode = returnCode;
         this.returnJumps = returnJumps;
@@ -34,11 +33,6 @@ export class ReturnObject
         if (returnNode) 
         {
             this.returnNode = returnNode;
-        }
-
-        if (returnTitles) 
-        {
-            this.returnTitles = returnTitles;
         }
     }
 }
@@ -250,6 +244,7 @@ export class YarnNodeList
             if(node.getLineTitle() === contentChangeEvent.changes[0].range.endLineNumber) 
             {
                 this.renameNodeTitle(node, this.titles, content, contentChangeEvent);
+                nodeEdited = node;
             }
 
         });
@@ -723,6 +718,14 @@ headerTag: otherTest
                 {
                     this.forwardSearchTextForNode(allLines, contentChangeEvent, listOfReturns, lineStart, splitLinesToRegexCheck);
                 }
+                else
+                {
+                    const nodeOfTitleChange = this.getNodeByTitle(this.formatTitleString(allLines[lineStart - 1]));
+                    if (nodeOfTitleChange)
+                    {
+                        listOfReturns.push(this.notifyTitleChange(nodeOfTitleChange));
+                    }
+                }
             }
 			
             if (allLines[lineStart - 1].match(this.metadataRegexExp) && !allLines[lineStart - 1].match(this.titleRegexExp))
@@ -744,8 +747,6 @@ headerTag: otherTest
             }
 
             //TODO - still need to reimplement the jump regex checking
-            //TODO - still need to implement the notifying of title changes
-            //TODO - still need to implement removal of nodes
         }
 
         return listOfReturns;
@@ -843,7 +844,7 @@ headerTag: otherTest
     */
     notifyAddition(newNode: YarnNode): ReturnObject {
         //Outputs the title of node to draw
-
+        //TODO PASS THE CREATION AND THIS.NODES and THIS.TITLES INTO HERE
         return new ReturnObject(ReturnCode.Add, this.jumps, newNode);
     }
 
@@ -854,9 +855,11 @@ headerTag: otherTest
         return new ReturnObject(ReturnCode.Delete, this.jumps, delNode);
     }
 
-    notifyTitleChange(oldTitle: string, newTitle: string): ReturnObject {
+    notifyTitleChange(titleNode: YarnNode): ReturnObject {
         //Outputs the title to change of a node
-        return new ReturnObject(ReturnCode.Update, this.jumps, undefined, [oldTitle, newTitle]);
+        //PASS THE RENAME FUNCTION INTO HERE
+        console.log("Notifying of title change");
+        return new ReturnObject(ReturnCode.Update, this.jumps, titleNode);
     }
 
     notifyOfJumps(): ReturnObject {

@@ -188,28 +188,8 @@ export class YarnNodeList
         {
             //Deletion of lines have occured
             console.log("Vertical deletion detected");
-            this.nodes.forEach((node) => 
-            {
-                console.log(node);
-                //Title line
-                if (node.getLineTitle() > contentChangeEvent.changes[0].range.startLineNumber) 
-                {
-                    node.setLineTitle(node.getLineTitle() - numberOfChange);
-                }
 
-                //Line start
-                if (node.getLineStart() > contentChangeEvent.changes[0].range.startLineNumber) 
-                {
-                    node.setLineStart(node.getLineStart() - numberOfChange);
-                }
-
-                //Line end
-                if (node.getLineEnd() > contentChangeEvent.changes[0].range.startLineNumber) 
-                {
-                    node.setLineEnd(node.getLineEnd() - numberOfChange);
-                }
-
-            });
+            this.forwardSearchTextRangeForNodes_Removal(allLines, contentChangeEvent, listOfReturns, 1, allLines.length);
         }
         else 
         {
@@ -354,16 +334,8 @@ export class YarnNodeList
                 reverseNodeUnderConstruction.currentLineStart = lineNumber + 1;
             }
 
-            // if (allLines[lineNumber].match(metadataRegexExp) && !allLines[lineStart - 1].match(titleRegexExp))
-            // {
-            //     console.log("Metadata found");
-            //     let lineSplit = allLines[lineNumber].split(':');
-            // 	reverseNodeUnderConstruction.metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
-            // }
-
             if (allLines[lineNumber].match(this.titleRegexExp))
             {
-                console.log("Title found");
                 const titleFound = this.formatTitleString(allLines[lineNumber]);
                 const returnNode = this.getNodeByTitle(titleFound);
 
@@ -400,6 +372,11 @@ export class YarnNodeList
                 }
                 searchingStatus = false;
             }
+            else
+            {
+                console.log(reverseNodeUnderConstruction.currentTitle);
+                console.log("Is not valid... yet");
+            }
 
             lineNumber--;
 
@@ -411,14 +388,82 @@ export class YarnNodeList
         }
     }
 
-    forwardSearchTextForNode(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[], lineStart: number, splitLinesToRegexCheck: string[]) : void
+    forwardSearchTextRangeForNodes_Removal(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[], lineStart: number, lineEnd: number): void
     {
-        console.log("Beginning forward lookup");
+
+        let newNodeBuildStatus = false;
+        const nodeUnderConstruction = new TemporaryNode();
+        const temporaryTitles: (string)[] = [];
+
+        for(let documentLineNumber = lineStart - 1; documentLineNumber < lineStart + lineEnd - 1; documentLineNumber++)
+        {
+            if (allLines[documentLineNumber].match(this.titleRegexExp))
+            {
+                const titleFound = this.formatTitleString(allLines[documentLineNumber]);
+                newNodeBuildStatus = true;
+                nodeUnderConstruction.currentTitle = titleFound;
+                nodeUnderConstruction.currentLineTitle = documentLineNumber + 1;
+                
+            }
+
+            if (newNodeBuildStatus)
+            {
+                // Doesn't find nodes before title.
+                if (allLines[documentLineNumber].match(this.metadataRegexExp) && !allLines[documentLineNumber].match(this.titleRegexExp))
+                {
+                    const lineSplit = allLines[documentLineNumber].split(":");
+                    nodeUnderConstruction.metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
+                }
+
+                if (allLines[documentLineNumber].match(this.dialogueDelimiterExp))
+                {
+                    nodeUnderConstruction.currentLineStart = documentLineNumber + 1;
+                }
+
+                if (allLines[documentLineNumber].match(this.endRegexExp))
+                {
+                    nodeUnderConstruction.currentLineEnd = documentLineNumber + 1;
+                }
+                
+                if (nodeUnderConstruction.validateParameters()) 
+                {
+
+                    temporaryTitles.push(nodeUnderConstruction.currentTitle);
+
+                    newNodeBuildStatus = false;
+                    nodeUnderConstruction.resetVariables();
+
+                }
+            }
+
+            //Debug output at end of loop
+            if (documentLineNumber === lineStart + lineEnd -2)
+            {
+                //Minuses the titles found with titles that exist
+                const difference = this.titles.filter(x => !temporaryTitles.includes(x));
+
+                if (difference.length >= 1)
+                {
+                    difference.forEach(title => 
+                    {
+                        const node = this.getNodeByTitle(title.trim());
+                        if (node)
+                        {
+                            listOfReturns.push(this.notifyRemoval(node));
+                        }    
+                    });
+                }
+            }
+        }
+    }
+
+
+    forwardSearchTextRangeForNodes_Addition(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[], lineStart: number, lineEnd: number): void
+    {
         let newNodeBuildStatus = false;
         const nodeUnderConstruction = new TemporaryNode();
 
-        //If the change is an addition
-        for(let documentLineNumber = lineStart - 1; documentLineNumber < lineStart + splitLinesToRegexCheck.length - 1; documentLineNumber++)
+        for(let documentLineNumber = lineStart - 1; documentLineNumber < lineStart + lineEnd - 1; documentLineNumber++)
         {
 
             if (allLines[documentLineNumber].match(this.titleRegexExp))
@@ -461,8 +506,6 @@ export class YarnNodeList
                 if (nodeUnderConstruction.validateParameters()) 
                 {
 
-                    console.log("Creating node");
-                
                     this.nodes.set(this.incrementIdentifier(), nodeUnderConstruction.finalizeNode());
 
                     this.titles.push(nodeUnderConstruction.currentTitle);
@@ -477,24 +520,25 @@ export class YarnNodeList
                     newNodeBuildStatus = false;
                     nodeUnderConstruction.resetVariables();
 
-                    console.log(this.nodes);
                 }
             }
             
 
             //Debug output at end of loop
-            if (documentLineNumber === lineStart + splitLinesToRegexCheck.length -1)
+            if (documentLineNumber === lineStart + lineEnd -1)
             {
-                console.log("no more node");
                 console.log(this.nodes);
             }
         }
     }
 
+    forwardSearchTextForNode(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[], lineStart: number, splitLinesToRegexCheck: string[]) : void
+    {
+        this.forwardSearchTextRangeForNodes_Addition(allLines, contentChangeEvent, listOfReturns, lineStart, splitLinesToRegexCheck.length);
+    }
+
     divideAndConquerSearchTextForNode(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[]) : void
     {
-        console.log("within method");
-
         const lineNumber = contentChangeEvent.changes[0].range.startLineNumber;
         let incrementNumber = lineNumber;//Goes down the document
         let decrementNumber = lineNumber;//Goes up the document
@@ -507,8 +551,6 @@ export class YarnNodeList
 
         while (searchingStartOfDocument)
         {
-            console.log("searching upwards");
-
             if (allLines[decrementNumber].match(this.titleRegexExp))
             {
                 const titleFound = this.formatTitleString(allLines[decrementNumber]);
@@ -592,6 +634,8 @@ export class YarnNodeList
     {
 
         const listOfReturns: ReturnObject[] = [];
+        console.log(this.titles);
+        console.log(this.nodes);
 
         /*
 
@@ -804,6 +848,8 @@ headerTag: otherTest
     }
 
     notifyRemoval(delNode: YarnNode): ReturnObject {
+        this.titles.splice(this.titles.indexOf(delNode.getTitle()), 1); //Remove from reference
+        this.nodes.delete(delNode.getUniqueIdentifier());
         //Outputs the title of node to undraw and remove
         return new ReturnObject(ReturnCode.Delete, this.jumps, delNode);
     }

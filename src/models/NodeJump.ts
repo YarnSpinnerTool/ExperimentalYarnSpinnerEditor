@@ -1,52 +1,64 @@
-export class NodeJump {
-    private sourceTitle: string;
-    private targetTitle: string;
+export class NodeJump 
+{
+    private sourceId: number;
+    private targetId: number;
     private drawn = false;
     private isValidJump = false;
 
-    constructor(sourceTitle: string, targetTitle: string) {
-        this.sourceTitle = sourceTitle.trim();
-        this.targetTitle = targetTitle.trim();
+    constructor(sourceId: number, targetId: number) 
+    {
+        this.sourceId = sourceId;
+        this.targetId = targetId;
     }
 
-    getSource(): string {
-        return this.sourceTitle;
+    getSource(): number 
+    {
+        return this.sourceId;
     }
 
-    getTarget(): string {
-        return this.targetTitle;
+    getTarget(): number 
+    {
+        return this.targetId;
     }
 
-    setSource(source: string): void {
-        this.sourceTitle = source;
+    setSource(source: number): void 
+    {
+        this.sourceId = source;
     }
 
-    setTarget(target: string): void {
-        this.targetTitle = target;
+    setTarget(target: number): void 
+    {
+        this.targetId = target;
     }
 
-    drawJump(): void {
+    drawJump(): void 
+    {
         this.drawn = true;
     }
 
-    removeDrawnJump(): void {
+    removeDrawnJump(): void 
+    {
         this.drawn = false;
     }
 
-    isDrawn(): boolean {
+    isDrawn(): boolean 
+    {
         return this.drawn;
     }
 
-    validateJump(): void {
+    validateJump(): void 
+    {
         this.isValidJump = true;
     }
 
-    invalidateJump(): void {
+    invalidateJump(): void 
+    {
         this.isValidJump = false;
     }
 
     //TODO make into some sane function rather than a shallow return
-    isValidJumpCheck(): boolean {
+    isValidJumpCheck(): boolean 
+    {
         return this.isValidJump;
     }
 

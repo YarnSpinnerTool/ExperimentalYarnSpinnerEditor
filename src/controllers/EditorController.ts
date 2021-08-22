@@ -151,7 +151,7 @@ export class EditorController
     {
         //TODO SETH - Maybe pass the ILineChange event info into this method too?
         
-        var returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue(), e);
+        const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue(), e);
 
 
         for (let i = 0; i < returnedObjectList.length; i++) 

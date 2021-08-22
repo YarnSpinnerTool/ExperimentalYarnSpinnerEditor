@@ -1,4 +1,5 @@
-export class YarnNode {
+export class YarnNode 
+{
 
     private title: string;
     private lineTitle: number;//Holds the line that the title of the node resides on
@@ -7,70 +8,85 @@ export class YarnNode {
     private metadata: Map<string, string>;//first string is metadata name, second is metadata content
     private uniqueIdentifier: number;
 
-    constructor(uniqueIdentifier: number, title: string, lineTitle: number, lineStart?: number, lineEnd?: number, metadata?: Map<string, string>) {
-		this.uniqueIdentifier = uniqueIdentifier;
+    constructor(uniqueIdentifier: number, title: string, lineTitle: number, lineStart?: number, lineEnd?: number, metadata?: Map<string, string>) 
+    {
+        this.uniqueIdentifier = uniqueIdentifier;
         this.title = title;
         this.lineTitle = lineTitle;
         this.lineStart = -1;
         this.lineEnd = -1;
         this.metadata = new Map<string, string>();
 
-        if (lineStart) {
+        if (lineStart) 
+        {
             this.lineStart = lineStart;
         }
 
-        if (lineEnd) {
+        if (lineEnd) 
+        {
             this.lineEnd = lineEnd;
         }
 
-        if (metadata) {
+        if (metadata) 
+        {
             this.metadata = metadata;
         }
     }
 
-    getTitle(): string {
+    getTitle(): string 
+    {
         return this.title;
     }
 
-    getLineTitle(): number {
+    getLineTitle(): number 
+    {
         return this.lineTitle;
     }
 
-    getLineStart(): number {
+    getLineStart(): number 
+    {
         return this.lineStart;
     }
 
-    getLineEnd(): number {
+    getLineEnd(): number 
+    {
         return this.lineEnd;
     }
 
-    getUniqueIdentifier(): number {
+    getUniqueIdentifier(): number 
+    {
         return this.uniqueIdentifier;
     }
 	
-	getMetaData() : Map<string, string> {
-		return this.metadata;
-	}
+    getMetaData() : Map<string, string> 
+    {
+        return this.metadata;
+    }
 
-    setTitle(title: string): void {
+    setTitle(title: string): void 
+    {
         this.title = title;
     }
 
-    setLineTitle(lineTitle: number): void {
+    setLineTitle(lineTitle: number): void 
+    {
         this.lineTitle = lineTitle;
     }
 
-    setLineStart(lineStart: number): void {
+    setLineStart(lineStart: number): void 
+    {
         this.lineStart = lineStart;
     }
 
-    setLineEnd(lineEnd: number): void {
+    setLineEnd(lineEnd: number): void 
+    {
         this.lineEnd = lineEnd;
     }
 	
-	setMetadata(metadata: Map<string, string>) : void {
-		this.metadata = metadata;
-	}
+    setMetadata(metadata: Map<string, string>) : void 
+    {
+        this.metadata = metadata;
+    }
 
 
 }

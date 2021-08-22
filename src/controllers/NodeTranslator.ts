@@ -107,32 +107,58 @@ export class YarnNodeList
 	    this.jumps = [] as NodeJump[];
 	}
 
-	incrementIdentifier(): number 
+	/**
+	 * Increment Identifier, increments the number by one and returns.
+	 * @returns {number} the newly incremented unique identifier.
+	 */
+	incrementAndReturnIdentifier(): number 
 	{
 	    uniqueIncrement++;
 	    return uniqueIncrement;
 	}
 
+	/**
+	 * Returns the unique identifier number without incrementing it
+	 * @returns {number} The current unique identifier number
+	 */
 	getUniqueIdentifier(): number 
 	{
 	    return uniqueIncrement;
 	}
 
+	/**
+	 * Returns the current list of titles held by the Yarn Node List
+	 * @returns {string[]} The current list of titles in the YarnNode list
+	 */
 	getTitles(): string[] 
 	{
 	    return this.titles;
 	}
 
+	/**
+	 * Return the current map of YarnNodes
+	 * @returns {Map<number, YarnNode>} The current list of YarnNodes
+	 */
 	getNodes(): Map<number, YarnNode> 
 	{
 	    return this.nodes;
 	}
 
+	/**
+	 * Returns the current list of jumps found
+	 * @returns {NodeJump[]} The current list of jumps found
+	 */
 	getJumps(): NodeJump[] 
 	{
 	    return this.jumps;
 	}
 
+	/**
+	 * Takes the line that matches the title regex, and removes
+	 * the leading "Title:" and any leading or trailing whitespace.
+	 * @param {string} titleLine The matched line that hold's the title
+	 * @returns {string} The formatted title string
+	 */
 	formatTitleString(titleLine: string): string 
 	{
 	    let titleFound = titleLine.replace("Title:", "");
@@ -141,6 +167,11 @@ export class YarnNodeList
 	    return titleFound;
 	}
 
+	/**
+	 * Searches the YarnNode map with the title parameter to match
+	 * @param {string} title The title of the YarnNode to search for.
+	 * @returns {YarnNode | null} The matched YarnNode, if any
+	 */
 	getNodeByTitle(title: string): YarnNode | null 
 	{
 	    let returnedNode: YarnNode | null = null;
@@ -156,31 +187,39 @@ export class YarnNodeList
 	    return returnedNode;
 	}
 
-
+	/**
+	 * Called on vertical line deletion, handles the running of removing nodes.
+	 * @param {string[]} allLines Pre-split (by newline) string array of the document content
+	 * @param {monaco.editor.IModelContentChangedEvent} contentChangeEvent Monaco's change event
+	 * @param {ReturnObject[]} listOfReturns List of returns to pass back to the editor controller
+	 * @returns {void}
+	 */
 	recalculateLineNumbersSub(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[]): void 
 	{
 	    const numberOfChange = contentChangeEvent.changes[0].range.endLineNumber - contentChangeEvent.changes[0].range.startLineNumber;
 	    if (numberOfChange != 0) 
 	    {
 	        //Deletion of lines have occured
-	        console.log("Vertical deletion detected");
 
-	        this.forwardSearchTextRangeForNodes_Removal(allLines, contentChangeEvent, listOfReturns, 1, allLines.length);
+	        this.forwardSearchTextRangeForNodes_Removal(allLines, listOfReturns, 1, allLines.length);
 	    }
 	    else 
 	    {
 	        //Deletion of lines have no occured
-	        console.log("Horizontal deletion detected");
 	    }
 	}
 
-	recalculateLineNumbersAdd(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): void 
+	/**
+	 * Called on vertical line addition, handles the adjusting of line values for each node affected
+	 * @param {monaco.editor.IModelContentChangedEvent} contentChangeEvent Monaco's content change event
+	 * @returns {void}
+	 */
+	recalculateLineNumbersAdd(contentChangeEvent: monaco.editor.IModelContentChangedEvent): void 
 	{
 	    const numberOfNewLines = contentChangeEvent.changes[0].text.split(contentChangeEvent.eol).length - 1;
 
 	    this.nodes.forEach((node) => 
 	    {
-	        console.log(node);
 
 	        //Title line
 	        if (node.getLineTitle() >= contentChangeEvent.changes[0].range.startLineNumber) 
@@ -205,7 +244,14 @@ export class YarnNodeList
 	    });
 	}
 
-	renameNodeTitle(node: YarnNode, titles: string[], content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): void 
+	/**
+	 * Renames a YarnNode
+	 * @param {YarnNode} node The node to rename
+	 * @param {string} content The document content in string form
+	 * @param {monaco.editor.IModelContentChangedEvent} contentChangeEvent Monaco's content change event
+	 * @returns {void}
+	 */
+	renameNodeTitle(node: YarnNode, content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): void 
 	{
 	    const nodeEdited = node;
 	    this.titles.splice(this.titles.indexOf(node.getTitle()), 1); //Remove from reference
@@ -216,16 +262,21 @@ export class YarnNodeList
 	    node.setTitle(titleFound.trim());
 	}
 
-	checkForNewTitle(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): boolean 
+	/**
+	 * Function to see if the title found is for a new node, returns true if it is a new node, false if it already exists.
+	 * @param {string} content Whole document in string form
+	 * @param {monaco.editor.IModelContentChangedEvent} contentChangeEvent Monaco's content change event
+	 * @returns {boolean} True if the title is new (i.e., doesn't exist yet)
+	 */
+	checkIfNewTitle(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): boolean 
 	{
 	    let nodeEdited;
-	    console.log("Checking for title update");
 
 	    this.nodes.forEach((node) => 
 	    {
 	        if (node.getLineTitle() === contentChangeEvent.changes[0].range.endLineNumber) 
 	        {
-	            this.renameNodeTitle(node, this.titles, content, contentChangeEvent);
+	            this.renameNodeTitle(node, content, contentChangeEvent);
 	            nodeEdited = node;
 	        }
 
@@ -241,7 +292,13 @@ export class YarnNodeList
 	    }
 	}
 
-	checkForMetadataUpdate(allLines: string[], content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): void 
+	/**
+	 * Checks the document/YarnNode range for metadataand assigns it to the appropriate YarnNode
+	 * @param {string[]} allLines Newline delimited document content
+	 * @param {monaco.editor.IModelContentChangedEvent} contentChangeEvent Monaco's content change event
+	 * @returns {void}
+	 */
+	checkForMetadataUpdate(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent): void 
 	{
 	    let currentCursor = contentChangeEvent.changes[0].range.startLineNumber - 1;
 	    let nodeTitle = "";
@@ -292,34 +349,31 @@ export class YarnNodeList
 	    }
 	}
 
-	//TODO implement metadata collection, cos rn it stops when the title is found
-
 	/**
-	 * Reverses (decrement) through the allLines string array, to build a node from the end delimiter to the title
+	 * Reverse search (decrement) through the document to build/find YarnNodes
+	 * @param {string[]} allLines Newline delimited document content
+	 * @param {number} startLineNumber Number to start the reverse search from
+	 * @param {ReturnObject[]} listOfReturns List of returns to pass back to the editor controller
+	 * @returns {void}
 	 */
-	reverseSearchTextForNode(allLines: string[], lineNumber: number, listOfReturns: ReturnObject[]): void 
+	reverseSearchTextForNode(allLines: string[], startLineNumber: number, listOfReturns: ReturnObject[]): void 
 	{
 	    let searchingStatus = true;
-	    const originalLineNumber = lineNumber;
+	    const originalLineNumber = startLineNumber;
 
 	    const reverseNodeUnderConstruction = new TemporaryNode();
-	    reverseNodeUnderConstruction.endLineNumber = lineNumber;
+	    reverseNodeUnderConstruction.endLineNumber = startLineNumber;
 
 	    while (searchingStatus) 
 	    {
-	        console.log(reverseNodeUnderConstruction);
-
-	        console.log("Currently searching " + lineNumber);
-	        console.log(allLines[lineNumber]);
-	        if (allLines[lineNumber].match(this.dialogueDelimiterExp)) 
+	        if (allLines[startLineNumber].match(this.dialogueDelimiterExp)) 
 	        {
-	            console.log("Delimiter found");
-	            reverseNodeUnderConstruction.startLineNumber = lineNumber;
+	            reverseNodeUnderConstruction.startLineNumber = startLineNumber;
 	        }
 
-	        if (allLines[lineNumber].match(this.titleRegexExp)) 
+	        if (allLines[startLineNumber].match(this.titleRegexExp)) 
 	        {
-	            const titleFound = this.formatTitleString(allLines[lineNumber]);
+	            const titleFound = this.formatTitleString(allLines[startLineNumber]);
 	            const returnNode = this.getNodeByTitle(titleFound);
 
 	            if (returnNode != null) 
@@ -329,30 +383,28 @@ export class YarnNodeList
 	            else 
 	            {
 	                reverseNodeUnderConstruction.currentTitleString = titleFound;
-	                reverseNodeUnderConstruction.titleLineNumber = lineNumber;
+	                reverseNodeUnderConstruction.titleLineNumber = startLineNumber;
 	            }
 	        }
 
-	        if (allLines[lineNumber].match(this.metadataRegexExp)) 
+	        if (allLines[startLineNumber].match(this.metadataRegexExp)) 
 	        {
 	            if (reverseNodeUnderConstruction.startLineNumber !== -1) 
 	            {
-	                const lineSplit = allLines[lineNumber].split(":");
+	                const lineSplit = allLines[startLineNumber].split(":");
 	                reverseNodeUnderConstruction.metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
 	            }
 	        }
 
-	        if (allLines[lineNumber].match(this.endRegexExp) && (lineNumber !== originalLineNumber)) 
+	        if (allLines[startLineNumber].match(this.endRegexExp) && (startLineNumber !== originalLineNumber)) 
 	        {
-	            console.log("found end of other node, cancelling");
 	            //End of another node found, preventing creation
 	            searchingStatus = false;
 	        }
 
 	        if (!searchingStatus && reverseNodeUnderConstruction.validateParameters()) 
 	        {
-	            console.log("Creating node");
-	            this.nodes.set(this.incrementIdentifier(), reverseNodeUnderConstruction.finalizeNode());
+	            this.nodes.set(this.incrementAndReturnIdentifier(), reverseNodeUnderConstruction.finalizeNode());
 
 	            this.titles.push(reverseNodeUnderConstruction.currentTitleString);
 
@@ -365,21 +417,29 @@ export class YarnNodeList
 	            searchingStatus = false;
 	        }
 
-	        lineNumber--;
+	        startLineNumber--;
 
-	        if (lineNumber <= 0) 
+	        if (startLineNumber <= 0) 
 	        {
-	            console.log("back at start of document, cancelling");
 	            if(reverseNodeUnderConstruction.validateParameters()) 
 	            {
-	                this.nodes.set(this.incrementIdentifier(), reverseNodeUnderConstruction.finalizeNode());
+	                this.nodes.set(this.incrementAndReturnIdentifier(), reverseNodeUnderConstruction.finalizeNode());
 	            }
 	            searchingStatus = false;
 	        }
 	    }
 	}
 
-	forwardSearchTextRangeForNodes_Removal(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[], lineStart: number, lineEnd: number): void 
+	/**
+	 * Forward searches (incremental) through the range of document lines to remove/check for YarnNodes to remove those from the list that
+	 * no longer exist, starting from lineStart through to lineEnd (excluding)
+	 * @param {string[]} allLines Newline delimited document content
+	 * @param {ReturnObject[]} listOfReturns List of returns to pass back to the editor controller
+	 * @param {number} lineStart Line number to begin the forward search (inclusive)
+	 * @param {number} lineEnd Line number to end the forward search on (excluding, e.g., i < lineEnd)
+	 * @returns {void}
+	 */
+	forwardSearchTextRangeForNodes_Removal(allLines: string[], listOfReturns: ReturnObject[], lineStart: number, lineEnd: number): void 
 	{
 
 	    let newNodeBuildStatus = false;
@@ -451,8 +511,15 @@ export class YarnNodeList
 	    }
 	}
 
-
-	forwardSearchTextRangeForNodes_Addition(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[], lineStart: number, lineEnd: number): void 
+	/**
+	 * Forward searches (incremental) through the range of document lines to add/find YarnNodes, starting from lineStart through to lineEnd (excluding)
+	 * @param {string[]} allLines Newline delimited document content
+	 * @param {ReturnObject[]} listOfReturns List of returns to pass back to the editor controller
+	 * @param {number} lineStart Line number to begin the forward search (inclusive)
+	 * @param {number} lineEnd Line number to end the forward search on (excluding, e.g., i < lineEnd)
+	 * @returns {void}
+	 */
+	forwardSearchTextRangeForNodes_Addition(allLines: string[],  listOfReturns: ReturnObject[], lineStart: number, lineEnd: number): void 
 	{
 	    let newNodeBuildStatus = false;
 	    const nodeUnderConstruction = new TemporaryNode();
@@ -500,7 +567,7 @@ export class YarnNodeList
 	            if (nodeUnderConstruction.validateParameters()) 
 	            {
 
-	                this.nodes.set(this.incrementIdentifier(), nodeUnderConstruction.finalizeNode());
+	                this.nodes.set(this.incrementAndReturnIdentifier(), nodeUnderConstruction.finalizeNode());
 
 	                this.titles.push(nodeUnderConstruction.currentTitleString);
 
@@ -526,11 +593,26 @@ export class YarnNodeList
 	    }
 	}
 
-	forwardSearchTextForNode(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[], lineStart: number, splitLinesToRegexCheck: string[]): void 
+	/**
+	 * Forward searches the text starting from lineStart to add/find YarnNodes
+	 * @param {string[]} allLines Newline delimited document content
+	 * @param {ReturnObject[]} listOfReturns List of returns to pass back to the editor controller
+	 * @param {number} lineStart Line number to begin the forward search (inclusive)
+	 * @param {string[]} splitLinesToRegexCheck The added lines in array form, adding either by loading a file or pasting
+	 * @returns {void}
+	 */
+	forwardSearchTextForNode(allLines: string[], listOfReturns: ReturnObject[], lineStart: number, splitLinesToRegexCheck: string[]): void 
 	{
-	    this.forwardSearchTextRangeForNodes_Addition(allLines, contentChangeEvent, listOfReturns, lineStart, splitLinesToRegexCheck.length);
+	    this.forwardSearchTextRangeForNodes_Addition(allLines, listOfReturns, lineStart, splitLinesToRegexCheck.length);
 	}
 
+	/**
+	 * Divides the search (one searched backwards (decrement) and other searches forward (increment)) to add / find YarnNodes
+	 * @param {string[]} allLines Newline delimited document content
+	 * @param {monaco.editor.IModelContentChangedEvent} contentChangeEvent Monaco's content change event
+	 * @param {ReturnObject[]} listOfReturns List of returns to pass back to the editor controller
+	 * @returns {void}
+	 */
 	divideAndConquerSearchTextForNode(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[]): void 
 	{
 	    const lineNumber = contentChangeEvent.changes[0].range.startLineNumber;
@@ -574,16 +656,12 @@ export class YarnNodeList
 	        if (decrementNumber < 0) 
 	        {
 	            searchingStartOfDocument = false;
-	            console.log("Finished searching downwards wiuth node status of:");
-	            console.log(divideAndConquerBuildNode);
 	        }
 
 	    }
 
 	    while (searchingEndOfDocument) 
 	    {
-	        console.log("searching downwards");
-
 	        if (allLines[incrementNumber].match(this.endRegexExp)) 
 	        {
 	            divideAndConquerBuildNode.endLineNumber = incrementNumber + 1;
@@ -594,16 +672,12 @@ export class YarnNodeList
 	        if (incrementNumber >= allLines.length) 
 	        {
 	            searchingEndOfDocument = false;
-	            console.log("Finished searching downwards at end of doc, with node status of:");
-	            console.log(divideAndConquerBuildNode);
 	        }
 	    }
 
 	    if (divideAndConquerBuildNode.validateParameters()) 
 	    {
-	        console.log("Creating node at split");
-
-	        this.nodes.set(this.incrementIdentifier(), divideAndConquerBuildNode.finalizeNode());
+	        this.nodes.set(this.incrementAndReturnIdentifier(), divideAndConquerBuildNode.finalizeNode());
 
 	        this.titles.push(divideAndConquerBuildNode.currentTitleString);
 
@@ -616,12 +690,6 @@ export class YarnNodeList
 
 	        divideAndConquerBuildNode.resetVariables();
 	    }
-	    else 
-	    {
-	        console.log("Node is not valid / not found");
-	    }
-
-
 	}
 
 	/*
@@ -653,6 +721,13 @@ headerTag: otherTest
 === 
 			*/
 
+	/**
+	 * Main function to convert the Monaco document into YarnNode objects, in order to pass them through to the Node View
+	 * for graphical representation.
+	 * @param {string} content The text editor's content.
+	 * @param {monaco.editor.IModelContentChangedEvent} contentChangeEvent Monaco's content change event
+	 * @returns {ReturnObject[]} List of return objects to notify the NodeView on changes made.
+	 */
 	convertFromContentToNode(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): ReturnObject[] 
 	{
 	    const listOfReturns: ReturnObject[] = [];
@@ -670,17 +745,11 @@ headerTag: otherTest
 	        {
 	            if(lineContent.match(this.endRegexExp)) 
 	            {
-	                console.log("lineNumber is " + (lineNumber + contentChangeEvent.changes[0].range.startLineNumber));
-	                console.log("lineContent is " + allLines[lineNumber + contentChangeEvent.changes[0].range.startLineNumber]);
 	                this.reverseSearchTextForNode(allLines, lineNumber + contentChangeEvent.changes[0].range.startLineNumber, listOfReturns);
 	            }
 	        });
 	        runRegexCheck = false;
 	    }
-		
-	    /**
-		 * DocumentLineNumber needs to have a +1 when doing comparison checks, as it is 0 indexed, and everything else is 1 indexed
-		 */
 
 	    if (runRegexCheck) 
 	    {
@@ -700,7 +769,7 @@ headerTag: otherTest
 	        else if (splitLinesToRegexCheck.length > 1) 
 	        {
 	            //Additions may have occured - This just adjusts all nodes line information accordingly
-	            this.recalculateLineNumbersAdd(content, contentChangeEvent);
+	            this.recalculateLineNumbersAdd(contentChangeEvent);
 	        }
 
 	        // End of adjusting lines
@@ -710,13 +779,12 @@ headerTag: otherTest
 			 * Handles regex running to add new nodes and update existing 
 			 */
 
-	        console.log(allLines[lineStart - 1]);
 
-	        if (allLines[lineStart - 1].match(this.titleRegexExp)) 
+	        if (allLines[lineStart].match(this.titleRegexExp)) 
 	        {
-	            if (this.checkForNewTitle(content, contentChangeEvent)) 
+	            if (this.checkIfNewTitle(content, contentChangeEvent)) 
 	            {
-	                this.forwardSearchTextForNode(allLines, contentChangeEvent, listOfReturns, lineStart, splitLinesToRegexCheck);
+	                this.forwardSearchTextForNode(allLines, listOfReturns, lineStart, splitLinesToRegexCheck);
 	            }
 	            else 
 	            {
@@ -728,38 +796,44 @@ headerTag: otherTest
 	            }
 	        }
 
-	        if (allLines[lineStart - 1].match(this.metadataRegexExp) && !allLines[lineStart - 1].match(this.titleRegexExp)) 
+	        if (allLines[lineStart].match(this.metadataRegexExp) && !allLines[lineStart].match(this.titleRegexExp)) 
 	        {
 	            console.log("Metadata regex has been found on line " + lineStart);
-	            this.checkForMetadataUpdate(allLines, content, contentChangeEvent);
+	            this.checkForMetadataUpdate(allLines, contentChangeEvent);
 	        }
 
-	        if (allLines[lineStart - 1].match(this.endRegexExp)) 
+	        if (allLines[lineStart].match(this.endRegexExp)) 
 	        {
 	            console.log("End regex has been found on line " + lineStart);
 	            this.reverseSearchTextForNode(allLines, contentChangeEvent.changes[0].range.startLineNumber, listOfReturns);
 	        }
 
-	        if (allLines[lineStart - 1].match(this.dialogueDelimiterExp)) 
+	        if (allLines[lineStart].match(this.dialogueDelimiterExp)) 
 	        {
 	            console.log("Dialogue delimiter found on line: " + lineStart);
 	            this.divideAndConquerSearchTextForNode(allLines, contentChangeEvent, listOfReturns);
 	        }
 
-	        if (allLines[lineStart - 1].match(this.jumpRegexExp)) 
+	        if (allLines[lineStart].match(this.jumpRegexExp)) 
 	        {
 	            //TODO - still need to reimplement the jump regex checking
-	            console.log("jump found");
+
 	        }
 
 	    }
 
-	    this.searchDocumentForJumps(allLines);
+	    this.searchDocumentForJumps(allLines, listOfReturns);
 
 	    return listOfReturns;
 	}
 
-	searchDocumentForJumps(allLines: string[]): void 
+	/**
+	 * Searched the document for any NodeJumps
+	 * @param {string[]} allLines New line delimited document.
+	 * @param {ReturnObject[]} returnList List of returns to pass back to the editor controller 
+	 * @returns {void} 
+	 */
+	searchDocumentForJumps(allLines: string[], returnList: ReturnObject[]): void 
 	{
 
 	    this.jumps = [];
@@ -770,12 +844,8 @@ headerTag: otherTest
 	    {
 	        if (allLines[documentLineNumber].match(this.titleRegexExp)) 
 	        {
-	            console.log("Matched a title");
-	            console.log(allLines[documentLineNumber]);
 	            const titleFound = this.formatTitleString(allLines[documentLineNumber]);
 	            lastNodeFound = this.getNodeByTitle(titleFound.trim());
-	            console.log(this.nodes);
-	            console.log(lastNodeFound);
 	        }
 
 	        if (allLines[documentLineNumber].match(this.endRegexExp)) 
@@ -808,16 +878,9 @@ headerTag: otherTest
 
 	        if (documentLineNumber === allLines.length - 1) 
 	        {
-	            console.log("End of loop, debug status, outputting all jumps:");
-	            console.log(this.jumps);
+				 returnList.push(this.notifyOfJumps());
 	        }
 	    }
-
-	}
-
-	convertFromNodeToContent(): string 
-	{
-	    return "TODO Not implemented";
 	}
 
 	//Should these be asynchronous? Wait for the update on addition and title change
@@ -830,14 +893,16 @@ headerTag: otherTest
 	// }
 
 
-	//------------------------
 
-
+	/**
+	 * Validates the NodeJumps in the YarnNodeList to ensure targets exist.
+	 * @returns {void}
+	 */
 	validateJumps(): void 
 	{
 	    this.getJumps().forEach(jump => 
 	    {
-	        if (this.titles.includes(jump.getTarget())) 
+	        if (this.nodes.get(jump.getTarget()))
 	        {
 	            jump.validateJump();
 	        }
@@ -848,56 +913,45 @@ headerTag: otherTest
 	    });
 	}
 
-	compareTranslation(recentTitles: string[], recentTranslation: Map<number, YarnNode>, newJumps: NodeJump[]): ReturnObject[] 
-	{
-
-	    const returnList = [] as ReturnObject[];
-
-	    if (recentTranslation.size !== this.nodes.size) 
-	    {
-	        // * Changes are afoot
-
-	        // //First case: new title - notify renderer
-	        // if (recentTranslation.size >= this.nodes.size) {
-	        //     recentTranslation.forEach((node, title) => {
-	        //         if (!this.nodes.has(title)) {
-	        //             returnList.push(this.notifyAddition(node));
-	        //         }
-	        //     });
-	        // }
-
-	        // //Second case: removed title - notify renderer
-	        // else if (recentTranslation.size <= this.nodes.size) {
-	        //     this.nodes.forEach((node, title) => {
-	        //         if (!recentTranslation.has(title)) {
-	        //             returnList.push(this.notifyRemoval(node));
-	        //         }
-	        //     });
-	        // }
-	    }
-	    else if (recentTranslation.size === this.nodes.size) 
-	    {
-
-	        //TODO SETH - adaptive title changes
-
-	        //Commenting for ESLint
-	        // const oldTitle = "test";
-	        // const newTitle = "newTest";
-
-
-	        //returnList.push(this.notifyTitleChange(oldTitle, newTitle));
-	    }
-
-	    //Assign the new translation
-	    // this.nodes = recentTranslation;
-	    // this.titles = recentTitles;
-	    this.jumps = newJumps;
-
-
-	    //Tell NodeView about the jumps
-	    returnList.push(this.notifyOfJumps());
-	    return returnList;
-	}
+	// compareTranslation(recentTitles: string[], recentTranslation: Map<number, YarnNode>, newJumps: NodeJump[]): ReturnObject[] 
+	// {
+	//     const returnList = [] as ReturnObject[];
+	//     if (recentTranslation.size !== this.nodes.size) 
+	//     {
+	//         // * Changes are afoot
+	//         // //First case: new title - notify renderer
+	//         // if (recentTranslation.size >= this.nodes.size) {
+	//         //     recentTranslation.forEach((node, title) => {
+	//         //         if (!this.nodes.has(title)) {
+	//         //             returnList.push(this.notifyAddition(node));
+	//         //         }
+	//         //     });
+	//         // }
+	//         // //Second case: removed title - notify renderer
+	//         // else if (recentTranslation.size <= this.nodes.size) {
+	//         //     this.nodes.forEach((node, title) => {
+	//         //         if (!recentTranslation.has(title)) {
+	//         //             returnList.push(this.notifyRemoval(node));
+	//         //         }
+	//         //     });
+	//         // }
+	//     }
+	//     else if (recentTranslation.size === this.nodes.size) 
+	//     {
+	//         //TODO SETH - adaptive title changes
+	//         //Commenting for ESLint
+	//         // const oldTitle = "test";
+	//         // const newTitle = "newTest";
+	//         //returnList.push(this.notifyTitleChange(oldTitle, newTitle));
+	//     }
+	//     //Assign the new translation
+	//     // this.nodes = recentTranslation;
+	//     // this.titles = recentTitles;
+	//     this.jumps = newJumps;
+	//     //Tell NodeView about the jumps
+	//     returnList.push(this.notifyOfJumps());
+	//     return returnList;
+	// }
 
 
 	//Disabling ESLint for now to prevent errors from unused vars and empty methods

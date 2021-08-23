@@ -230,6 +230,32 @@ if (openFolderIcon)
     openFolderIcon.onclick = function () { openFileEmitter(); };
 }
 
+document.ondrop = (e) =>
+{
+    e.preventDefault();
+    e.stopPropagation();
+
+    console.log("File path to be returned", e.dataTransfer?.files[0].path);
+
+    if (e.dataTransfer?.files[0].path.endsWith(".yarn"))
+    {
+        console.log("This is a yarn file!");
+        openFileEmitter(e.dataTransfer?.files[0].path);
+    }
+};
+  
+document.ondragenter = (e) => 
+{
+    e.stopPropagation();
+    console.log("I see what you're dragging");
+};
+
+document.ondragover = (e) => 
+{  // prevent errors
+    e.preventDefault();
+    e.stopPropagation();
+};
+
 const findIcon = document.getElementById("searchFolderIcon");
 if (findIcon) 
 {
@@ -422,10 +448,10 @@ function saveEmitter()
 /**
  * Emits an event to request that main opens a file.
  * 
+ * @param {string} filepath file path if available
  * @returns {void}
  */
-function openFileEmitter() 
+function openFileEmitter(filepath?: string) 
 {
-    ipcRenderer.send("fileOpenToMain");
+    ipcRenderer.send("fileOpenToMain", filepath);
 }
-

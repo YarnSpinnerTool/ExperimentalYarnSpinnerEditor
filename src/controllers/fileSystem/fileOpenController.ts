@@ -15,23 +15,33 @@ import * as fs from "fs";
 /**
  * Function for opening a file and returning the contents as a string.
  * 
+ * @param {string} filePath file path to file (if available)
  * @return {string} The string contents of the file selected to open or null if the user cancels the dialog.
  */
-export function openFile(): { path: string; contents: string; name: string } | null 
+export function openFile(filePath? : string): { path: string; contents: string; name: string } | null 
 {
-    const openFileResult = dialog.showOpenDialogSync(
+
+    if(!filePath)
+    {
+        const openFileResult = dialog.showOpenDialogSync(
         {
             filters: [{ name: "Yarn file", extensions: ["txt", "yarn"] }],
             properties: ["openFile", "createDirectory"],
             defaultPath: path.join(__dirname, "../src/Test.txt")	//!change before release!
         });
 
-    if (openFileResult && openFileResult[0]) 
+        if (openFileResult && openFileResult[0])
+        {
+            filePath = openFileResult[0];
+        }
+    }
+
+    if(filePath)
     {
         const toReturn = { path: "", contents: "", name: "" };
-        toReturn.contents = fs.readFileSync(openFileResult[0]).toString();
-        toReturn.path = openFileResult[0];
-        toReturn.name = path.basename(openFileResult[0]);
+        toReturn.contents = fs.readFileSync(filePath).toString();
+        toReturn.path = filePath;
+        toReturn.name = path.basename(filePath);
         return toReturn;
     }
 

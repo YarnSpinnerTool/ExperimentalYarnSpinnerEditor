@@ -10,9 +10,9 @@ jobs:
       with:
         node-version: 14
     - name: install dependencies
-      run: npm install
+      run: yarn install
     - name: build
-      run: npm run make
+      run: yarn run make
 
   build_on_win:
     runs-on: windows-latest
@@ -22,6 +22,6 @@ jobs:
       with:
         node-version: 14
     - name: install dependencies
-      run: npm install
+      run: yarn install
     - name: build
-      run: npm run make
+      run: yarn run make

@@ -402,7 +402,7 @@ export class YarnNodeList
 	            searchingStatus = false;
 	        }
 
-            if (lineNumber === 1)
+            if (startLineNumber === 1)
             {
                 searchingStatus = false;
             }

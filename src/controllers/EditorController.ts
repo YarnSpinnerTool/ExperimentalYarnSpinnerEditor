@@ -151,8 +151,9 @@ export class EditorController
     modelChangeHandler(e: monaco.editor.IModelContentChangedEvent): void 
     {
         //TODO SETH - Maybe pass the ILineChange event info into this method too?
+        
+        const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue(), e);
 
-        const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue());
 
         for (let i = 0; i < returnedObjectList.length; i++) 
         {
@@ -181,11 +182,11 @@ export class EditorController
                     }
                     break;
                 case ReturnCode.Update:
-                    console.log("Updating node");
-                    if(currentObject.returnTitles)
-                    {
-                        nodeView.changeNodeName(currentObject.returnTitles[0], currentObject.returnTitles[1]);   
-                    }
+                    // console.log("Updating node");
+                    // if(currentObject.returnTitles)
+                    // {
+                    //     nodeView.changeNodeName(currentObject.returnTitles[0], currentObject.returnTitles[1]);   
+                    // }
                     break;
                 case ReturnCode.Jumps:
                     console.log("Doing the jumps");
@@ -201,7 +202,7 @@ export class EditorController
         }
 
         // Leaving this here to stop eslint complaining about unused vars
-        console.log(e);
+        //console.log(e);
         const workingDetailDiv = document.getElementById(this.yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString());
 
         this.syncCurrentFile();//Update the contents at each point

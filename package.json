@@ -1,6 +1,6 @@
 {
     "name": "yarnspinnereditor",
-    "version": "1.0.0",
+    "version": "0.0.2",
     "description": "A new editor for Yarn Spinner",
     "main": ".webpack/main",
     "scripts": {

@@ -456,7 +456,7 @@ export class YarnNodeList
 	            const titleFound = this.formatTitleString(allLines[documentLineNumber]);
 	            newNodeBuildStatus = true;
 	            nodeUnderConstruction.currentTitleString = titleFound;
-	            nodeUnderConstruction.titleLineNumber = documentLineNumber + 1;
+	            nodeUnderConstruction.titleLineNumber = documentLineNumber;
 
 	        }
 
@@ -471,12 +471,12 @@ export class YarnNodeList
 
 	            if (allLines[documentLineNumber].match(this.dialogueDelimiterExp)) 
 	            {
-	                nodeUnderConstruction.startLineNumber = documentLineNumber + 1;
+	                nodeUnderConstruction.startLineNumber = documentLineNumber;
 	            }
 
 	            if (allLines[documentLineNumber].match(this.endRegexExp)) 
 	            {
-	                nodeUnderConstruction.endLineNumber = documentLineNumber + 1;
+	                nodeUnderConstruction.endLineNumber = documentLineNumber;
 	            }
 
 	            if (nodeUnderConstruction.validateParameters()) 
@@ -541,7 +541,7 @@ export class YarnNodeList
 	            {
 	                newNodeBuildStatus = true;
 	                nodeUnderConstruction.currentTitleString = titleFound;
-	                nodeUnderConstruction.titleLineNumber = documentLineNumber + 1;
+	                nodeUnderConstruction.titleLineNumber = documentLineNumber;
 	            }
 	        }
 
@@ -556,12 +556,12 @@ export class YarnNodeList
 
 	            if (allLines[documentLineNumber].match(this.dialogueDelimiterExp)) 
 	            {
-	                nodeUnderConstruction.startLineNumber = documentLineNumber + 1;
+	                nodeUnderConstruction.startLineNumber = documentLineNumber;
 	            }
 
 	            if (allLines[documentLineNumber].match(this.endRegexExp)) 
 	            {
-	                nodeUnderConstruction.endLineNumber = documentLineNumber + 1;
+	                nodeUnderConstruction.endLineNumber = documentLineNumber;
 	            }
 
 	            if (nodeUnderConstruction.validateParameters()) 
@@ -623,7 +623,7 @@ export class YarnNodeList
 	    let searchingEndOfDocument = true;
 
 	    const divideAndConquerBuildNode = new TemporaryNode();
-	    divideAndConquerBuildNode.startLineNumber = lineNumber + 1;
+	    divideAndConquerBuildNode.startLineNumber = lineNumber;
 
 	    while (searchingStartOfDocument) 
 	    {

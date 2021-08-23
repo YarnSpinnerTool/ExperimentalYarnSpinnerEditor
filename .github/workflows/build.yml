@@ -13,6 +13,10 @@ jobs:
       run: yarn install
     - name: build
       run: yarn run make
+    - uses: actions/upload-artifact@v2
+      with:
+        name: macos-output
+        path: ./out/make/
 
   build_on_win:
     runs-on: windows-latest
@@ -25,3 +29,7 @@ jobs:
       run: yarn install
     - name: build
       run: yarn run make
+    - uses: actions/upload-artifact@v2
+      with:
+        name: windows-output
+        path: ./out/make/

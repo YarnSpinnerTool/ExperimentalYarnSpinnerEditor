@@ -192,9 +192,10 @@ export class YarnNodeList
      * @param {YarnNode} node The node to rename
      * @param {string} content The document content in string form
      * @param {monaco.editor.IModelContentChangedEvent} contentChangeEvent Monaco's content change event
+     * @param {ReturnObject[]} listOfReturns List of return objects to notify the NodeView on changes made.
      * @returns {void}
      */
-    renameNodeTitle(node: YarnNode, content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): void 
+    renameNodeTitle(node: YarnNode, content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[]): void 
     {
         const nodeEdited = node;
         this.titles.splice(this.titles.indexOf(node.getTitle()), 1); //Remove from reference
@@ -203,15 +204,18 @@ export class YarnNodeList
         console.log("Renaming " + nodeEdited.getTitle() + " with: " + titleFound.trim());
         this.titles.push(titleFound.trim());
         node.setTitle(titleFound.trim());
+
+        listOfReturns.push(this.notifyTitleChange(nodeEdited));
     }
      
     /**
           * Function to see if the title found is for a new node, returns true if it is a new node, false if it already exists.
           * @param {string} content Whole document in string form
           * @param {monaco.editor.IModelContentChangedEvent} contentChangeEvent Monaco's content change event
+          * @param {ReturnObject[]} listOfReturns List of return objects to notify the NodeView on changes made.
           * @returns {boolean} True if the title is new (i.e., doesn't exist yet)
           */
-    checkIfNewTitle(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): boolean 
+    checkIfNewTitle(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent, listOfReturns: ReturnObject[]): boolean 
     {
         let nodeEdited;
      
@@ -219,7 +223,7 @@ export class YarnNodeList
         {
             if (node.getLineTitle() === contentChangeEvent.changes[0].range.endLineNumber) 
             {
-                this.renameNodeTitle(node, content, contentChangeEvent);
+                this.renameNodeTitle(node, content, contentChangeEvent, listOfReturns);
                 nodeEdited = node;
             }
      
@@ -304,7 +308,7 @@ headerTag: otherTest
             {
                 const title = this.formatTitleString(allLines[contentChangeEvent.changes[0].range.startLineNumber]);
 
-                if (this.checkIfNewTitle(content,contentChangeEvent))
+                if (this.checkIfNewTitle(content,contentChangeEvent, listOfReturns))
                 {
                     console.log("title is a new title");
                     if (title.length > 1)

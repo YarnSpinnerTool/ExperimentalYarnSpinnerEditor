@@ -17,13 +17,15 @@
 // nodeIntegration is set to true in webPreferences.
 // Use preload.js to selectively enable features
 // needed in the renderer process.
+import './index.css'
+import './views/YSLogo.png'
 import { ipcRenderer } from "electron";
-import { ThemeReader } from "../../controllers/themeReader";
-import { YarnFileManager } from "../../models/YarnFileManager";
-import { YarnFile } from "../../models/YarnFile";
-import { YarnNodeList } from "../../controllers/NodeTranslator";
-import { setUpResizing } from "./WindowResizing";
-import { EditorController } from "../../controllers/editorController";
+import { ThemeReader } from "./controllers/themeReader";
+import { YarnFileManager } from "./models/YarnFileManager";
+import { YarnFile } from "./models/YarnFile";
+import { YarnNodeList } from "./controllers/NodeTranslator";
+import { setUpResizing } from "./views/ts/WindowResizing";
+import { EditorController } from "./controllers/EditorController";
 
 const yarnFileManager = new YarnFileManager();
 const yarnNodeList = new YarnNodeList();

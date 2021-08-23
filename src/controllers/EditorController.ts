@@ -29,6 +29,7 @@ export class EditorController
         //set the configuration
         monaco.languages.setLanguageConfiguration("yarnSpinner", yarnSpinner.config);
         //set the completions NOT WORKING CURRENTLY
+		// @ts-expect-error
         monaco.languages.registerCompletionItemProvider("yarnSpinner", completions);
 
         //monaco.editor.defineTheme("yarnSpinnerTheme", yarnSpinner.theme);
@@ -189,10 +190,10 @@ export class EditorController
                     // }
                     break;
                 case ReturnCode.Jumps:
-                    console.log("Doing the jumps");
-                    console.log(currentObject.returnJumps[0].getTarget());
+                    // console.log("Doing the jumps");
+                    // console.log(currentObject.returnJumps[0].getTarget());
 
-                    nodeView.receiveJumps(currentObject.returnJumps);
+                    // nodeView.receiveJumps(currentObject.returnJumps);
                     break;
                     // case ReturnCode.None:
                     //     //TODO something here, maybe a return from nodeView to get metadata info from nodes

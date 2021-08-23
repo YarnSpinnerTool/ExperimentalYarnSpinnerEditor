@@ -70,6 +70,8 @@ export const completions = {
             kind: monaco.languages.CompletionItemKind.Class,
             insertText: [
                 'Title: $1',
+                'xpos:',
+                'ypos:',
                 '---',
                 '$0',
                 '==='

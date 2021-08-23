@@ -24,11 +24,11 @@ export function openFile(filePath? : string): { path: string; contents: string; 
     if(!filePath)
     {
         const openFileResult = dialog.showOpenDialogSync(
-        {
-            filters: [{ name: "Yarn file", extensions: ["txt", "yarn"] }],
-            properties: ["openFile", "createDirectory"],
-            defaultPath: path.join(__dirname, "../src/Test.txt")	//!change before release!
-        });
+            {
+                filters: [{ name: "Yarn file", extensions: ["txt", "yarn"] }],
+                properties: ["openFile", "createDirectory"],
+                defaultPath: path.join(__dirname, "../src/Test.txt")	//!change before release!
+            });
 
         if (openFileResult && openFileResult[0])
         {

@@ -298,7 +298,7 @@ function handleNewFile()
 /**
  * Handles the opening of a file and returns the contents to the focused window.
  * 
- * @param {string} filePath? source of file if available
+ * @param {string} filePath source of file (if available)
  * @returns {void}
  */
 function handleFileOpen(filePath? : string) 

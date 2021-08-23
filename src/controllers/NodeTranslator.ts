@@ -402,6 +402,11 @@ export class YarnNodeList
 	            searchingStatus = false;
 	        }
 
+            if (lineNumber === 1)
+            {
+                searchingStatus = false;
+            }
+
 	        if (!searchingStatus && reverseNodeUnderConstruction.validateParameters()) 
 	        {
 	            this.nodes.set(this.incrementAndReturnIdentifier(), reverseNodeUnderConstruction.finalizeNode());

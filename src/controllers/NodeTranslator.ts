@@ -277,25 +277,53 @@ headerTag: otherTest
     convertFromContentToNode(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): ReturnObject[] 
     {
         const listOfReturns: ReturnObject[] = [];
-        console.log(this.titles);
-        console.log(this.nodes);
+        console.log(contentChangeEvent);
 
         const allLines = content.split("\n");//Splits the content into a string array to increment over
         allLines.unshift("JUNK LINE TO ALLIGN CONTENT");
         let runRegexCheck = true;
-        
+
+
         if(contentChangeEvent.changes[0].text.split(contentChangeEvent.eol).length > 1) 
         {
+
             const pastedLines = contentChangeEvent.changes[0].text.split(contentChangeEvent.eol);
-            pastedLines.forEach( (lineContent, lineNumber) => 
+            let testCheckForAutocomplete = false;
+
+            if (pastedLines.length === 6)
             {
-                if(lineContent.match(this.endRegexExp)) 
+                if (pastedLines[0].trim() === "Title:" && pastedLines[5].trim() === "===")
                 {
-                    this.reverseSearchTextForNode(allLines, lineNumber + contentChangeEvent.changes[0].range.startLineNumber, listOfReturns);
+                    console.log("TODO AUTO COMPLETE HANDLING");
+
+                    testCheckForAutocomplete = true;
                 }
-            });
+            }
+
+            if (!testCheckForAutocomplete)
+            {
+                pastedLines.forEach( (lineContent, lineNumber) => 
+                {
+                    if(lineContent.match(this.endRegexExp)) 
+                    {
+                        this.reverseSearchTextForNode(allLines, lineNumber + contentChangeEvent.changes[0].range.startLineNumber, listOfReturns);
+                    }
+                });
+
+            }
+
             runRegexCheck = false;
         }
+
+        else
+        {
+            console.log("Horizontal addition or single line vertical deletion");
+            if (allLines[contentChangeEvent.changes[0].range.startLineNumber].match(this.titleRegexExp))
+            {
+                console.log("User is typing out their title on autocomplete");
+            }
+        }
+
 
         if (runRegexCheck) 
         {
@@ -370,6 +398,8 @@ headerTag: otherTest
 
         this.searchDocumentForJumps(allLines, listOfReturns);
 
+        console.log(this.titles);
+        console.log(this.nodes);
         return listOfReturns;
     }
 
@@ -436,7 +466,6 @@ headerTag: otherTest
 
 
     //ADDITIONS TO THE FILE
-
 
     addYarnNodeToTitleAndList(constructionNode: TemporaryNode, listOfReturns: ReturnObject[]) : void
     {
@@ -604,10 +633,8 @@ headerTag: otherTest
 
                     newNodeBuildStatus = false;
                     nodeUnderConstruction.resetVariables();
-
                 }
             }
-
 
             //Debug output at end of loop
             if (documentLineNumber === lineStart + lineEnd - 2) 
@@ -860,11 +887,6 @@ headerTag: otherTest
         }
     }
 
-    
-
-    
-
-
     /**
      * Searched the document for any NodeJumps
      * @param {string[]} allLines New line delimited document.
@@ -929,8 +951,6 @@ headerTag: otherTest
     // {
 
     // }
-
-
 
     /**
      * Validates the NodeJumps in the YarnNodeList to ensure targets exist.

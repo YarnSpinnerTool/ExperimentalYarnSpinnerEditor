@@ -541,9 +541,9 @@ export function changeNodeName(oldName: string, newName: string) : void
 
     //update the text 
     // ! Type mismatch, findOne returns any shape
-	//@ts-expect-error
+    //@ts-expect-error Forge
     tempNode.findOne(".text").text(newName);
-	//@ts-expect-error
+    //@ts-expect-error Forge
     tempMiniNode.findOne(".text").text(newName);
 
     //update the name
@@ -647,7 +647,7 @@ export function receiveJumps(jumps: NodeJump[]) : void
         console.log("from receiveJumps: source = " + jumps[i].getSource());
         console.log("from receiveJumps: target = " + jumps[i].getTarget());
 
-		//@ts-expect-error
+        //@ts-expect-error Forge
         connectNodes(jumps[i].getSource(), jumps[i].getTarget());
     }
 }

@@ -6,7 +6,6 @@
 */
 
 import { app, BrowserWindow, Menu, ipcMain, shell, screen } from "electron";
-import * as path from "path";
 import { openFile as YarnOpenFile } from "./controllers/fileSystem/fileOpenController";
 import { writeFile as YarnWriteFile } from "./controllers/fileSystem/fileWriteController";
 
@@ -42,7 +41,7 @@ function createWindow()
 
 
     // and load the index.html of the app.
-	mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+    mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
 }
 
@@ -226,7 +225,7 @@ const template = [
     }
 ];
 
-//@ts-expect-error
+//@ts-expect-error Forge
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
 

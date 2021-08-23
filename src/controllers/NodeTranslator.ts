@@ -808,69 +808,71 @@ headerTag: otherTest
      */
     forwardSearchTextRangeForNodes_Removal(allLines: string[], listOfReturns: ReturnObject[], lineStart: number, lineEnd: number): void 
     {
-
         let newNodeBuildStatus = false;
         const nodeUnderConstruction = new TemporaryNode();
         const temporaryTitles: (string)[] = [];
 
         for (let documentLineNumber = lineStart; documentLineNumber < lineStart + lineEnd; documentLineNumber++) 
         {
-            if (allLines[documentLineNumber].match(this.titleRegexExp)) 
+            if (allLines[documentLineNumber] != undefined)
             {
-                const titleFound = this.formatTitleString(allLines[documentLineNumber]);
-                newNodeBuildStatus = true;
-                nodeUnderConstruction.currentTitleString = titleFound;
-                nodeUnderConstruction.titleLineNumber = documentLineNumber;
-
-            }
-
-            if (newNodeBuildStatus) 
-            {
-                // Doesn't find nodes before title.
-                if (allLines[documentLineNumber].match(this.metadataRegexExp) && !allLines[documentLineNumber].match(this.titleRegexExp)) 
+                if (allLines[documentLineNumber].match(this.titleRegexExp)) 
                 {
-                    const lineSplit = allLines[documentLineNumber].split(":");
-                    nodeUnderConstruction.metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
+                    const titleFound = this.formatTitleString(allLines[documentLineNumber]);
+                    newNodeBuildStatus = true;
+                    nodeUnderConstruction.currentTitleString = titleFound;
+                    nodeUnderConstruction.titleLineNumber = documentLineNumber;
+    
                 }
-
-                if (allLines[documentLineNumber].match(this.dialogueDelimiterExp)) 
+    
+                if (newNodeBuildStatus) 
                 {
-                    nodeUnderConstruction.startLineNumber = documentLineNumber;
-                }
-
-                if (allLines[documentLineNumber].match(this.endRegexExp)) 
-                {
-                    nodeUnderConstruction.endLineNumber = documentLineNumber;
-                }
-
-                if (nodeUnderConstruction.validateParameters()) 
-                {
-
-                    temporaryTitles.push(nodeUnderConstruction.currentTitleString);
-
-                    newNodeBuildStatus = false;
-                    nodeUnderConstruction.resetVariables();
-
-                }
-            }
-
-            //Debug output at end of loop
-            if (documentLineNumber === lineStart + lineEnd - 2) 
-            {
-                //Minuses the titles found with titles that exist
-                const difference = this.titles.filter(x => !temporaryTitles.includes(x));
-
-                if (difference.length >= 1) 
-                {
-                    difference.forEach(title => 
+                    // Doesn't find nodes before title.
+                    if (allLines[documentLineNumber].match(this.metadataRegexExp) && !allLines[documentLineNumber].match(this.titleRegexExp)) 
                     {
-                        const node = this.getNodeByTitle(title.trim());
-                        if (node) 
+                        const lineSplit = allLines[documentLineNumber].split(":");
+                        nodeUnderConstruction.metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
+                    }
+    
+                    if (allLines[documentLineNumber].match(this.dialogueDelimiterExp)) 
+                    {
+                        nodeUnderConstruction.startLineNumber = documentLineNumber;
+                    }
+    
+                    if (allLines[documentLineNumber].match(this.endRegexExp)) 
+                    {
+                        nodeUnderConstruction.endLineNumber = documentLineNumber;
+                    }
+    
+                    if (nodeUnderConstruction.validateParameters()) 
+                    {
+    
+                        temporaryTitles.push(nodeUnderConstruction.currentTitleString);
+    
+                        newNodeBuildStatus = false;
+                        nodeUnderConstruction.resetVariables();
+    
+                    }
+                }
+    
+                //Debug output at end of loop
+                if (documentLineNumber === lineStart + lineEnd - 2) 
+                {
+                    //Minuses the titles found with titles that exist
+                    const difference = this.titles.filter(x => !temporaryTitles.includes(x));
+    
+                    if (difference.length >= 1) 
+                    {
+                        difference.forEach(title => 
                         {
-                            console.log("Removing node: " + node.getTitle());
-                            listOfReturns.push(this.notifyRemoval(node));
-                        }
-                    });
+                            const node = this.getNodeByTitle(title.trim());
+                            if (node) 
+                            {
+                                console.log("Removing node: " + node.getTitle());
+                                listOfReturns.push(this.notifyRemoval(node));
+                            }
+                        });
+                    }
                 }
             }
         }
@@ -932,15 +934,6 @@ headerTag: otherTest
         }
     }
 
-    //Should these be asynchronous? Wait for the update on addition and title change
-    //in order to get the xPos and yPos? Or will something else handle that?
-    //Such as:
-
-    // waitForNodeUpdates(): void
-    // {
-
-    // }
-
     /**
      * Validates the NodeJumps in the YarnNodeList to ensure targets exist.
      * @returns {void}
@@ -957,31 +950,56 @@ headerTag: otherTest
             {
                 jump.invalidateJump();
             }
+
+
+            console.log(jump);
         });
     }
 
-    //Disabling ESLint for now to prevent errors from unused vars and empty methods
-    /* eslint-disable */
     /*
         For use with connecting NodeView with the Translated Nodes
     */
-    notifyAddition(newNode: YarnNode): ReturnObject {
+
+    /**
+     * Notify the Node View of a Node addition
+     * @param {YarnNode} newNode the Node to pass through to Node View to draw up  
+     * @returns {ReturnObject} A correctly assigned return object for addition of nodes
+     */
+    notifyAddition(newNode: YarnNode): ReturnObject 
+    {
         //Outputs the title of node to draw
         return new ReturnObject(ReturnCode.Add, undefined, newNode);
     }
 
-    notifyRemoval(delNode: YarnNode): ReturnObject {
+    /**
+     * Notify the Node View of a Node removal
+     * @param {YarnNode} delNode the Node to pass through to Node View to inform that it is deleted / removed
+     * @returns {ReturnObject} A correctly assigned return object for addition of nodes
+     */
+    notifyRemoval(delNode: YarnNode): ReturnObject 
+    {
         this.titles.splice(this.titles.indexOf(delNode.getTitle()), 1); //Remove from reference
         this.nodes.delete(delNode.getUniqueIdentifier());
         //Outputs the title of node to undraw and remove
         return new ReturnObject(ReturnCode.Delete, undefined, delNode);
     }
 
-    notifyTitleChange(titleNode: YarnNode): ReturnObject {
+    /**
+     * Notify the Node View of a Node title change
+     * @param {YarnNode} titleNode the Node to pass through to Node View to inform that it has been renamed
+     * @returns {ReturnObject} A correctly assigned return object for addition of nodes
+     */
+    notifyTitleChange(titleNode: YarnNode): ReturnObject 
+    {
         return new ReturnObject(ReturnCode.Update, undefined, titleNode);
     }
 
-    notifyOfJumps(): ReturnObject {
+    /**
+     * Notify the Node View of Node Jumps
+     * @returns {ReturnObject} A correctly assigned return object for passing through the node jumps
+     */
+    notifyOfJumps(): ReturnObject 
+    {
         this.validateJumps();
 
         console.log(this.jumps);

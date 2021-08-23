@@ -277,7 +277,7 @@ headerTag: otherTest
     convertFromContentToNode(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): ReturnObject[] 
     {
         const listOfReturns: ReturnObject[] = [];
-        console.log(contentChangeEvent);
+        //console.log(contentChangeEvent);
 
         const allLines = content.split("\n");//Splits the content into a string array to increment over
         allLines.unshift("JUNK LINE TO ALLIGN CONTENT");
@@ -286,41 +286,34 @@ headerTag: otherTest
 
         if(contentChangeEvent.changes[0].text.split(contentChangeEvent.eol).length > 1) 
         {
-
             const pastedLines = contentChangeEvent.changes[0].text.split(contentChangeEvent.eol);
-            let testCheckForAutocomplete = false;
 
-            if (pastedLines.length === 6)
+            pastedLines.forEach( (lineContent, lineNumber) => 
             {
-                if (pastedLines[0].trim() === "Title:" && pastedLines[5].trim() === "===")
+                if(lineContent.match(this.endRegexExp)) 
                 {
-                    console.log("TODO AUTO COMPLETE HANDLING");
-
-                    testCheckForAutocomplete = true;
+                    this.reverseSearchTextForNode(allLines, lineNumber + contentChangeEvent.changes[0].range.startLineNumber, listOfReturns);
                 }
-            }
-
-            if (!testCheckForAutocomplete)
-            {
-                pastedLines.forEach( (lineContent, lineNumber) => 
-                {
-                    if(lineContent.match(this.endRegexExp)) 
-                    {
-                        this.reverseSearchTextForNode(allLines, lineNumber + contentChangeEvent.changes[0].range.startLineNumber, listOfReturns);
-                    }
-                });
-
-            }
-
+            });
             runRegexCheck = false;
         }
 
         else
         {
-            console.log("Horizontal addition or single line vertical deletion");
             if (allLines[contentChangeEvent.changes[0].range.startLineNumber].match(this.titleRegexExp))
             {
-                console.log("User is typing out their title on autocomplete");
+                const title = this.formatTitleString(allLines[contentChangeEvent.changes[0].range.startLineNumber]);
+
+                if (this.checkIfNewTitle(content,contentChangeEvent))
+                {
+                    console.log("title is a new title");
+                    if (title.length > 1)
+                    {
+                        console.log("Fiunding nodce");
+                        this.forwardSearchTextForNode(allLines, listOfReturns,contentChangeEvent.changes[0].range.startLineNumber, allLines);
+                        runRegexCheck = false;
+                    }
+                }
             }
         }
 
@@ -354,21 +347,22 @@ headerTag: otherTest
              */
 
 
-            if (allLines[lineStart].match(this.titleRegexExp)) 
-            {
-                if (this.checkIfNewTitle(content, contentChangeEvent)) 
-                {
-                    this.forwardSearchTextForNode(allLines, listOfReturns, lineStart, splitLinesToRegexCheck);
-                }
-                else 
-                {
-                    const nodeOfTitleChange = this.getNodeByTitle(this.formatTitleString(allLines[lineStart - 1]));
-                    if (nodeOfTitleChange) 
-                    {
-                        listOfReturns.push(this.notifyTitleChange(nodeOfTitleChange));
-                    }
-                }
-            }
+            // if (allLines[lineStart].match(this.titleRegexExp)) 
+            // {
+            //     if (this.checkIfNewTitle(content, contentChangeEvent)) 
+            //     {
+            //         console.log("New title found");
+            //         this.reverseSearchTextForNode(allLines, splitLinesToRegexCheck.length, listOfReturns);
+            //     }
+            //     else 
+            //     {
+            //         const nodeOfTitleChange = this.getNodeByTitle(this.formatTitleString(allLines[lineStart - 1]));
+            //         if (nodeOfTitleChange) 
+            //         {
+            //             listOfReturns.push(this.notifyTitleChange(nodeOfTitleChange));
+            //         }
+            //     }
+            // }
 
             if (allLines[lineStart].match(this.metadataRegexExp) && !allLines[lineStart].match(this.titleRegexExp)) 
             {
@@ -387,13 +381,6 @@ headerTag: otherTest
                 console.log("Dialogue delimiter found on line: " + lineStart);
                 this.divideAndConquerSearchTextForNode(allLines, contentChangeEvent, listOfReturns);
             }
-
-            if (allLines[lineStart].match(this.jumpRegexExp)) 
-            {
-                //TODO - still need to reimplement the jump regex checking
-
-            }
-
         }
 
         this.searchDocumentForJumps(allLines, listOfReturns);
@@ -480,6 +467,8 @@ headerTag: otherTest
             listOfReturns.push(this.notifyAddition(newAddition));
         }
 
+        console.log("Added node : " + constructionNode.currentTitleString);
+        console.log(constructionNode);
         this.titles.push(constructionNode.currentTitleString);
     }
 
@@ -579,67 +568,61 @@ headerTag: otherTest
 
         for (let documentLineNumber = lineStart; documentLineNumber < lineStart + lineEnd -1; documentLineNumber++) 
         {
+            console.log("Searching LINE: " + allLines[documentLineNumber]);
 
-            if (allLines[documentLineNumber].match(this.titleRegexExp)) 
+            if (allLines[documentLineNumber] != undefined)
             {
-
-                const titleFound = this.formatTitleString(allLines[documentLineNumber]);
-                const returnNode = this.getNodeByTitle(titleFound);
-
-                if (returnNode != null) 
+                if (allLines[documentLineNumber].match(this.titleRegexExp)) 
                 {
-                    newNodeBuildStatus = false;
-                }
-                else 
-                {
-                    newNodeBuildStatus = true;
-                    nodeUnderConstruction.currentTitleString = titleFound;
-                    nodeUnderConstruction.titleLineNumber = documentLineNumber;
-                }
-            }
-
-            if (newNodeBuildStatus) 
-            {
-                // Doesn't find nodes before title.
-                if (allLines[documentLineNumber].match(this.metadataRegexExp) && !allLines[documentLineNumber].match(this.titleRegexExp)) 
-                {
-                    const lineSplit = allLines[documentLineNumber].split(":");
-                    nodeUnderConstruction.metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
-                }
-
-                if (allLines[documentLineNumber].match(this.dialogueDelimiterExp)) 
-                {
-                    nodeUnderConstruction.startLineNumber = documentLineNumber;
-                }
-
-                if (allLines[documentLineNumber].match(this.endRegexExp)) 
-                {
-                    nodeUnderConstruction.endLineNumber = documentLineNumber;
-                }
-
-                if (nodeUnderConstruction.validateParameters()) 
-                {
-
-                    this.nodes.set(this.incrementAndReturnIdentifier(), nodeUnderConstruction.finalizeNode());
-
-                    this.titles.push(nodeUnderConstruction.currentTitleString);
-
-                    //Push to nodeView
-                    const newAddition = this.nodes.get(this.getUniqueIdentifier());
-                    if (newAddition) 
+    
+                    const titleFound = this.formatTitleString(allLines[documentLineNumber]);
+                    const returnNode = this.getNodeByTitle(titleFound);
+    
+                    if (returnNode != null) 
                     {
-                        listOfReturns.push(this.notifyAddition(newAddition));
+                        newNodeBuildStatus = false;
                     }
-
-                    newNodeBuildStatus = false;
-                    nodeUnderConstruction.resetVariables();
+                    else 
+                    {
+                        newNodeBuildStatus = true;
+                        nodeUnderConstruction.currentTitleString = titleFound;
+                        nodeUnderConstruction.titleLineNumber = documentLineNumber;
+                    }
                 }
-            }
-
-            //Debug output at end of loop
-            if (documentLineNumber === lineStart + lineEnd - 2) 
-            {
-                console.log(this.nodes);
+    
+                if (newNodeBuildStatus) 
+                {
+                    // Doesn't find nodes before title.
+                    if (allLines[documentLineNumber].match(this.metadataRegexExp) && !allLines[documentLineNumber].match(this.titleRegexExp)) 
+                    {
+                        const lineSplit = allLines[documentLineNumber].split(":");
+                        nodeUnderConstruction.metadata.set(lineSplit[0].trim(), lineSplit[1].trim());
+                    }
+    
+                    if (allLines[documentLineNumber].match(this.dialogueDelimiterExp)) 
+                    {
+                        nodeUnderConstruction.startLineNumber = documentLineNumber;
+                    }
+    
+                    if (allLines[documentLineNumber].match(this.endRegexExp)) 
+                    {
+                        nodeUnderConstruction.endLineNumber = documentLineNumber;
+                    }
+    
+                    if (nodeUnderConstruction.validateParameters()) 
+                    {
+                        this.addYarnNodeToTitleAndList(nodeUnderConstruction,listOfReturns);
+    
+                        newNodeBuildStatus = false;
+                        nodeUnderConstruction.resetVariables();
+                    }
+                }
+    
+                //Debug output at end of loop
+                if (documentLineNumber === lineStart + lineEnd - 2) 
+                {
+                    console.log(this.nodes);
+                }
             }
         }
     }
@@ -656,7 +639,9 @@ headerTag: otherTest
     forwardSearchTextForNode(allLines: string[], listOfReturns: ReturnObject[], lineStart: number, splitLinesToRegexCheck: string[]): void 
     {
         console.log("Forward searching text for node");
+
         this.forwardSearchTextRangeForNodes_Addition(allLines, listOfReturns, lineStart, splitLinesToRegexCheck.length);
+
     }
  
     /**
@@ -971,47 +956,6 @@ headerTag: otherTest
         });
     }
 
-    // compareTranslation(recentTitles: string[], recentTranslation: Map<number, YarnNode>, newJumps: NodeJump[]): ReturnObject[] 
-    // {
-    //     const returnList = [] as ReturnObject[];
-    //     if (recentTranslation.size !== this.nodes.size) 
-    //     {
-    //         // * Changes are afoot
-    //         // //First case: new title - notify renderer
-    //         // if (recentTranslation.size >= this.nodes.size) {
-    //         //     recentTranslation.forEach((node, title) => {
-    //         //         if (!this.nodes.has(title)) {
-    //         //             returnList.push(this.notifyAddition(node));
-    //         //         }
-    //         //     });
-    //         // }
-    //         // //Second case: removed title - notify renderer
-    //         // else if (recentTranslation.size <= this.nodes.size) {
-    //         //     this.nodes.forEach((node, title) => {
-    //         //         if (!recentTranslation.has(title)) {
-    //         //             returnList.push(this.notifyRemoval(node));
-    //         //         }
-    //         //     });
-    //         // }
-    //     }
-    //     else if (recentTranslation.size === this.nodes.size) 
-    //     {
-    //         //TODO SETH - adaptive title changes
-    //         //Commenting for ESLint
-    //         // const oldTitle = "test";
-    //         // const newTitle = "newTest";
-    //         //returnList.push(this.notifyTitleChange(oldTitle, newTitle));
-    //     }
-    //     //Assign the new translation
-    //     // this.nodes = recentTranslation;
-    //     // this.titles = recentTitles;
-    //     this.jumps = newJumps;
-    //     //Tell NodeView about the jumps
-    //     returnList.push(this.notifyOfJumps());
-    //     return returnList;
-    // }
-
-
     //Disabling ESLint for now to prevent errors from unused vars and empty methods
     /* eslint-disable */
     /*
@@ -1019,7 +963,6 @@ headerTag: otherTest
     */
     notifyAddition(newNode: YarnNode): ReturnObject {
         //Outputs the title of node to draw
-        //TODO PASS THE CREATION AND THIS.NODES and THIS.TITLES INTO HERE
         return new ReturnObject(ReturnCode.Add, undefined, newNode);
     }
 
@@ -1031,15 +974,13 @@ headerTag: otherTest
     }
 
     notifyTitleChange(titleNode: YarnNode): ReturnObject {
-        //Outputs the title to change of a node
-        //PASS THE RENAME FUNCTION INTO HERE
-        console.log("Notifying of title change");
         return new ReturnObject(ReturnCode.Update, undefined, titleNode);
     }
 
     notifyOfJumps(): ReturnObject {
         this.validateJumps();
 
+        console.log(this.jumps);
         return new ReturnObject(ReturnCode.Jumps, this.jumps);
         //Outputs this.jumps to nodeView
     }

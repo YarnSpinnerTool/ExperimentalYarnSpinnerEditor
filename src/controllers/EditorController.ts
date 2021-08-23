@@ -189,10 +189,10 @@ export class EditorController
                     // }
                     break;
                 case ReturnCode.Jumps:
-                    console.log("Doing the jumps");
-                    console.log(currentObject.returnJumps[0].getTarget());
+                    // console.log("Doing the jumps");
+                    // console.log(currentObject.returnJumps[0].getTarget());
 
-                    nodeView.receiveJumps(currentObject.returnJumps);
+                    // nodeView.receiveJumps(currentObject.returnJumps);
                     break;
                     // case ReturnCode.None:
                     //     //TODO something here, maybe a return from nodeView to get metadata info from nodes

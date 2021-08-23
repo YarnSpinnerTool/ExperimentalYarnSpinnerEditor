@@ -6,7 +6,8 @@
  */
 
 import Konva from "konva";
-import { NodeJump, YarnNode } from "../../controllers/NodeTranslator"; 
+import { YarnNode } from "../../models/YarnNode";
+import { NodeJump } from "../../models/NodeJump";
 
 const sceneWidth = 500;         // For comparing scale in responsiveSize()
 const nodeMap = new Map<string,Konva.Group>();      // Map for storing all nodes.
@@ -540,7 +541,9 @@ export function changeNodeName(oldName: string, newName: string) : void
 
     //update the text 
     // ! Type mismatch, findOne returns any shape
+	//@ts-expect-error
     tempNode.findOne(".text").text(newName);
+	//@ts-expect-error
     tempMiniNode.findOne(".text").text(newName);
 
     //update the name
@@ -644,6 +647,7 @@ export function receiveJumps(jumps: NodeJump[]) : void
         console.log("from receiveJumps: source = " + jumps[i].getSource());
         console.log("from receiveJumps: target = " + jumps[i].getTarget());
 
+		//@ts-expect-error
         connectNodes(jumps[i].getSource(), jumps[i].getTarget());
     }
 }

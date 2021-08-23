@@ -1,5 +1,6 @@
 import * as monaco from "monaco-editor";
 import * as yarnSpinner from "../YarnSpinner/yarnSpinnerMonarch";
+import { completions } from "../YarnSpinner/yarnSpinnerCompletions";
 import * as nodeView from "../views/ts/nodeView";
 import { YarnFileManager } from "../models/YarnFileManager";
 import { YarnFile } from "../models/YarnFile";
@@ -28,7 +29,7 @@ export class EditorController
         //set the configuration
         monaco.languages.setLanguageConfiguration("yarnSpinner", yarnSpinner.config);
         //set the completions NOT WORKING CURRENTLY
-        monaco.languages.registerCompletionItemProvider("yarnSpinner", yarnSpinner.completions);
+        monaco.languages.registerCompletionItemProvider("yarnSpinner", completions);
 
         //monaco.editor.defineTheme("yarnSpinnerTheme", yarnSpinner.theme);
 

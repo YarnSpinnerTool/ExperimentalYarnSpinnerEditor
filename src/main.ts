@@ -261,9 +261,9 @@ ipcMain.on("getPing", (event) =>
     event.reply("gotPing", "You're a curious one");
 });
 
-ipcMain.on("fileOpenToMain", () => 
+ipcMain.on("fileOpenToMain", (event, filePath) => 
 {
-    handleFileOpen();
+    handleFileOpen(filePath);
 });
 
 ipcMain.on("fileSaveToMain", (event, filePath, contents) => 
@@ -298,17 +298,18 @@ function handleNewFile()
 /**
  * Handles the opening of a file and returns the contents to the focused window.
  * 
+ * @param {string} filePath source of file (if available)
  * @returns {void}
  */
-function handleFileOpen() 
+function handleFileOpen(filePath? : string) 
 {
     //Sends message from main to renderer
-    const fileContent = YarnOpenFile();
+    const fileContent = YarnOpenFile(filePath);
     if(fileContent) 
     {
         BrowserWindow.getFocusedWindow()?.webContents.send("openFile", fileContent.path, fileContent.contents, fileContent.name); //Pass the result to renderer
     }
-} 
+}
 
 /**
  * Emits message to renderer to save the file.

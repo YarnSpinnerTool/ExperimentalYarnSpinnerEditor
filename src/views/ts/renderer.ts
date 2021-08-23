@@ -230,6 +230,24 @@ if (openFolderIcon)
     openFolderIcon.onclick = function () { openFileEmitter(); };
 }
 
+// Load a file into the application if it has a .yarn extension
+document.ondrop = (e) =>
+{
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (e.dataTransfer?.files[0].path.endsWith(".yarn")) // if file is a yarn file
+    {
+        openFileEmitter(e.dataTransfer?.files[0].path);
+    }
+};
+
+// ! Prevents issue with electron and ondrop event not firing
+document.ondragover = (e) =>
+{
+    e.preventDefault();
+};
+
 const findIcon = document.getElementById("searchFolderIcon");
 if (findIcon) 
 {
@@ -422,10 +440,10 @@ function saveEmitter()
 /**
  * Emits an event to request that main opens a file.
  * 
+ * @param {string} filepath file path if available
  * @returns {void}
  */
-function openFileEmitter() 
+function openFileEmitter(filepath?: string) 
 {
-    ipcRenderer.send("fileOpenToMain");
+    ipcRenderer.send("fileOpenToMain", filepath);
 }
-

@@ -29,7 +29,7 @@ export class EditorController
         //set the configuration
         monaco.languages.setLanguageConfiguration("yarnSpinner", yarnSpinner.config);
         //set the completions NOT WORKING CURRENTLY
-		// @ts-expect-error
+        // @ts-expect-error Forge
         monaco.languages.registerCompletionItemProvider("yarnSpinner", completions);
 
         //monaco.editor.defineTheme("yarnSpinnerTheme", yarnSpinner.theme);

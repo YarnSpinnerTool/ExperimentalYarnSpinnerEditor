@@ -10,8 +10,8 @@ import { YarnNode } from "../../models/YarnNode";
 import { NodeJump } from "../../models/NodeJump";
 
 const sceneWidth = 500;         // For comparing scale in responsiveSize()
-const nodeMap = new Map<string,Konva.Group>();      // Map for storing all nodes.
-const miniNodeMap = new Map<string,Konva.Group>();
+const nodeMap = new Map<number,Konva.Group>();      // Map for storing all nodes.
+const miniNodeMap = new Map<number,Konva.Group>();
 let selectedNode: Konva.Group;  // Currently selected node for highlighting purposes.
 let miniNodeY = 5;              // Variable to increment height of miniNodes.
 let miniMapDetails: {x: number, y: number, scale: number};          // Global variable for storing the top right of the minimap image.
@@ -60,14 +60,14 @@ window.addEventListener("resize", responsiveSize);
 /**  
  * Function for creating a new node, and related mini node, externally.
  * 
- * @param {string} title The title of the node.
+ * @param {YarnNode} newNode The title of the node.
  * 
  * @returns {void}
  */
-export function newNode(title: string): void 
+export function newNode(newNode: YarnNode): void 
 {
-    const node: Konva.Group = createNewGroupNode(title, 70, 70);
-    node.name(title);
+    const node: Konva.Group = createNewGroupNode(newNode, 70, 70);
+    node.name(newNode.getTitle());
     layer.add(node);
     layer.draw();
     updateMiniMap();
@@ -75,7 +75,8 @@ export function newNode(title: string): void
     const miniNodeSize = 50;
 
     const miniGroup = new Konva.Group({
-        name: title,
+        name: newNode.getTitle(),
+        id: newNode.getUniqueIdentifier().toString()
     });
     const miniRect = new Konva.Rect({
         width: miniNodeSize,
@@ -98,7 +99,7 @@ export function newNode(title: string): void
         fill: "black",
         ellipsis: true,
         perfectDrawEnabled: false,
-        text: title,
+        text: newNode.getTitle(),
         wrap: "word",
         fontSize: 10,
         x: miniStage.width() / 2 - (miniNodeSize / 2),
@@ -116,7 +117,7 @@ export function newNode(title: string): void
     miniGroup.on("click", function () 
     {
         //For centering the selected node.
-        const node = nodeMap.get(miniGroup.name());
+        const node = nodeMap.get(parseInt(miniGroup.id()));
         centerNode(node);
 
         //For highlighting the selected node.
@@ -128,25 +129,24 @@ export function newNode(title: string): void
     miniLayer.draw();
 
     //Increment the y value at which the mini node is drawn.
+    miniNodeMap.set(newNode.getUniqueIdentifier(), miniGroup);
     miniNodeY += 36;
-
-    miniNodeMap.set(title, miniGroup);
 }
 
 /**  
  * Creating a new group with a rectangle and text shape.
- * TODO CHECK FOR DUPLICATE TITLE NAME
- * @param {string} text String: The text of the node
+ * @param {YarnNode} node YarnNode: The node to create
  * @param {number} height Int: The height of the node
  * @param {number} width Int: The width of the node
  * 
  * @returns {Konva.Group} Konva node group
  */
-function createNewGroupNode(text: string, height: number, width: number) 
+function createNewGroupNode(node: YarnNode, height: number, width: number) 
 {
     const nodeGroup: Konva.Group = new Konva.Group({
         draggable: true,
-        name: text
+        name: node.getTitle(),
+        id: node.getUniqueIdentifier().toString()
     });
 
     nodeGroup.x(-stage.x() * stage.scaleX() + (Math.random() * stage.width()));
@@ -188,7 +188,7 @@ function createNewGroupNode(text: string, height: number, width: number)
             name: "text",
             width: width,
             height: height / 5,
-            text: text,
+            text: node.getTitle(),
             fill: "black",
             stroke: "black",
             strokeWidth: 0,
@@ -222,7 +222,7 @@ function createNewGroupNode(text: string, height: number, width: number)
     });
     nodeGroup.moveToTop();
 
-    nodeMap.set(text.trim(), nodeGroup);
+    nodeMap.set(node.getUniqueIdentifier(), nodeGroup);
     return nodeGroup;
 }
 
@@ -233,11 +233,11 @@ function createNewGroupNode(text: string, height: number, width: number)
  * 
  * @returns {void}
  */
-export function connectNodes(from: string, to: string): void 
+export function connectNodes(from: number, to: number): void 
 {
 
-    const nodeFrom: Konva.Group = nodeMap.get(from.trim());
-    const nodeTo: Konva.Group = nodeMap.get(to.trim());
+    const nodeFrom: Konva.Group = nodeMap.get(from);
+    const nodeTo: Konva.Group = nodeMap.get(to);
 
     const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
 
@@ -527,36 +527,30 @@ function updateMapPort()
 
 /**  
  * * Function for updating the name of a node.
- * TODO CHECK FOR DUPLICATE TITLE NAME
- * @param {string} oldName The current name of the node.
- * @param {string} newName The new name to update the node to.
+ * @param {YarnNode} titleNode The node to rename
  * @returns {void}
  */
-export function changeNodeName(oldName: string, newName: string) : void
+export function changeNodeName(titleNode: YarnNode) : void
 {
+    console.log("Changing node name");
+
     //get value from both miniNodeMap and nodeMap
-    const tempNode: Konva.Group = nodeMap.get(oldName);
-    const tempMiniNode: Konva.Group = miniNodeMap.get(oldName);
+    const tempNode: Konva.Group = nodeMap.get(titleNode.getUniqueIdentifier());
+    const tempMiniNode: Konva.Group = miniNodeMap.get(titleNode.getUniqueIdentifier());
 
-
+    console.log("mini node map");
+    console.log(miniNodeMap);
     //update the text 
     // ! Type mismatch, findOne returns any shape
     //@ts-expect-error Forge
-    tempNode.findOne(".text").text(newName);
+    tempNode.findOne(".text").text(titleNode.getTitle());
+    
     //@ts-expect-error Forge
-    tempMiniNode.findOne(".text").text(newName);
+    tempMiniNode.findOne(".text").text(titleNode.getTitle());
 
     //update the name
-    tempNode.name(newName);
-    tempMiniNode.name(newName);
-
-    //change the reference in the maps to the new name
-    nodeMap.set(newName, tempNode);
-    miniNodeMap.set(newName, tempMiniNode);
-
-    //delete old values
-    nodeMap.delete(oldName);
-    nodeMap.delete(oldName);
+    tempNode.name(titleNode.getTitle());
+    tempMiniNode.name(titleNode.getTitle());
 }
 
 /**  
@@ -578,13 +572,13 @@ export function printAll() : string
  * * Function for getting the x, y position of one node, given the title.
  *  Behaviour not finalised.
  * 
- * @param {string} name The name of the node to be printed
+ * @param {number} idNumber The unique ID number of the node to print
  * 
  * @returns {string} The value the node.
  */
-export function printByName(name: string) : string
+export function printByName(idNumber: number) : string
 {
-    const node = nodeMap.get(name);
+    const node = nodeMap.get(idNumber);
     const output: string = "Title: " + node.name() + ", x value: " + node.x() + ", y value: " + node.y() + "\n";
     return output;
 }
@@ -593,20 +587,20 @@ export function printByName(name: string) : string
  * * Function for removing a node.
  *  Behaviour not finalised.
  * 
- * @param {string} name The name of the node to be removed
+ * @param {YarnNode} deletedNode The node that needs to be removed
  * 
  * @returns {void}
  */
-export function removeNode(name: string) : void
+export function removeNode(deletedNode: YarnNode) : void
 {
 
     //REMOVE MINI NODE AND NORMAL NODE FROM MAP
     //REMOVE GROUP FROM LAYER 
-    nodeMap.get(name).destroy();
-    nodeMap.delete(name);
+    nodeMap.get(deletedNode.getUniqueIdentifier()).destroy();
+    nodeMap.delete(deletedNode.getUniqueIdentifier());
 
-    miniNodeMap.get(name).destroy();
-    miniNodeMap.delete(name);
+    miniNodeMap.get(deletedNode.getUniqueIdentifier()).destroy();
+    miniNodeMap.delete(deletedNode.getUniqueIdentifier());
 
     //TODO MOVE ALL MINI NODES
 
@@ -627,7 +621,7 @@ export function removeNode(name: string) : void
 export function addNode(node: YarnNode) : void
 {
     console.log("Add node called");
-    newNode(node.getTitle());
+    newNode(node);
     console.log("Node called added");
 
 }
@@ -647,7 +641,6 @@ export function receiveJumps(jumps: NodeJump[]) : void
         console.log("from receiveJumps: source = " + jumps[i].getSource());
         console.log("from receiveJumps: target = " + jumps[i].getTarget());
 
-        //@ts-expect-error Forge
         connectNodes(jumps[i].getSource(), jumps[i].getTarget());
     }
 }

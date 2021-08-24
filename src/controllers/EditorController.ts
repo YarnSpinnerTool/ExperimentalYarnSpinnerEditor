@@ -179,25 +179,24 @@ export class EditorController
                     console.log("Delete node");
                     if (currentObject.returnNode) 
                     {
-                        nodeView.removeNode(currentObject.returnNode.getTitle());
+                        nodeView.removeNode(currentObject.returnNode);
                     }
                     break;
                 case ReturnCode.Update:
-                    // console.log("Updating node");
-                    // if(currentObject.returnTitles)
-                    // {
-                    //     nodeView.changeNodeName(currentObject.returnTitles[0], currentObject.returnTitles[1]);   
-                    // }
+                    console.log("Updating node");
+                    if(currentObject.returnNode)
+                    {
+                        nodeView.changeNodeName(currentObject.returnNode);   
+                    }
                     break;
                 case ReturnCode.Jumps:
-                    // console.log("Doing the jumps");
-                    // console.log(currentObject.returnJumps[0].getTarget());
-
-                    // nodeView.receiveJumps(currentObject.returnJumps);
+                    console.log("Doing the jumps");
+                    if (currentObject.returnJumps.length !== 0)
+                    {
+                        console.log(currentObject.returnJumps[0].getTarget());
+                        nodeView.receiveJumps(currentObject.returnJumps);
+                    }
                     break;
-                    // case ReturnCode.None:
-                    //     //TODO something here, maybe a return from nodeView to get metadata info from nodes
-                    //     break;
                 }
             }
         }

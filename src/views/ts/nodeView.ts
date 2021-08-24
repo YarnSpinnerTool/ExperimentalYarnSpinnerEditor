@@ -644,3 +644,14 @@ export function receiveJumps(jumps: NodeJump[]) : void
         connectNodes(jumps[i].getSource(), jumps[i].getTarget());
     }
 }
+
+
+/*
+    TODO
+    Create a function to pass info back to editor controller
+    Take that function and pass node position on selected node back to text view metadata
+        Create the metadata if not exist and assign
+    Create a function to create node via some arbitrary command
+    Add a [+] button somewhere on the node view (put on top of mininode, might be able to create popup across the right on click like a context menu)
+    Create the node, and pass that to the text view
+*/

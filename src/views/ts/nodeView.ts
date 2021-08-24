@@ -673,7 +673,8 @@ export function receiveJumps(jumps: NodeJump[]) : void
 {
     
     //DESTROY ALL THE ARROWS
-    jumpMap.forEach(arrow => {
+    jumpMap.forEach(arrow => 
+    {
         arrow.destroy();
     });
 
@@ -756,16 +757,21 @@ export function receiveJumps(jumps: NodeJump[]) : void
 }
 
 /**
- * Delete jumps
- * Should just be get([from,to]).destroy();
+ * * Delete jumps
+ * Should just be:
+ * get([from,to]).destroy();
  * delete([from,to]);
+ * @param {number} from The source node UID
+ * @param {number} to The target node UID
+ * @returns {void}
  */
-function removeJump(from: number, to: number){
-    
+function removeJump(from: number, to: number)
+{
     jumpMap.delete([from, to]);
     jumpMap.forEach((value, key) =>
     {
-        if(key[0] == from && key[1] == to){
+        if(key[0] == from && key[1] == to)
+        {
             value.destroy();
         }
     });

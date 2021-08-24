@@ -12,6 +12,7 @@ import { NodeJump } from "../../models/NodeJump";
 const sceneWidth = 500;         // For comparing scale in responsiveSize()
 const nodeMap = new Map<number,Konva.Group>();      // Map for storing all nodes.
 const miniNodeMap = new Map<number,Konva.Group>();
+const jumpMap = new Map<number, Konva.Line>();
 let selectedNode: Konva.Group;  // Currently selected node for highlighting purposes.
 let miniNodeY = 5;              // Variable to increment height of miniNodes.
 let miniMapDetails: {x: number, y: number, scale: number};          // Global variable for storing the top right of the minimap image.
@@ -607,6 +608,7 @@ export function removeNode(deletedNode: YarnNode) : void
     miniNodeMap.get(deletedNode.getUniqueIdentifier()).destroy();
     miniNodeMap.delete(deletedNode.getUniqueIdentifier());
 
+    updateMiniMap();
     //TODO MOVE ALL MINI NODES
 
     //TODO REMOVE JUMPS
@@ -640,3 +642,8 @@ export function receiveJumps(jumps: NodeJump[]) : void
         connectNodes(jumps[i].getSource(), jumps[i].getTarget());
     }
 }
+
+/**
+ * Delete jumps
+ * 
+ */

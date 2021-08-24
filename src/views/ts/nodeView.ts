@@ -238,6 +238,11 @@ export function connectNodes(from: number, to: number): void
 
     const nodeFrom: Konva.Group = nodeMap.get(from);
     const nodeTo: Konva.Group = nodeMap.get(to);
+    
+    if (nodeFrom === nodeTo)
+    {
+        return;
+    }
 
     const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
 
@@ -605,8 +610,6 @@ export function removeNode(deletedNode: YarnNode) : void
     //TODO MOVE ALL MINI NODES
 
     //TODO REMOVE JUMPS
-
-
 }
 
 
@@ -620,10 +623,7 @@ export function removeNode(deletedNode: YarnNode) : void
  */
 export function addNode(node: YarnNode) : void
 {
-    console.log("Add node called");
     newNode(node);
-    console.log("Node called added");
-
 }
 
 /**
@@ -637,10 +637,6 @@ export function receiveJumps(jumps: NodeJump[]) : void
 {
     for (let i = 0; i < jumps.length; i++) 
     {
-        // ! DEBUG
-        console.log("from receiveJumps: source = " + jumps[i].getSource());
-        console.log("from receiveJumps: target = " + jumps[i].getTarget());
-
         connectNodes(jumps[i].getSource(), jumps[i].getTarget());
     }
 }

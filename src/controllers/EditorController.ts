@@ -191,11 +191,11 @@ export class EditorController
                     break;
                 case ReturnCode.Jumps:
                     console.log("Doing the jumps");
-                    if (currentObject.returnJumps.length !== 0)
-                    {
-                        console.log(currentObject.returnJumps[0].getTarget());
+                    //if (currentObject.returnJumps.length !== 0)
+                    //{
                         nodeView.receiveJumps(currentObject.returnJumps);
-                    }
+
+                    //}
                     break;
                 }
             }

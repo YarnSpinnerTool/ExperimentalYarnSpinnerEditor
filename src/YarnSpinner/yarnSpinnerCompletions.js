@@ -81,7 +81,7 @@ export const completions = {
         }];
         
         //Get all of the text in the editor
-        var text = model.getValueInRange({startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
+        var text = model.getValue();
         //Regex for both titles and variables, global tag is used.
         var nodesRegex = /Title:\s?[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/g;
         var variablesRegex = /\$[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/g;

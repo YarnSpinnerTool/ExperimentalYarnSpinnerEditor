@@ -247,6 +247,15 @@ app.on("activate", () =>
     }
 });
 
+// intended for mac
+app.on("will-finish-launching", () => 
+{
+    app.on("open-file", (event, filePath) => 
+    {
+        event.preventDefault();
+        handleFileOpen(filePath);
+    });
+});
 
 /*
 	******************************************************************************************************************

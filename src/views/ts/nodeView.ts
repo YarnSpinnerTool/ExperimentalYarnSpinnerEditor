@@ -671,23 +671,22 @@ export function addNode(node: YarnNode) : void
  */
 export function receiveJumps(jumps: NodeJump[]) : void
 {
-    
     //DESTROY ALL THE ARROWS
     jumpMap.forEach(arrow => 
     {
         arrow.destroy();
     });
-
     //CLEAR THE MAP
     jumpMap.clear();
+
+    //Required for when the below loop is not entered.
+    updateMiniMap();
 
     //DRAW ALL THE NEW ARROWS
     for (let i = 0; i < jumps.length ; i++)
     {
         connectNodes(jumps[i].getSource(), jumps[i].getTarget());
     }
-    console.log("jumpMapLength HERE "+jumpMap.size); // ! DEBUG
-    console.log("jumps param length here HERE "+jumps.length);
     /*
     const oldJumps = Array.from(jumpMap.keys());
     const newJumps = new Array<Array<number>>();
@@ -753,26 +752,4 @@ export function receiveJumps(jumps: NodeJump[]) : void
         removeJump(deletedJump[0], deletedJump[1]);
     });
     */
-   
-}
-
-/**
- * * Delete jumps
- * Should just be:
- * get([from,to]).destroy();
- * delete([from,to]);
- * @param {number} from The source node UID
- * @param {number} to The target node UID
- * @returns {void}
- */
-function removeJump(from: number, to: number)
-{
-    jumpMap.delete([from, to]);
-    jumpMap.forEach((value, key) =>
-    {
-        if(key[0] == from && key[1] == to)
-        {
-            value.destroy();
-        }
-    });
 }

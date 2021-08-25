@@ -193,7 +193,7 @@ export class EditorController
                     console.log("Doing the jumps");
                     //if (currentObject.returnJumps.length !== 0)
                     //{
-                        nodeView.receiveJumps(currentObject.returnJumps);
+                    nodeView.receiveJumps(currentObject.returnJumps);
 
                     //}
                     break;

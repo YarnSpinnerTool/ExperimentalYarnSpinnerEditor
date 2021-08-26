@@ -480,12 +480,10 @@ function updateMiniMap()
         }
 
         // find the smallest ratio
-        const idealScale = Math.min
-        (
+        const idealScale = Math.min(
             miniMapStage.height() / (maxY - minY + 100),
             miniMapStage.width() / (maxX - minX + 100),
-            defaultScale    // if default scale is smaller, use that
-        );  
+            defaultScale);    // if default scale is smaller, use that
         
         // store map details for view port estimates
         miniMapDetails = {

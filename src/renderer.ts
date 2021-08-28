@@ -240,7 +240,7 @@ document.ondrop = (e) =>
     
     if (e.dataTransfer?.files[0].path.endsWith(".yarn")) // if file is a yarn file
     {
-        openFileEmitter("/Users/sethhilder/Documents/YarnSpinnerEditor/src/tokenizerTest.yarn");
+        openFileEmitter(e.dataTransfer.files[0].path);
     }
 };
 

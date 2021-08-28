@@ -233,16 +233,16 @@ if (openFolderIcon)
 }
 
 // Load a file into the application if it has a .yarn extension
-// document.ondrop = (e) =>
-// {
-//     e.preventDefault();
-//     e.stopPropagation();
-
-//     if (e.dataTransfer?.files[0].path.endsWith(".yarn")) // if file is a yarn file
-//     {
-//         openFileEmitter(e.dataTransfer?.files[0].path);
-//     }
-// };
+document.ondrop = (e) =>
+{
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (e.dataTransfer?.files[0].path.endsWith(".yarn")) // if file is a yarn file
+    {
+        openFileEmitter("/Users/sethhilder/Documents/YarnSpinnerEditor/src/tokenizerTest.yarn");
+    }
+};
 
 // ! Prevents issue with electron and ondrop event not firing
 document.ondragover = (e) =>

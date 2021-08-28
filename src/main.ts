@@ -320,8 +320,8 @@ function handleFileOpen(filePath? : string)
     //Sends message from main to renderer
     const fileContent = YarnOpenFile(filePath);
     if(fileContent) 
-    {
-        BrowserWindow.getFocusedWindow()?.webContents.send("openFile", fileContent.path, fileContent.contents, fileContent.name); //Pass the result to renderer
+    {        
+        BrowserWindow.getAllWindows()[0].webContents.send("openFile", fileContent.path, fileContent.contents, fileContent.name); //Pass the result to renderer
     }
 }
 

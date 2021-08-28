@@ -16,7 +16,17 @@
     "license": "MIT",
     "config": {
         "forge": {
-            "packagerConfig": {},
+            "packagerConfig": {
+                "asar": true,
+                "packageManager": "yarn",
+                "icon": "assets/icons/yarnIcon.png",
+                "appCategoryType": "public.app-category.utilities",
+                "extendInfo": "assets/Info.plist",
+                "extraResource": [
+                    "assets/icons/yarnIcon.png",
+                    "assets/icons/YSLogo.png"
+                ]
+            },
             "makers": [
                 {
                     "name": "@electron-forge/maker-squirrel",
@@ -85,14 +95,5 @@
         "file-loader": "^6.2.0",
         "konva": "^8.1.3",
         "monaco-editor": "^0.27.0"
-    },
-    "build":{
-        "fileAssociations": [
-            {
-                "ext": "yarn",
-                "description": "Yarn file",
-                "role": "Editor"
-            }
-        ]
     }
 }

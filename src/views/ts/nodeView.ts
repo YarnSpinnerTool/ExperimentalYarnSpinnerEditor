@@ -645,6 +645,28 @@ export function receiveJumps(jumps: NodeJump[]) : void
     }
 }
 
+/**
+ * Gets a map representation of all the nodes in the node view
+ * @returns {Map<number,YarnNode>} A map of all nodes currently existing within the node view
+ */
+export function getAllNodes() : Map<number,YarnNode>
+{
+    const returnNodeMap = new Map<number,YarnNode>();
+
+    nodeMap.forEach((group, uniqueID) => 
+    {
+        const metaDataMap = new Map<string,string>();
+        metaDataMap.set("xpos", group.x().toString());
+        metaDataMap.set("ypos", group.y().toString());
+
+        returnNodeMap.set(uniqueID, new YarnNode
+        (
+            uniqueID, group.name(), -1, -1, -1, metaDataMap
+        ));
+    });
+
+    return returnNodeMap;
+}
 
 /*
     TODO

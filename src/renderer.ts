@@ -45,6 +45,7 @@ document.documentElement.style.setProperty("--primary_text", theme.default);
 document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
 document.documentElement.style.setProperty("--selectedFileBg", theme.selectedFileBg);
 
+
 // * Initialise and create a node in the node view.
 //TODO REMOVE, SAMPLE CODE
 /*

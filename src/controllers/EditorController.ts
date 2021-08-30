@@ -148,13 +148,19 @@ export class EditorController
         this.editor.focus();
     }
 
+    
+
     //Editor specific events
     modelChangeHandler(e: monaco.editor.IModelContentChangedEvent): void 
     {
         //TODO SETH - Maybe pass the ILineChange event info into this method too?
-        
-        const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue(), e);
+        let listOfNodes = nodeView.getAllNodes();
 
+        console.log("EDITOR CONMTROLLER");
+        console.log(listOfNodes);
+
+        const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue(), e);
+        
 
         for (let i = 0; i < returnedObjectList.length; i++) 
         {
@@ -197,6 +203,23 @@ export class EditorController
                         nodeView.receiveJumps(currentObject.returnJumps);
                     }
                     break;
+                case ReturnCode.Content:
+
+                    console.log("We are setting content");
+                    console.log(currentObject.returnLineContent);
+                    // eslint-disable-next-line no-case-declarations
+                    const operation: monaco.editor.IIdentifiedSingleEditOperation = {
+                        range: {
+                            startLineNumber: currentObject.returnLineNumber,
+                            endLineNumber: currentObject.returnLineNumber,
+                            startColumn: 1,
+                            endColumn: currentObject.returnLineContent.length + 1,
+                        },
+                        text: currentObject.returnLineContent
+                    };
+
+                    this.editor.executeEdits(currentObject.returnLineContent, [operation]);
+                    break;
                 }
             }
         }
@@ -231,6 +254,12 @@ export class EditorController
             }
         }
     }
+
+    nodeViewToEditorPass(devString: string)
+    {
+        console.log(devString);
+    }
+
 
     /**
  * 

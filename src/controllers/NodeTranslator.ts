@@ -15,7 +15,8 @@ export enum ReturnCode {
     Add = 1,
     Delete = 2,
     Update = 3,
-    Jumps = 4
+    Jumps = 4,
+    Content = 5
 }
 
 //TODO WORKING TITLE
@@ -24,8 +25,10 @@ export class ReturnObject
     returnCode: ReturnCode;
     returnJumps?: NodeJump[];
     returnNode?: YarnNode;
+    returnLineNumber?: number;
+    returnLineContent?: string
 
-    constructor(returnCode: ReturnCode, returnJumps?: NodeJump[], returnNode?: YarnNode) 
+    constructor(returnCode: ReturnCode, returnJumps?: NodeJump[], returnNode?: YarnNode, returnLineNumber?: number, returnLineContent?: string) 
     {
         this.returnCode = returnCode;
         if (returnJumps) 
@@ -36,6 +39,16 @@ export class ReturnObject
         if (returnNode) 
         {
             this.returnNode = returnNode;
+        }
+
+        if (returnLineNumber)
+        {
+            this.returnLineNumber = returnLineNumber;
+        }
+
+        if (returnLineContent)
+        {
+            this.returnLineContent = returnLineContent;
         }
     }
 }
@@ -248,6 +261,8 @@ export class YarnNodeList
     //This is a comment
 Title: abc
 headerTag: otherTest
+xpos: 1
+ypos: 1
 ---
 <<jump 333>>
 <<jump ttt>>
@@ -271,6 +286,13 @@ headerTag: otherTest
 === 
             */
 
+
+
+    convertFromNodeToContent(): void 
+    {
+        console.log("TODO, convert node content with metadta into a full text thing");
+    }
+
     /**
      * Main function to convert the Monaco document into YarnNode objects, in order to pass them through to the Node View
      * for graphical representation.
@@ -280,6 +302,7 @@ headerTag: otherTest
      */
     convertFromContentToNode(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): ReturnObject[] 
     {
+
         const listOfReturns: ReturnObject[] = [];
         //console.log(contentChangeEvent);
 
@@ -287,6 +310,53 @@ headerTag: otherTest
         allLines.unshift("JUNK LINE TO ALLIGN CONTENT");
         let runRegexCheck = true;
 
+
+        // if (currentListOfNodes.size !== 0)
+        // {
+        //     console.log("List of nodes coming from node view is not empty");
+        //     currentListOfNodes.forEach((node, uniqueID) => 
+        //     {
+
+        // Causes an infinite loop because it's on every content change
+        // let metadataDecrement = this.nodes.get(uniqueID).getLineStart();//Begin decrementer on the node's --- line
+        // console.log(metadataDecrement);
+
+        // let runSearchForMetadata = true;
+        // while (runSearchForMetadata)
+        // {
+        //     console.log(allLines[metadataDecrement]);
+
+        //     if (allLines[metadataDecrement].match(this.metadataRegexExp) && !allLines[metadataDecrement].match(this.titleRegexExp)) 
+        //     {
+        //         const lineSplit = allLines[metadataDecrement].split(":");
+
+        //         if (this.nodes.get(uniqueID).getMetaData().get(lineSplit[0].trim()))
+        //         {
+        //             this.nodes.get(uniqueID).getMetaData().set(lineSplit[0].trim(), node.getMetaData().get(lineSplit[0]));
+        //             listOfReturns.push(this.notifyContentChange(metadataDecrement, "" + lineSplit[0].trim() + ": " + node.getMetaData().get(lineSplit[0])));
+        //         }
+
+        //         console.log("Setting metadata");
+        //         console.log(this.nodes.get(uniqueID));
+        //     }
+
+        //     if (allLines[metadataDecrement].match(this.endRegexExp))
+        //     {
+        //         console.log("End of other node found");
+        //         runSearchForMetadata = false;
+        //     }
+
+        //     metadataDecrement--;
+
+        //     if (metadataDecrement === 1)
+        //     {
+        //         console.log("Stopping search because decrement is at 1");
+        //         runSearchForMetadata = false;
+        //     }
+        // }
+              
+        //     });
+        // }
 
         if(contentChangeEvent.changes[0].text.split(contentChangeEvent.eol).length > 1) 
         {
@@ -1005,6 +1075,11 @@ headerTag: otherTest
         console.log(this.jumps);
         return new ReturnObject(ReturnCode.Jumps, this.jumps);
         //Outputs this.jumps to nodeView
+    }
+
+    notifyContentChange(lineNumber: number, content: string): ReturnObject
+    {
+        return new ReturnObject(ReturnCode.Content, undefined, undefined, lineNumber, content);
     }
 
 }

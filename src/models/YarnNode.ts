@@ -3,7 +3,7 @@ export class YarnNode
 
     private title: string;
     private lineTitle: number;//Holds the line that the title of the node resides on
-    private lineStart: number;//Holds the first instance of a header, including title
+    private lineStart: number;//Holds the dialogue start ---
     private lineEnd: number;//Holds the end '==='
     private metadata: Map<string, string>;//first string is metadata name, second is metadata content
     private uniqueIdentifier: number;

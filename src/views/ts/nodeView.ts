@@ -133,7 +133,7 @@ export function newNode(newNode: YarnNode): void
 
     //Increment the y value at which the mini node is drawn.
     miniNodeMap.set(newNode.getUniqueIdentifier(), miniGroup);
-    miniNodeY += 36;
+    miniNodeY += 60;
 }
 
 /**  
@@ -634,6 +634,7 @@ export function printByName(idNumber: number) : string
 export function removeNode(deletedNode: YarnNode) : void
 {
 
+    miniNodeY -= 60;
     //REMOVE MINI NODE AND NORMAL NODE FROM MAP
     //REMOVE GROUP FROM LAYER 
     nodeMap.get(deletedNode.getUniqueIdentifier()).destroy();

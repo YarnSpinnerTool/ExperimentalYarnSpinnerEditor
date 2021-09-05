@@ -248,6 +248,15 @@ app.on("activate", () =>
     }
 });
 
+// intended for mac
+app.on("will-finish-launching", () => 
+{
+    app.on("open-file", (event, filePath) => 
+    {
+        event.preventDefault();
+        handleFileOpen(filePath);
+    });
+});
 
 /*
 	******************************************************************************************************************
@@ -312,8 +321,8 @@ function handleFileOpen(filePath? : string)
     //Sends message from main to renderer
     const fileContent = YarnOpenFile(filePath);
     if(fileContent) 
-    {
-        BrowserWindow.getFocusedWindow()?.webContents.send("openFile", fileContent.path, fileContent.contents, fileContent.name); //Pass the result to renderer
+    {        
+        BrowserWindow.getAllWindows()[0].webContents.send("openFile", fileContent.path, fileContent.contents, fileContent.name); //Pass the result to renderer
     }
 }
 

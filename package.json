@@ -16,7 +16,17 @@
 	"license": "MIT",
 	"config": {
 		"forge": {
-			"packagerConfig": {},
+            "packagerConfig": {
+                "asar": true,
+                "packageManager": "yarn",
+                "icon": "assets/icons/yarnIcon.png",
+                "appCategoryType": "public.app-category.utilities",
+                "extendInfo": "assets/Info.plist",
+                "extraResource": [
+                    "assets/icons/yarnIcon.png",
+                    "assets/icons/YSLogo.png"
+                ]
+            },
 			"makers": [
 				{
 					"name": "@electron-forge/maker-squirrel",

@@ -1,89 +1,112 @@
 {
-    "name": "yarnspinnereditor",
-    "version": "0.1.0",
-    "description": "A new editor for Yarn Spinner",
-    "main": ".webpack/main",
-    "scripts": {
-        "start": "electron-forge start",
-        "package": "electron-forge package",
-        "make": "electron-forge make",
-        "publish": "electron-forge publish",
-        "lint": "npx eslint src/ --ext .ts --max-warnings 0",
-        "lint-fix": "npx eslint src/ --ext .ts --fix"
-    },
-    "keywords": [],
-    "author": "UTAS Project Team (YarnSpinnerEditor)",
-    "license": "MIT",
-    "config": {
-        "forge": {
-            "packagerConfig": {},
-            "makers": [
-                {
-                    "name": "@electron-forge/maker-squirrel",
-                    "config": {
-                        "name": "yarnspinnereditor"
-                    }
-                },
-                {
-                    "name": "@electron-forge/maker-zip",
-                    "platforms": [
-                        "darwin"
-                    ]
-                },
-                {
-                    "name": "@electron-forge/maker-deb",
-                    "config": {}
-                },
-                {
-                    "name": "@electron-forge/maker-rpm",
-                    "config": {}
-                }
-            ],
-            "plugins": [
-                [
-                    "@electron-forge/plugin-webpack",
-                    {
-                        "mainConfig": "./webpack.main.config.js",
-                        "renderer": {
-                            "config": "./webpack.renderer.config.js",
-                            "entryPoints": [
-                                {
-                                    "html": "./src/index.html",
-                                    "js": "./src/renderer.ts",
-                                    "name": "main_window"
-                                }
-                            ],
-                            "nodeIntegration": true
-                        }
-                    }
+	"name": "yarnspinnereditor",
+	"version": "0.0.2",
+	"description": "A new editor for Yarn Spinner",
+	"main": ".webpack/main",
+	"scripts": {
+		"start": "electron-forge start",
+		"package": "electron-forge package",
+		"make": "electron-forge make",
+		"publish": "electron-forge publish",
+		"lint": "npx eslint src/ --ext .ts --max-warnings 0",
+		"lint-fix": "npx eslint src/ --ext .ts --fix"
+	},
+	"keywords": [],
+	"author": "UTAS Project Team (YarnSpinnerEditor)",
+	"license": "MIT",
+	"config": {
+		"forge": {
+            "packagerConfig": {
+                "asar": true,
+                "packageManager": "yarn",
+                "icon": "assets/icons/yarnIcon.png",
+                "appCategoryType": "public.app-category.utilities",
+                "extendInfo": "assets/Info.plist",
+                "extraResource": [
+                    "assets/icons/yarnIcon.png",
+                    "assets/icons/YSLogo.png"
                 ]
-            ]
-        }
-    },
-    "devDependencies": {
-        "@electron-forge/cli": "^6.0.0-beta.59",
-        "@electron-forge/maker-deb": "^6.0.0-beta.59",
-        "@electron-forge/maker-rpm": "^6.0.0-beta.59",
-        "@electron-forge/maker-squirrel": "^6.0.0-beta.59",
-        "@electron-forge/maker-zip": "^6.0.0-beta.59",
-        "@electron-forge/plugin-webpack": "6.0.0-beta.59",
-        "@typescript-eslint/eslint-plugin": "^4.0.1",
-        "@typescript-eslint/parser": "^4.0.1",
-        "@vercel/webpack-asset-relocator-loader": "1.6.0",
-        "css-loader": "^6.0.0",
-        "electron": "13.2.1",
-        "eslint": "^7.6.0",
-        "eslint-plugin-import": "^2.20.0",
-        "fork-ts-checker-webpack-plugin": "^6.0.1",
-        "node-loader": "^2.0.0",
-        "style-loader": "^3.0.0",
-        "ts-loader": "^9.2.2",
-        "typescript": "^4.0.2"
-    },
-    "dependencies": {
-        "electron-squirrel-startup": "^1.0.0",
-        "file-loader": "^6.2.0",
-        "konva": "^8.1.3",
-        "monaco-editor": "^0.27.0"
-    }
+            },
+			"makers": [
+				{
+					"name": "@electron-forge/maker-squirrel",
+					"config": {
+						"name": "yarnspinnereditor"
+					}
+				},
+				{
+					"name": "@electron-forge/maker-zip",
+					"platforms": [
+						"darwin"
+					]
+				},
+				{
+					"name": "@electron-forge/maker-deb",
+					"config": {}
+				},
+				{
+					"name": "@electron-forge/maker-rpm",
+					"config": {}
+				}
+			],
+			"publishers": [
+				{
+					"name": "@electron-forge/publisher-github",
+					"config": {
+						"repository": {
+							"owner": "setho246",
+							"name": "YarnSpinnerEditor"
+						}
+					},
+					"draft": true
+				}
+			],
+			"plugins": [
+				[
+					"@electron-forge/plugin-webpack",
+					{
+						"mainConfig": "./webpack.main.config.js",
+						"renderer": {
+							"config": "./webpack.renderer.config.js",
+							"entryPoints": [
+								{
+									"html": "./src/index.html",
+									"js": "./src/renderer.ts",
+									"name": "main_window"
+								}
+							],
+							"nodeIntegration": true
+						}
+					}
+				]
+			]
+		}
+	},
+	"devDependencies": {
+		"@electron-forge/cli": "^6.0.0-beta.59",
+		"@electron-forge/maker-deb": "^6.0.0-beta.59",
+		"@electron-forge/maker-rpm": "^6.0.0-beta.59",
+		"@electron-forge/maker-squirrel": "^6.0.0-beta.59",
+		"@electron-forge/maker-zip": "^6.0.0-beta.59",
+		"@electron-forge/plugin-webpack": "6.0.0-beta.59",
+		"@typescript-eslint/eslint-plugin": "^4.0.1",
+		"@typescript-eslint/parser": "^4.0.1",
+		"@vercel/webpack-asset-relocator-loader": "1.6.0",
+		"css-loader": "^6.0.0",
+		"electron": "13.2.1",
+		"eslint": "^7.6.0",
+		"eslint-plugin-import": "^2.20.0",
+		"fork-ts-checker-webpack-plugin": "^6.0.1",
+		"node-loader": "^2.0.0",
+		"style-loader": "^3.0.0",
+		"ts-loader": "^9.2.2",
+		"typescript": "^4.0.2"
+	},
+	"dependencies": {
+		"@electron-forge/publisher-github": "^6.0.0-beta.59",
+		"electron-squirrel-startup": "^1.0.0",
+		"file-loader": "^6.2.0",
+		"konva": "^8.1.3",
+		"monaco-editor": "^0.27.0"
+	}
 }

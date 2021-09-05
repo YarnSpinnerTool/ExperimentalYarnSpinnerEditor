@@ -238,10 +238,10 @@ document.ondrop = (e) =>
 {
     e.preventDefault();
     e.stopPropagation();
-
+    
     if (e.dataTransfer?.files[0].path.endsWith(".yarn")) // if file is a yarn file
     {
-        openFileEmitter(e.dataTransfer?.files[0].path);
+        openFileEmitter(e.dataTransfer.files[0].path);
     }
 };
 

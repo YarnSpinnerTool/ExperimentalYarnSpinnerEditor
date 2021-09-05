@@ -12,6 +12,9 @@ import { NodeJump } from "../../models/NodeJump";
 const sceneWidth = 500;         // For comparing scale in responsiveSize()
 const nodeMap = new Map<number,Konva.Group>();      // Map for storing all nodes.
 const miniNodeMap = new Map<number,Konva.Group>();
+
+const jumpMap = new Map<Array<number>, Konva.Group>();
+
 let selectedNode: Konva.Group;  // Currently selected node for highlighting purposes.
 let miniNodeY = 5;              // Variable to increment height of miniNodes.
 let miniMapDetails: {x: number, y: number, scale: number};          // Global variable for storing the top right of the minimap image.
@@ -130,7 +133,7 @@ export function newNode(newNode: YarnNode): void
 
     //Increment the y value at which the mini node is drawn.
     miniNodeMap.set(newNode.getUniqueIdentifier(), miniGroup);
-    miniNodeY += 36;
+    miniNodeY += 60;
 }
 
 /**  
@@ -238,39 +241,76 @@ export function connectNodes(from: number, to: number): void
 
     const nodeFrom: Konva.Group = nodeMap.get(from);
     const nodeTo: Konva.Group = nodeMap.get(to);
-
+    const arrow = new Konva.Group();
     const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-
+    if (nodeFrom === nodeTo)
+    {
+        const circle = new Konva.Circle({
+            radius: 35,
+            x: nodeTo.x() + nodeCenterLength * 2,
+            y: nodeTo.y(),
+            stroke: "black",
+            perfectDrawEnabled: false,
+        });
+        const arrow2 = new Konva.Arrow({
+            points: [nodeFrom.x() + nodeCenterLength * 2, nodeFrom.y() + nodeCenterLength, nodeFrom.x() + nodeCenterLength * 2 + 10, nodeFrom.y() + nodeCenterLength - 2],
+            stroke: "black",
+            tension: 1,
+            pointerLength: 15,
+            pointerWidth: 15,
+            fill: "black",
+            perfectDrawEnabled: false,
+            pointerAtBeginning: true,
+            pointerAtEnding: false,
+        }
+        );
+        arrow.add(arrow2);
+        arrow.add(circle);
+        nodeFrom.on("dragmove", () => 
+        {
+            const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+            arrow2.points([nodeFrom.x() + nodeCenterLength * 2, nodeFrom.y() + nodeCenterLength, nodeFrom.x() + nodeCenterLength * 2 + 10, nodeFrom.y() + nodeCenterLength - 2]);
+            circle.x(nodeTo.x() + nodeCenterLength * 2);
+            circle.y(nodeTo.y());
+            layer.draw();
+        });
+    }
+    else
+    {
     //Draw the line between the center of each node. 
-    const line = new Konva.Arrow({
-        points: [nodeFrom.x() + nodeCenterLength, nodeFrom.y() + nodeCenterLength, nodeTo.x() + nodeCenterLength, nodeTo.y() + nodeCenterLength],
-        stroke: "black",
-        tension: 1,
-        pointerLength: 50,
-        pointerWidth: 15,
-        fill: "black",
-        perfectDrawEnabled: false,
-    });
-    layer.add(line);
-    line.moveToBottom();
+        const line = new Konva.Arrow({
+            points: [nodeFrom.x() + nodeCenterLength, nodeFrom.y() + nodeCenterLength, nodeTo.x() + nodeCenterLength, nodeTo.y() + nodeCenterLength],
+            stroke: "black",
+            tension: 1,
+            pointerLength: 50,
+            pointerWidth: 15,
+            fill: "black",
+            perfectDrawEnabled: false,
+        });
+        //Add to the layer
+        arrow.add(line);
+        
+        //Redraw the line when moving the from node.
+        nodeFrom.on("dragmove", () => 
+        {
+            const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+            line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
+            layer.draw();
+        });
+
+        //Redraw the line when moving the to node.
+        nodeTo.on("dragmove", () => 
+        {
+            const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+            line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
+            layer.draw();
+        });
+    }
+    //Add to the map of jumps
+    jumpMap.set([from, to], arrow);
+    layer.add(arrow);
+    arrow.moveToBottom();
     layer.draw;
-
-    //Redraw the line when moving the from node.
-    nodeFrom.on("dragmove", () => 
-    {
-        const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-        line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
-        layer.draw();
-    });
-
-    //Redraw the line when moving the to node.
-    nodeTo.on("dragmove", () => 
-    {
-        const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-        line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
-        layer.draw();
-    });
-
     updateMiniMap();
 }
 
@@ -594,6 +634,7 @@ export function printByName(idNumber: number) : string
 export function removeNode(deletedNode: YarnNode) : void
 {
 
+    miniNodeY -= 60;
     //REMOVE MINI NODE AND NORMAL NODE FROM MAP
     //REMOVE GROUP FROM LAYER 
     nodeMap.get(deletedNode.getUniqueIdentifier()).destroy();
@@ -602,11 +643,10 @@ export function removeNode(deletedNode: YarnNode) : void
     miniNodeMap.get(deletedNode.getUniqueIdentifier()).destroy();
     miniNodeMap.delete(deletedNode.getUniqueIdentifier());
 
+    updateMiniMap();
     //TODO MOVE ALL MINI NODES
 
     //TODO REMOVE JUMPS
-
-
 }
 
 
@@ -620,10 +660,7 @@ export function removeNode(deletedNode: YarnNode) : void
  */
 export function addNode(node: YarnNode) : void
 {
-    console.log("Add node called");
     newNode(node);
-    console.log("Node called added");
-
 }
 
 /**
@@ -635,14 +672,87 @@ export function addNode(node: YarnNode) : void
  */
 export function receiveJumps(jumps: NodeJump[]) : void
 {
-    for (let i = 0; i < jumps.length; i++) 
+    //DESTROY ALL THE ARROWS
+    jumpMap.forEach(arrow => 
     {
-        // ! DEBUG
-        console.log("from receiveJumps: source = " + jumps[i].getSource());
-        console.log("from receiveJumps: target = " + jumps[i].getTarget());
+        arrow.destroy();
+    });
+    //CLEAR THE MAP
+    jumpMap.clear();
 
+    //Required for when the below loop is not entered.
+    updateMiniMap();
+
+    //DRAW ALL THE NEW ARROWS
+    for (let i = 0; i < jumps.length ; i++)
+    {
         connectNodes(jumps[i].getSource(), jumps[i].getTarget());
     }
+    /*
+    const oldJumps = Array.from(jumpMap.keys());
+    const newJumps = new Array<Array<number>>();
+
+    //Receive new jumps from param for easier comparison
+    for (let i = 0; i < jumps.length; i++) 
+    {
+
+        newJumps[i] = [jumps[i].getSource(), jumps[i].getTarget()];
+        console.log("THIS IS NEW JUMPS " + newJumps[i]);
+    }
+    for (let i = 0; i < oldJumps.length ; i++) 
+    {
+        console.log("THIS IS OLD JUMPS" + oldJumps[i]);
+    }
+    //JUMPS THAT EXIST IN newJumps BUT NOT oldJumps
+    const addedJumps = new Array<Array<number>>();
+    newJumps.forEach(newJump =>
+    {
+        var contains: Boolean = false;
+        oldJumps.forEach(oldJump =>
+        {
+           if(oldJump[0] == newJump[0] && oldJump[1] == newJump[1])
+           {
+                contains = true;
+           }
+        });
+
+        if(contains == false)
+        {
+            console.log("adding jump " + newJump); // ! DEBUG
+            addedJumps.push(newJump);
+        }
+    });
+    
+    //JUMPS THAT EXIST IN oldJumps BUT NOT newJumps
+    const deletedJumps = new Array<Array<number>>();
+    oldJumps.forEach(oldJump =>
+    {
+        var contains: Boolean = false;
+        newJumps.forEach(newJump => 
+        {
+           if(oldJump[0] == newJump[0] && oldJump[1] == newJump[1])
+           {
+                contains = true;
+           }
+        });
+
+        if(contains == false)
+        {
+            console.log("deleting jump " + oldJump); // ! DEBUG
+            deletedJumps.push(oldJump);
+        }
+    });
+
+    addedJumps.forEach(addedJump => {
+        console.log("added jump"); // ! DEBUG
+        connectNodes(addedJump[0], addedJump[1]);
+    });
+
+    deletedJumps.forEach(deletedJump => {
+        console.log("removed jump"); // ! DEBUG
+        removeJump(deletedJump[0], deletedJump[1]);
+    });
+    */
 }
 
 /**

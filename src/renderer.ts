@@ -238,15 +238,17 @@ document.ondrop = (e) =>
     e.preventDefault();
     e.stopPropagation();
     
-    let paths = [];
+    const paths = [];
     
-    let files = e.dataTransfer.files
-    for (let i = 0; i < files.length; i++) {
-        if(files[i].path.endsWith(".yarn")) {
-            paths.push(files[i].path)
+    const files = e.dataTransfer.files;
+    for (let i = 0; i < files.length; i++) 
+    {
+        if(files[i].path.endsWith(".yarn")) 
+        {
+            paths.push(files[i].path);
         }        
     }
-    openFileEmitter(paths)
+    openFileEmitter(paths);
 };
 
 // ! Prevents issue with electron and ondrop event not firing
@@ -325,7 +327,8 @@ function addFileToDisplay(file: YarnFile): void
 
 ipcRenderer.on("openFile", (event, files:{ path: string, contents: string, name: string }[]) => 
 {
-    files.forEach(openedFileDetails => {
+    files.forEach(openedFileDetails => 
+    {
         if (!openedFileDetails.name) 
         {
             openedFileDetails.name = "New File";

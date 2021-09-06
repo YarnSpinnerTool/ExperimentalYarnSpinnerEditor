@@ -278,7 +278,7 @@ ipcMain.on("getPing", (event) =>
 
 ipcMain.on("fileOpenToMain", (event, filePath) => 
 {
-    console.log(filePath)
+    console.log(filePath);
     handleFileOpen(filePath);
 });
 

@@ -5,9 +5,6 @@
  *---------------------------------------------------------------------------------------------
  */
 
-
-
-
 import { dialog } from "electron";
 import * as path from "path";
 import * as fs from "fs";
@@ -15,33 +12,36 @@ import * as fs from "fs";
 /**
  * Function for opening a file and returning the contents as a string.
  * 
- * @param {string} filePath file path to file (if available)
+ * @param {string} filePaths file path to file (if available)
  * @return {string} The string contents of the file selected to open or null if the user cancels the dialog.
  */
-export function openFile(filePath? : string): { path: string; contents: string; name: string } | null 
-{
+export function openFile(filePaths?: string|string[]): { path: string; contents: string; name: string }[] | null {
 
-    if(!filePath)
-    {
+    let toReturn = [] as { path: string; contents: string; name: string }[];
+    if (!filePaths) {
         const openFileResult = dialog.showOpenDialogSync(
             {
                 filters: [{ name: "Yarn file", extensions: ["txt", "yarn"] }],
-                properties: ["openFile", "createDirectory"],
+                properties: ["openFile", "createDirectory", 'multiSelections'],
                 defaultPath: path.join(__dirname, "../src/Test.txt")	//!change before release!
             });
 
-        if (openFileResult && openFileResult[0])
-        {
-            filePath = openFileResult[0];
+        if (openFileResult && openFileResult[0]) {
+            filePaths = openFileResult;
         }
     }
 
-    if(filePath)
-    {
-        const toReturn = { path: "", contents: "", name: "" };
-        toReturn.contents = fs.readFileSync(filePath).toString();
-        toReturn.path = filePath;
-        toReturn.name = path.basename(filePath);
+    if (filePaths) {
+        if(!Array.isArray(filePaths)) {
+            filePaths = [filePaths]
+        }
+        filePaths.forEach(filePath => {
+            let toAdd = { path: "", contents: "", name: "" };
+            toAdd.contents = fs.readFileSync(filePath).toString();
+            toAdd.path = filePath;
+            toAdd.name = path.basename(filePath);
+            toReturn.push(toAdd)
+        });
         return toReturn;
     }
 

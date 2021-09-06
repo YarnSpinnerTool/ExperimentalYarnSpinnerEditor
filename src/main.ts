@@ -254,7 +254,7 @@ app.on("will-finish-launching", () =>
     app.on("open-file", (event, filePath) => 
     {
         event.preventDefault();
-        handleFileOpen(filePath);
+        handleFileOpen([filePath]);
     });
 });
 
@@ -278,6 +278,7 @@ ipcMain.on("getPing", (event) =>
 
 ipcMain.on("fileOpenToMain", (event, filePath) => 
 {
+    console.log(filePath)
     handleFileOpen(filePath);
 });
 
@@ -316,13 +317,13 @@ function handleNewFile()
  * @param {string} filePath source of file (if available)
  * @returns {void}
  */
-function handleFileOpen(filePath? : string) 
+function handleFileOpen(filePath? : string[]) 
 {
     //Sends message from main to renderer
     const fileContent = YarnOpenFile(filePath);
     if(fileContent) 
     {        
-        BrowserWindow.getAllWindows()[0].webContents.send("openFile", fileContent.path, fileContent.contents, fileContent.name); //Pass the result to renderer
+        BrowserWindow.getAllWindows()[0].webContents.send("openFile", fileContent); //Pass the result to renderer
     }
 }
 

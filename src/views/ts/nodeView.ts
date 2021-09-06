@@ -311,7 +311,7 @@ export function connectNodes(from: number, to: number): void
     layer.add(arrow);
     arrow.moveToBottom();
     layer.draw;
-    updateMiniMap();
+    //updateMiniMap();
 }
 
 /**
@@ -540,7 +540,8 @@ function updateMiniMap()
     }
     else if(miniMapLayer.hasChildren()) // clear map when no nodes
     {
-        miniMapLayer.clear();
+        miniMapLayer.findOne(".background").destroy();
+        miniMapLayer.findOne(".viewPort").destroy();
     }
 
     updateMapPort();
@@ -687,14 +688,13 @@ export function receiveJumps(jumps: NodeJump[]) : void
     //CLEAR THE MAP
     jumpMap.clear();
 
-    //Required for when the below loop is not entered.
-    updateMiniMap();
-
     //DRAW ALL THE NEW ARROWS
     for (let i = 0; i < jumps.length ; i++)
     {
         connectNodes(jumps[i].getSource(), jumps[i].getTarget());
     }
+
+    updateMiniMap();
     /*
     const oldJumps = Array.from(jumpMap.keys());
     const newJumps = new Array<Array<number>>();

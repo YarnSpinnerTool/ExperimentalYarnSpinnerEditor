@@ -540,8 +540,7 @@ function updateMiniMap()
     }
     else if(miniMapLayer.hasChildren()) // clear map when no nodes
     {
-        miniMapLayer.findOne(".background").destroy();
-        miniMapLayer.findOne(".viewPort").destroy();
+        miniMapLayer.destroyChildren();
     }
 
     updateMapPort();

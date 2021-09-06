@@ -1,0 +1,25 @@
+#This is a file tag
+    //This is a comment
+Title: abc
+headerTag: otherTest
+---
+<<jump 333>>
+<<jump ttt>>
+===
+
+preceedingTag: wahoo
+Title: 333
+headerTag: otherTest
+---
+<<jump ttt>>
+===
+
+Title: ttt
+headerTag: otherTest
+---
+===
+
+Title: ttt2ElectricBoogaloo
+headerTag: otherTest
+--- 
+=== 

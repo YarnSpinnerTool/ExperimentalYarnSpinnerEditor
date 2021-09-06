@@ -238,10 +238,17 @@ document.ondrop = (e) =>
     e.preventDefault();
     e.stopPropagation();
     
-    if (e.dataTransfer?.files[0].path.endsWith(".yarn")) // if file is a yarn file
+    const paths = [];
+    
+    const files = e.dataTransfer.files;
+    for (let i = 0; i < files.length; i++) 
     {
-        openFileEmitter(e.dataTransfer.files[0].path);
+        if(files[i].path.endsWith(".yarn")) 
+        {
+            paths.push(files[i].path);
+        }        
     }
+    openFileEmitter(paths);
 };
 
 // ! Prevents issue with electron and ondrop event not firing
@@ -318,19 +325,23 @@ function addFileToDisplay(file: YarnFile): void
     ------------------------------------
 */
 
-ipcRenderer.on("openFile", (event, path, contents, name) => 
+ipcRenderer.on("openFile", (event, files:{ path: string, contents: string, name: string }[]) => 
 {
-    if (!name) 
+    files.forEach(openedFileDetails => 
     {
-        name = "New File";
-    }
-
-    const openedFile = new YarnFile(path, contents, name, Date.now());
-    yarnFileManager.addToFiles(openedFile);
-    yarnFileManager.setCurrentOpenYarnFile(openedFile.getUniqueIdentifier());
-    addFileToDisplay(openedFile);
-    editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-    editor.setReadOnly(false);
+        if (!openedFileDetails.name) 
+        {
+            openedFileDetails.name = "New File";
+        }
+    
+        const openedFile = new YarnFile(openedFileDetails.path, openedFileDetails.contents, openedFileDetails.name, Date.now());
+        yarnFileManager.addToFiles(openedFile);
+        yarnFileManager.setCurrentOpenYarnFile(openedFile.getUniqueIdentifier());
+        addFileToDisplay(openedFile);
+        editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
+        editor.setReadOnly(false);
+        
+    });
 });
 
 
@@ -445,7 +456,7 @@ function saveEmitter()
  * @param {string} filepath file path if available
  * @returns {void}
  */
-function openFileEmitter(filepath?: string) 
+function openFileEmitter(filepath?: string[]) 
 {
     ipcRenderer.send("fileOpenToMain", filepath);
 }

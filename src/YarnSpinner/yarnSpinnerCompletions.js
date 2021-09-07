@@ -66,10 +66,10 @@ export const completions = {
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         }, {
             label: 'New node',
-            filterText: 'Title',
+            filterText: 'title',
             kind: monaco.languages.CompletionItemKind.Class,
             insertText: [
-                'Title: $1',
+                'title: $1',
                 'xpos:',
                 'ypos:',
                 '---',
@@ -83,7 +83,7 @@ export const completions = {
         //Get all of the text in the editor
         var text = model.getValue();
         //Regex for both titles and variables, global tag is used.
-        var nodesRegex = /Title:\s?[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/g;
+        var nodesRegex = /title:\s?[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/g;
         var variablesRegex = /\$[A-Za-z0-9_]+[\.]*[A-Za-z0-9_]*/g;
         
         // * FOR FINDING NODE TITLES
@@ -95,9 +95,9 @@ export const completions = {
             for(let i of nodes){ 
                 var word = i;
                 //Remove the "Title:"
-                word = word.replace("Title:","");
+                word = word.replace("title:","");
                 //Remove any spaces, for example "Title: nodeName"
-                //Can't use replace("Title: ","") as Title:nodeName is valid afaik.
+                //Can't use replace("title: ","") as Title:nodeName is valid afaik.
                 word = word.replace(" ","");
                 //Add the word to the completion items.
                 suggestions.push(

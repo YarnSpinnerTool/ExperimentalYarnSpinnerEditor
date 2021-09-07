@@ -5,7 +5,7 @@
  *---------------------------------------------------------------------------------------------
 */
 
-import { app, BrowserWindow, Menu, ipcMain, shell, screen } from "electron";
+import { app, BrowserWindow, Menu, ipcMain, shell, screen, dialog } from "electron";
 import { openFile as YarnOpenFile } from "./controllers/fileSystem/fileOpenController";
 import { writeFile as YarnWriteFile } from "./controllers/fileSystem/fileWriteController";
 
@@ -44,6 +44,40 @@ function createWindow()
     // and load the index.html of the app.
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
+    // add event to prompt user if they exit without saving
+    mainWindow.on('close', (e) =>
+    {
+        if(true)    //TODO: check if a file in workspace is not saved
+        {
+            //TODO: change message based on the file name(s)
+
+            //TODO: switch active file to be first unsaved file
+
+            //TODO: Lock focus on dialog
+
+            const savePrompt = dialog.showMessageBoxSync(this,
+            {
+                type: "warning",
+                buttons: ["Save","Don't Save","Cancel"],
+                defaultId: 0,
+                title: "Careful!",
+                message: "Do you want to save changes?",
+            });
+
+            switch (savePrompt) {
+                case 0:     // save 💾✔
+                    //TODO: save the file
+                    break;
+
+                case 1:     // don't save 💾🔥
+                    break;
+            
+                default:    // do nothing 😐
+                    e.preventDefault();
+                    break;
+            }
+        }
+    });
 }
 
 //https://www.electronjs.org/docs/api/menu

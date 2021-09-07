@@ -635,18 +635,32 @@ export function removeNode(deletedNode: YarnNode) : void
 {
 
     miniNodeY -= 60;
-    //REMOVE MINI NODE AND NORMAL NODE FROM MAP
-    //REMOVE GROUP FROM LAYER 
+    
+    
+    let afterDeletedNode = false;
+    
+    // Traverse miniNodeMap, find the miniNode to delete and delete it.
+    // Once the miniNode is deleted, shift all following nodes up.
+    miniNodeMap.forEach((miniNode, key) => 
+    {
+        if (afterDeletedNode)
+        {
+            miniNode.y(miniNode.y() - 60);
+        }
+        if (key === deletedNode.getUniqueIdentifier())
+        {
+            afterDeletedNode = true;
+            //REMOVE GROUP FROM LAYER 
+            miniNode.destroy();
+        }
+    });
+
     nodeMap.get(deletedNode.getUniqueIdentifier()).destroy();
     nodeMap.delete(deletedNode.getUniqueIdentifier());
-
-    miniNodeMap.get(deletedNode.getUniqueIdentifier()).destroy();
+    
     miniNodeMap.delete(deletedNode.getUniqueIdentifier());
 
     updateMiniMap();
-    //TODO MOVE ALL MINI NODES
-
-    //TODO REMOVE JUMPS
 }
 
 

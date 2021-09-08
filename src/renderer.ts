@@ -385,6 +385,11 @@ ipcRenderer.on("mainRequestSave", () =>
     saveEmitter();
 });
 
+ipcRenderer.on("mainRequestUnsavedFiles", () =>
+{
+    getUnsavedFiles();
+});
+
 ipcRenderer.on("mainRequestNewFile", () => 
 {
     createNewFile();
@@ -414,8 +419,6 @@ ipcRenderer.on("gotPing", (event, arg) =>
 {
     console.log(arg);//Should be pong
 });
-
-
 
 /*
     ------------------------------------
@@ -449,6 +452,25 @@ function saveEmitter()
 {
     ipcRenderer.send("fileSaveToMain", yarnFileManager.getCurrentOpenFile().getPath(), yarnFileManager.getCurrentOpenFile().getContents());
 }
+
+function getUnsavedFiles()
+{
+    let unsaved:string[][] = [[],[],[]];
+
+    yarnFileManager.getFiles().forEach((value) => 
+    {
+        console.log(value);
+        if(!value.getSaved())
+        {
+            unsaved[0].push(value.getName());
+            unsaved[1].push(value.getPath());
+            unsaved[2].push(value.getContents());
+        }
+    });
+    console.log(unsaved);
+    ipcRenderer.sendSync("returnUnsavedFiles", unsaved);
+}
+
 
 /**
  * Emits an event to request that main opens a file.

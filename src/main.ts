@@ -5,9 +5,10 @@
  *---------------------------------------------------------------------------------------------
 */
 
-import { app, BrowserWindow, Menu, ipcMain, shell, screen, dialog } from "electron";
+import { app, BrowserWindow, Menu, ipcMain, shell, screen, dialog} from "electron";
 import { openFile as YarnOpenFile } from "./controllers/fileSystem/fileOpenController";
 import { writeFile as YarnWriteFile } from "./controllers/fileSystem/fileWriteController";
+import { YarnFile } from "./models/YarnFile";
 
 if (require("electron-squirrel-startup")) app.quit();
 
@@ -46,36 +47,40 @@ function createWindow()
 
     // add event to prompt user if they exit without saving
     mainWindow.on('close', (e) =>
-    {
-        if(true)    //TODO: check if a file in workspace is not saved
+    {   
+        const unsaved:string[][] = requestUnsavedFiles();
+        console.log(unsaved);
+        e.preventDefault();
+        if (unsaved.length != 0)
         {
-            //TODO: change message based on the file name(s)
+            unsaved[0].forEach((value, index) =>    //unsaved[0] = name
+            {                                       //unsaved[1] = path
+                                                    //unsaved[2] = contents
 
-            //TODO: switch active file to be first unsaved file
-
-            //TODO: Lock focus on dialog
-
-            const savePrompt = dialog.showMessageBoxSync(this,
-            {
-                type: "warning",
-                buttons: ["Save","Don't Save","Cancel"],
-                defaultId: 0,
-                title: "Careful!",
-                message: "Do you want to save changes?",
+                const savePrompt = dialog.showMessageBoxSync(mainWindow,
+                    {
+                        type: "warning",
+                        buttons: ["Save","Don't Save","Cancel"],
+                        defaultId: 0,
+                        title: "Careful!",
+                        message: "Do you want to save changes to " + unsaved[0][index] + "?",
+                    });
+        
+                    switch (savePrompt) {
+                        case 0:     // save 💾✔
+                            //TODO: save the file
+                            console.log(unsaved);
+                            e.preventDefault();
+                            break;
+        
+                        case 1:     // don't save 💾🔥
+                            break;
+                    
+                        default:    // do nothing 😐
+                            e.preventDefault();
+                            break;
+                    }
             });
-
-            switch (savePrompt) {
-                case 0:     // save 💾✔
-                    //TODO: save the file
-                    break;
-
-                case 1:     // don't save 💾🔥
-                    break;
-            
-                default:    // do nothing 😐
-                    e.preventDefault();
-                    break;
-            }
         }
     });
 }
@@ -379,6 +384,23 @@ function handleFileSave()
 function handleFileSaveAs() 
 {
     BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestSaveAs"); 
+}
+
+/**
+ * Sends a asynchronous message to renderer and returns a list of unsaved files
+ * 
+ * @returns {YarnFile[]}
+ */
+function requestUnsavedFiles()
+{
+    var objectToBeReturned:string[][];
+    BrowserWindow.getAllWindows()[0].webContents.send("mainRequestUnsavedFiles");
+    ipcMain.on("returnUnsavedFiles", (event, unsaved) =>
+    {
+        objectToBeReturned = unsaved;
+    });
+    console.log(objectToBeReturned);
+    return objectToBeReturned;
 }
 
 //Edit Options

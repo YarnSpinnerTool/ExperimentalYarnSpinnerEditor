@@ -48,41 +48,10 @@ function createWindow()
     // add event to prompt user if they exit without saving
     mainWindow.on('close', (e) =>
     {   
-        const unsaved:string[][] = requestUnsavedFiles();
-        console.log(unsaved);
         e.preventDefault();
-        if (unsaved.length != 0)
-        {
-            unsaved[0].forEach((value, index) =>    //unsaved[0] = name
-            {                                       //unsaved[1] = path
-                                                    //unsaved[2] = contents
-
-                const savePrompt = dialog.showMessageBoxSync(mainWindow,
-                    {
-                        type: "warning",
-                        buttons: ["Save","Don't Save","Cancel"],
-                        defaultId: 0,
-                        title: "Careful!",
-                        message: "Do you want to save changes to " + unsaved[0][index] + "?",
-                    });
-        
-                    switch (savePrompt) {
-                        case 0:     // save 💾✔
-                            //TODO: save the file
-                            console.log(unsaved);
-                            e.preventDefault();
-                            break;
-        
-                        case 1:     // don't save 💾🔥
-                            break;
-                    
-                        default:    // do nothing 😐
-                            e.preventDefault();
-                            break;
-                    }
-            });
-        }
+        requestUnsavedFiles();
     });
+
 }
 
 //https://www.electronjs.org/docs/api/menu
@@ -271,6 +240,46 @@ Menu.setApplicationMenu(menu);
 
 app.whenReady().then(createWindow);
 
+function closeProcess(unsaved: string[][])
+{
+    let cancel = false; // 1 close app; 2 cancel close
+    if (unsaved[0].length != 0)
+    {
+        for(let i = 0; i < unsaved[0].length; i++)    //unsaved[0] = name
+        {                                       //unsaved[1] = path
+                                                //unsaved[2] = contents
+            const savePrompt = dialog.showMessageBoxSync(BrowserWindow.getAllWindows()[0],
+                {
+                    type: "warning",
+                    buttons: ["Save","Don't Save","Cancel"],
+                    defaultId: 0,
+                    title: "Careful!",
+                    message: "Do you want to save changes to " + unsaved[0][i] + "?",
+                    noLink: true
+                });
+    
+                switch (savePrompt) {
+                    case 0:     // save 💾✔
+                        YarnWriteFile(unsaved[1][i],unsaved[2][i]); //TODO: send message to renderer to say its saved
+                        break;
+    
+                    case 1:     // don't save 💾🔥
+                        break;
+                
+                    default:    // do nothing 😐
+                        cancel = true;
+                        break;
+                }
+            if(cancel) break;
+        }
+            
+    }
+    if(!cancel)
+    {
+        BrowserWindow.getAllWindows()[0].destroy();
+    }
+}
+
 app.on("window-all-closed", () => 
 {
     if (process.platform !== "darwin") 
@@ -317,7 +326,7 @@ ipcMain.on("getPing", (event) =>
 
 ipcMain.on("fileOpenToMain", (event, filePath) => 
 {
-    console.log(filePath);
+    //console.log(filePath);
     handleFileOpen(filePath);
 });
 
@@ -326,6 +335,12 @@ ipcMain.on("fileSaveToMain", (event, filePath, contents) =>
     const result = YarnWriteFile(filePath, contents);
 
     event.reply("fileSaveResponse", result.result, result.path, result.name);
+});
+
+ipcMain.on("returnUnsavedFiles", (event, unsaved) =>
+{
+    console.log(unsaved);
+    closeProcess(unsaved);
 });
 
 /*
@@ -389,18 +404,11 @@ function handleFileSaveAs()
 /**
  * Sends a asynchronous message to renderer and returns a list of unsaved files
  * 
- * @returns {YarnFile[]}
+ * @returns {void}
  */
 function requestUnsavedFiles()
 {
-    var objectToBeReturned:string[][];
     BrowserWindow.getAllWindows()[0].webContents.send("mainRequestUnsavedFiles");
-    ipcMain.on("returnUnsavedFiles", (event, unsaved) =>
-    {
-        objectToBeReturned = unsaved;
-    });
-    console.log(objectToBeReturned);
-    return objectToBeReturned;
 }
 
 //Edit Options
@@ -445,4 +453,3 @@ function handleRedo()
 {
     BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestRedo"); 
 }
-

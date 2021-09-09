@@ -468,7 +468,7 @@ function getUnsavedFiles()
         }
     });
     console.log(unsaved);
-    ipcRenderer.sendSync("returnUnsavedFiles", unsaved);
+    ipcRenderer.send("returnUnsavedFiles", unsaved);
 }
 
 

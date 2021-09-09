@@ -5,6 +5,8 @@ import * as nodeView from "../views/ts/nodeView";
 import { YarnFileManager } from "../models/YarnFileManager";
 import { YarnFile } from "../models/YarnFile";
 import { ReturnCode, ReturnObject, YarnNodeList } from "./NodeTranslator";
+import { YarnNode } from "../models/YarnNode";
+import { TouchBarScrubber } from "electron";
 
 export class EditorController 
 {
@@ -154,72 +156,160 @@ export class EditorController
     modelChangeHandler(e: monaco.editor.IModelContentChangedEvent): void 
     {
         //TODO SETH - Maybe pass the ILineChange event info into this method too?
-        let listOfNodes = nodeView.getAllNodes();
-
-        console.log("EDITOR CONMTROLLER");
+        const listOfNodes = nodeView.getAllNodes();
+        console.log("CURRENT NODES IN NODE VIEW");
         console.log(listOfNodes);
+        //Another line to get a new node?
 
-        const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue(), e);
-        
+        //TODO pass in the insertions here (the reassigning of the editor content) with a check to prevent the convert from content to node being ran on this run
+        // As changing the content will call this again, prevents a double run (which wont cause any problems, just will make it more efficient)
 
-        for (let i = 0; i < returnedObjectList.length; i++) 
+        const allLines = this.editor.getValue().split("\n");
+        const titleRegexExp = /(Title:.*)/g;//Get title match
+
+        let lastNodeTitle = "";
+        let lastNode: YarnNode = null;
+        let metadata: Map<string, string>;
+
+        if (listOfNodes.size !== 0)
         {
-            const currentObject: ReturnObject = returnedObjectList[i];
-
-            if (currentObject.returnCode) 
+            for (let i = 0; i < allLines.length; i++)
             {
-                switch (currentObject.returnCode) 
+                if (allLines[i].match(titleRegexExp))
                 {
-                case ReturnCode.Error:
-                    //Do smth
-                    throw new Error("how did we let this happen");
-                    break;
-                case ReturnCode.Add:
-                    console.log("Adding node");
-                    if (currentObject.returnNode) 
-                    {
-                        nodeView.addNode(currentObject.returnNode);
-                    }
-                    break;
-                case ReturnCode.Delete:
-                    console.log("Delete node");
-                    if (currentObject.returnNode) 
-                    {
-                        nodeView.removeNode(currentObject.returnNode);
-                    }
-                    break;
-                case ReturnCode.Update:
-                    console.log("Updating node");
-                    if(currentObject.returnNode)
-                    {
-                        nodeView.changeNodeName(currentObject.returnNode);   
-                    }
-                    break;
-                case ReturnCode.Jumps:
-                    console.log("Doing the jumps");
-                    //if (currentObject.returnJumps.length !== 0)
-                    //{
-                    nodeView.receiveJumps(currentObject.returnJumps);
+                    //TODO pop the last node found out of the list of nodes
 
-                    //}
-                    break;
-                case ReturnCode.Content:
+                    lastNodeTitle = this.yarnNodeList.formatTitleString(allLines[i]);
+                    listOfNodes.forEach((node, ID) => 
+                    {
+                        if (node.getTitle() === lastNodeTitle)
+                        {
+                            lastNode = node;
+                            metadata = node.getMetaData();
+                        }    
+                    });
+                }
 
-                    console.log("We are setting content");
-                    console.log(currentObject.returnLineContent);
-                    // eslint-disable-next-line no-case-declarations
-                    const operation: monaco.editor.IIdentifiedSingleEditOperation = {
-                        range: {
-                            startLineNumber: currentObject.returnLineNumber,
-                            endLineNumber: currentObject.returnLineNumber,
-                            startColumn: 1,
-                            endColumn: currentObject.returnLineContent.length + 1,
-                        },
-                        text: currentObject.returnLineContent
-                    };
+                else if (lastNodeTitle !== "")
+                {
+                    if (allLines[i].match(/---/))
+                    {
+                        //End of metadata and can then insert above this line, any metadata that wasn't identified to exist
+                        if (metadata !== null && metadata.size !== 0)
+                        {
+                            let increment = 0;
+                            metadata.forEach((value, key) => 
+                            {
+                                const stringToInsert = key + ": " + value;
+                                allLines.splice(i + increment - 1, 0, stringToInsert);
+                                increment++;
 
-                    this.editor.executeEdits(currentObject.returnLineContent, [operation]);
-                    break;
+                                metadata.delete(key.trim());
+                            });
+                            //Assign the lines
+                        }
+                    }
+
+                    if (allLines[i].match(/(.*):(.*)/) && !allLines[i].match(titleRegexExp))
+                    {
+                        //Matches metadata but not title
+                        const lineSplit = allLines[i].split(":");
+                        if (metadata !== null && metadata.get(lineSplit[0].trim()))
+                        {
+                            //Metadata exists in node, so update the line
+                            const metaValue = metadata.get(lineSplit[0].trim());
+                            allLines[i] = lineSplit[0] + ": " + metaValue;
+
+                            metadata.delete(lineSplit[0].trim());//Remove the metadata from the list
+                        }
+                    }
+
+                    if (allLines[i].match(/===/))
+                    {
+                        if (lastNode !== null)
+                        {
+                            listOfNodes.delete(lastNode.getUniqueIdentifier());
+                        }
+
+                        lastNodeTitle = "";
+                        metadata = null;
+                        lastNode = null;
+                    }
+                }
+            }
+        }
+
+        if (allLines.length !== this.editor.getValue().split("\n").length)
+        {
+            this.editor.setValue(allLines.join("\n"));
+        }
+        else
+        {
+            console.log("EDITOR CONMTROLLER");
+            console.log(listOfNodes);
+    
+            const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue(), e);
+            
+    
+            for (let i = 0; i < returnedObjectList.length; i++) 
+            {
+                const currentObject: ReturnObject = returnedObjectList[i];
+    
+                if (currentObject.returnCode) 
+                {
+                    switch (currentObject.returnCode) 
+                    {
+                    case ReturnCode.Error:
+                        //Do smth
+                        throw new Error("how did we let this happen");
+                        break;
+                    case ReturnCode.Add:
+                        console.log("Adding node");
+                        if (currentObject.returnNode) 
+                        {
+                            nodeView.addNode(currentObject.returnNode);
+                        }
+                        break;
+                    case ReturnCode.Delete:
+                        console.log("Delete node");
+                        if (currentObject.returnNode) 
+                        {
+                            nodeView.removeNode(currentObject.returnNode);
+                        }
+                        break;
+                    case ReturnCode.Update:
+                        console.log("Updating node");
+                        if(currentObject.returnNode)
+                        {
+                            nodeView.changeNodeName(currentObject.returnNode);   
+                        }
+                        break;
+                    case ReturnCode.Jumps:
+                        console.log("Doing the jumps");
+                        //if (currentObject.returnJumps.length !== 0)
+                        //{
+                        nodeView.receiveJumps(currentObject.returnJumps);
+    
+                        //}
+                        break;
+                    case ReturnCode.Content:
+    
+                        console.log("We are setting content");
+                        console.log(currentObject.returnLineContent);
+                        // eslint-disable-next-line no-case-declarations
+                        const operation: monaco.editor.IIdentifiedSingleEditOperation = {
+                            range: {
+                                startLineNumber: currentObject.returnLineNumber,
+                                endLineNumber: currentObject.returnLineNumber,
+                                startColumn: 1,
+                                endColumn: currentObject.returnLineContent.length + 1,
+                            },
+                            text: currentObject.returnLineContent
+                        };
+    
+                        this.editor.executeEdits(currentObject.returnLineContent, [operation]);
+                        break;
+                    }
                 }
             }
         }

@@ -471,10 +471,14 @@ function saveEmitter()
 {
     ipcRenderer.send("fileSaveToMain", yarnFileManager.getCurrentOpenFile().getPath(), yarnFileManager.getCurrentOpenFile().getContents());
 }
-
+/**
+ * Creates a list of unsaved files open in the editor and sends the info to main.
+ * 
+ * @returns {void}
+ */
 function getUnsavedFiles()
 {
-    let unsaved:string[][] = [[],[],[],[]];
+    const unsaved:string[][] = [[],[],[],[]];
 
     yarnFileManager.getFiles().forEach((value) => 
     {

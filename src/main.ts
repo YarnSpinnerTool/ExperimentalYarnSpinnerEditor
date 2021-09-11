@@ -8,7 +8,6 @@
 import { app, BrowserWindow, Menu, ipcMain, shell, screen, dialog} from "electron";
 import { openFile as YarnOpenFile } from "./controllers/fileSystem/fileOpenController";
 import { writeFile as YarnWriteFile } from "./controllers/fileSystem/fileWriteController";
-import { YarnFile } from "./models/YarnFile";
 
 if (require("electron-squirrel-startup")) app.quit();
 
@@ -46,7 +45,7 @@ function createWindow()
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
     // add event to prompt user if they exit without saving
-    mainWindow.on('close', (e) =>
+    mainWindow.on("close", (e) =>
     {   
         e.preventDefault();
         requestUnsavedFiles();
@@ -240,6 +239,12 @@ Menu.setApplicationMenu(menu);
 
 app.whenReady().then(createWindow);
 
+/** 
+ * Prevents the user from closing the application when there are files unsaved in the application.
+ * 
+ * @param {string} unsaved 2D array of unsaved files
+ * @return {void}
+ */
 function returnSavePrompt(unsaved: string[][])
 {
     let cancel = false;
@@ -263,19 +268,20 @@ function returnSavePrompt(unsaved: string[][])
                     noLink: true
                 });
     
-                switch (savePrompt) {
-                    case 0:     // save
-                        YarnWriteFile(unsaved[2][i], unsaved[3][i]);
-                        handleFileSaved(parseInt(unsaved[0][i]));
-                        break;
+            switch (savePrompt) 
+            {
+            case 0:     // save
+                YarnWriteFile(unsaved[2][i], unsaved[3][i]);
+                handleFileSaved(parseInt(unsaved[0][i]));
+                break;
     
-                    case 1:     // don't save
-                        break;
+            case 1:     // don't save
+                break;
                 
-                    default:    // do nothing
-                        cancel = true;
-                        break;
-                }
+            default:    // do nothing
+                cancel = true;
+                break;
+            }
             if(cancel) break;
         }
     }
@@ -418,7 +424,7 @@ function requestUnsavedFiles()
 /**
  * Emits a message to renderer to transition to a file in working files.
  * 
- * @param {number} YarnFileUID id of yarn file to set as active
+ * @param {number} yarnFileUID id of yarn file to set as active
  * @returns {void}
  */
 function handleSetActiveFile(yarnFileUID : number)

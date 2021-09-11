@@ -63,7 +63,7 @@ const workingFiles = document.getElementById("workingFilesDetail");
 
 if (workingFiles) 
 {
-    //Set the intiated new empty file into working space
+    //Set the initiated new empty file into working space
     addFileToDisplay(yarnFileManager.getCurrentOpenFile());
     editor.setReadOnly(false);
 
@@ -148,7 +148,7 @@ if (workingFiles)
 
         if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY" && (event.target as HTMLParagraphElement).parentElement?.id !== "workingFilesDetail") 
         {
-            console.log("We right click the P erlement not the div");
+            console.log("We right click the P element not the div");
             console.log((event.target as HTMLParagraphElement).parentElement?.id);
         }
     });
@@ -371,7 +371,7 @@ ipcRenderer.on("fileSaveResponse", (event, response, filePath, fileName) =>
     }
     else 
     {
-        console.error("File save error occured");
+        console.error("File save error occurred");
     }
 });
 
@@ -381,6 +381,17 @@ ipcRenderer.on("setOpenFile", (event, uid) =>
     editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
     editor.setReadOnly(false);
     setActiveFile(uid);
+});
+
+ipcRenderer.on("setFileSaved", (event, uid) =>
+{
+    yarnFileManager.getYarnFile(uid).fileSaved();
+    const workingDetailDiv = document.getElementById(uid.toString());
+
+    if (workingDetailDiv) 
+    {
+        workingDetailDiv.children[0].innerHTML = yarnFileManager.getYarnFile(uid).getName();
+    }
 });
 
 ipcRenderer.on("mainRequestSaveAs", () => 

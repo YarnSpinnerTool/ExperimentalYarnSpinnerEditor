@@ -265,7 +265,8 @@ function returnSavePrompt(unsaved: string[][])
     
                 switch (savePrompt) {
                     case 0:     // save
-                        handleFileSave();
+                        YarnWriteFile(unsaved[2][i], unsaved[3][i]);
+                        handleFileSaved(parseInt(unsaved[0][i]));
                         break;
     
                     case 1:     // don't save
@@ -417,11 +418,24 @@ function requestUnsavedFiles()
 /**
  * Emits a message to renderer to transition to a file in working files.
  * 
+ * @param {number} YarnFileUID id of yarn file to set as active
  * @returns {void}
  */
 function handleSetActiveFile(yarnFileUID : number)
 {
     BrowserWindow.getAllWindows()[0].webContents.send("setOpenFile", yarnFileUID);
+}
+
+/**
+ * Emits a message to confirm that the file was written.
+ * Used for save prompt case only.
+ * 
+ * @param {number} yarnFileUID id of the yarn file to report saved
+ * @returns {void}
+ */
+function handleFileSaved(yarnFileUID : number)
+{
+    BrowserWindow.getAllWindows()[0].webContents.send("setFileSaved", yarnFileUID);
 }
 
 //Edit Options

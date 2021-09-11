@@ -240,39 +240,43 @@ Menu.setApplicationMenu(menu);
 
 app.whenReady().then(createWindow);
 
-function closeProcess(unsaved: string[][])
+function returnSavePrompt(unsaved: string[][])
 {
-    let cancel = false; // 1 close app; 2 cancel close
+    let cancel = false;
     if (unsaved[0].length != 0)
     {
-        for(let i = 0; i < unsaved[0].length; i++)    //unsaved[0] = name
-        {                                       //unsaved[1] = path
-                                                //unsaved[2] = contents
+        //unsaved[0] = UID
+        //unsaved[1] = name
+        //unsaved[2] = path
+        //unsaved[3] = contents
+
+        for(let i = 0; i < unsaved[0].length; i++)
+        {
+            handleSetActiveFile(parseInt(unsaved[0][i]));   // displays the unsaved file in application
             const savePrompt = dialog.showMessageBoxSync(BrowserWindow.getAllWindows()[0],
                 {
                     type: "warning",
                     buttons: ["Save","Don't Save","Cancel"],
                     defaultId: 0,
                     title: "Careful!",
-                    message: "Do you want to save changes to " + unsaved[0][i] + "?",
+                    message: "Do you want to save changes to " + unsaved[1][i] + "?",
                     noLink: true
                 });
     
                 switch (savePrompt) {
-                    case 0:     // save 💾✔
-                        YarnWriteFile(unsaved[1][i],unsaved[2][i]); //TODO: send message to renderer to say its saved
+                    case 0:     // save
+                        handleFileSave();
                         break;
     
-                    case 1:     // don't save 💾🔥
+                    case 1:     // don't save
                         break;
                 
-                    default:    // do nothing 😐
+                    default:    // do nothing
                         cancel = true;
                         break;
                 }
             if(cancel) break;
         }
-            
     }
     if(!cancel)
     {
@@ -339,8 +343,7 @@ ipcMain.on("fileSaveToMain", (event, filePath, contents) =>
 
 ipcMain.on("returnUnsavedFiles", (event, unsaved) =>
 {
-    console.log(unsaved);
-    closeProcess(unsaved);
+    returnSavePrompt(unsaved);
 });
 
 /*
@@ -348,7 +351,7 @@ ipcMain.on("returnUnsavedFiles", (event, unsaved) =>
 				EMITTERS
 	------------------------------------
 */
-//Sends message from Main to Renderer
+//Sends from Main to Renderer
 //BrowserWindow.getFocusedWindow()?.webContents.send("ChannelMessage", args);
 //This should ONLY be used for menu interaction
 
@@ -402,13 +405,23 @@ function handleFileSaveAs()
 }
 
 /**
- * Sends a asynchronous message to renderer and returns a list of unsaved files
+ * Emits a message to renderer to receive unsaved files in the FileManager, replies by calling "returnUnsavedFiles".
  * 
  * @returns {void}
  */
 function requestUnsavedFiles()
 {
     BrowserWindow.getAllWindows()[0].webContents.send("mainRequestUnsavedFiles");
+}
+
+/**
+ * Emits a message to renderer to transition to a file in working files.
+ * 
+ * @returns {void}
+ */
+function handleSetActiveFile(yarnFileUID : number)
+{
+    BrowserWindow.getAllWindows()[0].webContents.send("setOpenFile", yarnFileUID);
 }
 
 //Edit Options

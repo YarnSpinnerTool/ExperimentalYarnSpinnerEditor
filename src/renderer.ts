@@ -375,6 +375,14 @@ ipcRenderer.on("fileSaveResponse", (event, response, filePath, fileName) =>
     }
 });
 
+ipcRenderer.on("setOpenFile", (event, uid) => 
+{
+    yarnFileManager.setCurrentOpenYarnFile(uid);
+    editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
+    editor.setReadOnly(false);
+    setActiveFile(uid);
+});
+
 ipcRenderer.on("mainRequestSaveAs", () => 
 {
     saveAsEmitter();
@@ -455,16 +463,17 @@ function saveEmitter()
 
 function getUnsavedFiles()
 {
-    let unsaved:string[][] = [[],[],[]];
+    let unsaved:string[][] = [[],[],[],[]];
 
     yarnFileManager.getFiles().forEach((value) => 
     {
         console.log(value);
         if(!value.getSaved())
         {
-            unsaved[0].push(value.getName());
-            unsaved[1].push(value.getPath());
-            unsaved[2].push(value.getContents());
+            unsaved[0].push(value.getUniqueIdentifier().toString());
+            unsaved[1].push(value.getName());
+            unsaved[2].push(value.getPath());
+            unsaved[3].push(value.getContents());
         }
     });
     console.log(unsaved);

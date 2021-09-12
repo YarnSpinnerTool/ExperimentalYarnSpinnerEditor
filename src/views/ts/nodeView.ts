@@ -311,7 +311,7 @@ export function connectNodes(from: number, to: number): void
     layer.add(arrow);
     arrow.moveToBottom();
     layer.draw;
-    updateMiniMap();
+    //updateMiniMap();
 }
 
 /**
@@ -458,83 +458,91 @@ function updateMiniMap()
 {
     const defaultScale = 0.2;
     const mapGroup: Konva.Group = new Konva.Group;
-
-    let maxY: number = layer.getChildren()[0].y();   // for distance between shapes
-    let minY: number = layer.getChildren()[0].y();
-    let maxX: number = layer.getChildren()[0].x();
-    let minX: number = layer.getChildren()[0].x();
-    for (const i of layer.getChildren()) 
+    if (layer.hasChildren())  // when nodes exist in node view
     {
-        if (maxY < i.y()) { maxY = i.y(); }
+        let maxY: number = layer.getChildren()[0].y();   // initialise variables with first node values
+        let minY: number = layer.getChildren()[0].y();
+        let maxX: number = layer.getChildren()[0].x();
+        let minX: number = layer.getChildren()[0].x();
 
-        if (minY > i.y()) { minY = i.y(); }
+        for (const i of layer.getChildren()) 
+        {
+            if (maxY < i.y()) { maxY = i.y(); }
 
-        if (maxX < i.x()) { maxX = i.x(); }
+            if (minY > i.y()) { minY = i.y(); }
 
-        if (minX > i.x()) { minX = i.x(); }
+            if (maxX < i.x()) { maxX = i.x(); }
 
-        const clonedShape = i.clone();
-        mapGroup.add(clonedShape);
+            if (minX > i.x()) { minX = i.x(); }
+
+            const clonedShape = i.clone();
+            mapGroup.add(clonedShape);
+        }
+
+        // find the smallest ratio
+        const idealScale = Math.min(
+            miniMapStage.height() / (maxY - minY + 100),
+            miniMapStage.width() / (maxX - minX + 100),
+            defaultScale);    // if default scale is smaller, use that
+        
+        // store map details for view port estimates
+        miniMapDetails = {
+            x: minX,
+            y: minY,
+            scale: idealScale,
+        };
+
+        const layerCopy = mapGroup.toCanvas({
+            pixelRatio: idealScale,
+        });
+
+        const mapCenter = {
+            x: miniMapStage.width() / 2,
+            y: miniMapStage.height() / 2
+        };
+
+        const imageCenter = {
+            x: layerCopy.width / 2,
+            y: layerCopy.height / 2,
+        };
+
+        if (!miniMapLayer.getChildren()[0])  // Initialise map image
+        {
+            miniMapLayer.add(   // add layer copy as image
+                new Konva.Image({
+                    name: "background",
+                    image: layerCopy,
+                    x: mapCenter.x - imageCenter.x,
+                    y: mapCenter.y - imageCenter.y,
+                })
+            );
+
+            miniMapLayer.add(   // add viewport square
+                new Konva.Rect({
+                    name: "viewPort",
+                    stroke: "white",
+                    fill: "#abbec220",
+                    strokeWidth: 1,
+                    x: 0,
+                    y: 0,
+                    perfectDrawEnabled: false,
+                })
+            );
+        }
+        else 
+        {
+            const image: Konva.Image = miniMapLayer.findOne(".background");
+
+            image.image(layerCopy);
+            image.x(mapCenter.x - imageCenter.x);
+            image.y(mapCenter.y - imageCenter.y);
+        }
+    }
+    else if(miniMapLayer.hasChildren()) // clear map when no nodes
+    {
+        miniMapLayer.destroyChildren();
     }
 
-    // find the smallest ratio
-    const idealScale = Math.min(
-        miniMapStage.height() / (maxY - minY + 100),
-        miniMapStage.width() / (maxX - minX + 100),
-        defaultScale);  // if default scale is smaller, use that
-    
-    // store map details for view port estimates
-    miniMapDetails = {
-        x: minX,
-        y: minY,
-        scale: idealScale,
-    };
-
-    const layerCopy = mapGroup.toCanvas({
-        pixelRatio: idealScale,
-    });
-
-    const mapCenter = {
-        x: miniMapStage.width() / 2,
-        y: miniMapStage.height() / 2
-    };
-
-    const imageCenter = {
-        x: layerCopy.width / 2,
-        y: layerCopy.height / 2,
-    };
-
-    if (!miniMapLayer.getChildren()[0])  // Initialise map image
-    {
-        miniMapLayer.add(   // add layer copy as image
-            new Konva.Image({
-                name: "background",
-                image: layerCopy,
-                x: mapCenter.x - imageCenter.x,
-                y: mapCenter.y - imageCenter.y,
-            })
-        );
-
-        miniMapLayer.add(   // add viewport square
-            new Konva.Rect({
-                name: "viewPort",
-                stroke: "white",
-                fill: "#abbec220",
-                strokeWidth: 1,
-                x: 0,
-                y: 0,
-                perfectDrawEnabled: false,
-            })
-        );
-    }
-    else 
-    {
-        const image: Konva.Image = miniMapLayer.findOne(".background");
-
-        image.image(layerCopy);
-        image.x(mapCenter.x - imageCenter.x);
-        image.y(mapCenter.y - imageCenter.y);
-    }
     updateMapPort();
 }
 
@@ -694,14 +702,13 @@ export function receiveJumps(jumps: NodeJump[]) : void
     //CLEAR THE MAP
     jumpMap.clear();
 
-    //Required for when the below loop is not entered.
-    updateMiniMap();
-
     //DRAW ALL THE NEW ARROWS
     for (let i = 0; i < jumps.length ; i++)
     {
         connectNodes(jumps[i].getSource(), jumps[i].getTarget());
     }
+
+    updateMiniMap();
     /*
     const oldJumps = Array.from(jumpMap.keys());
     const newJumps = new Array<Array<number>>();

@@ -173,6 +173,8 @@ export class EditorController
 
         if (listOfNodes.size !== 0)
         {
+
+            console.log("Starting run of all Lines");
             for (let i = 0; i < allLines.length; i++)
             {
                 if (allLines[i].match(titleRegexExp))
@@ -180,6 +182,7 @@ export class EditorController
                     //TODO pop the last node found out of the list of nodes
 
                     lastNodeTitle = this.yarnNodeList.formatTitleString(allLines[i]);
+                    console.log("Found : " + lastNodeTitle);
                     listOfNodes.forEach((node, ID) => 
                     {
                         if (node.getTitle() === lastNodeTitle)
@@ -237,10 +240,14 @@ export class EditorController
                     }
                 }
             }
+
+            console.log("ending run of all lines with these leftovers:");
+            console.log(listOfNodes);
         }
 
         if (allLines.length !== this.editor.getValue().split("\n").length)
         {
+            console.log("Resetting editor value");
             this.editor.setValue(allLines.join("\n"));
         }
         else

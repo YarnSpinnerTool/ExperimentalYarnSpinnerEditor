@@ -766,8 +766,8 @@ export function getAllNodes() : Map<number,YarnNode>
     nodeMap.forEach((group, uniqueID) => 
     {
         const metaDataMap = new Map<string,string>();
-        metaDataMap.set("xpos", group.x().toString());
-        metaDataMap.set("ypos", group.y().toString());
+        metaDataMap.set("xpos", Math.round(group.x()).toString());
+        metaDataMap.set("ypos", Math.round(group.y()).toString());
 
         returnNodeMap.set(uniqueID, new YarnNode
         (

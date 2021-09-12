@@ -456,86 +456,93 @@ export function responsiveSize(): void
  */
 function updateMiniMap() 
 {
-    const defaultScale = 0.2;
-    const mapGroup: Konva.Group = new Konva.Group;
-
-    let maxY: number = layer.getChildren()[0].y();   // for distance between shapes
-    let minY: number = layer.getChildren()[0].y();
-    let maxX: number = layer.getChildren()[0].x();
-    let minX: number = layer.getChildren()[0].x();
-    for (const i of layer.getChildren()) 
+    if(nodeMap.size)
     {
-        if (maxY < i.y()) { maxY = i.y(); }
+        const defaultScale = 0.2;
+        const mapGroup: Konva.Group = new Konva.Group;
 
-        if (minY > i.y()) { minY = i.y(); }
+        // node values used to define scaling
+        let maxY: number = nodeMap.values().next().value.y();   // highest point of image
+        let minY: number = nodeMap.values().next().value.y();   // lowest point of image
+        let maxX: number = nodeMap.values().next().value.x();   // furthest right of image
+        let minX: number = nodeMap.values().next().value.x();   // furthest left of image
+        for (const shape of layer.getChildren()) 
+        {
+            if(nodeMap.has(parseInt(shape.id())))   // if the shape is a Yarn Node
+            {
+                if (maxY < shape.y()) { maxY = shape.y(); }
 
-        if (maxX < i.x()) { maxX = i.x(); }
+                if (minY > shape.y()) { minY = shape.y(); }
 
-        if (minX > i.x()) { minX = i.x(); }
+                if (maxX < shape.x()) { maxX = shape.x(); }
 
-        const clonedShape = i.clone();
-        mapGroup.add(clonedShape);
+                if (minX > shape.x()) { minX = shape.x(); }
+            }
+
+            const clonedShape = shape.clone();
+            mapGroup.add(clonedShape);  // get shape from main stage and add to map group
+        }
+
+        // find the smallest ratio
+        const idealScale = Math.min(
+            miniMapStage.height() / (maxY - minY + 100),
+            miniMapStage.width() / (maxX - minX + 100),
+            defaultScale);  // if default scale is smaller, use that
+        
+        // store map details for view port estimates
+        miniMapDetails = {
+            x: minX,
+            y: minY,
+            scale: idealScale,
+        };
+
+        const layerCopy = mapGroup.toCanvas({
+            pixelRatio: idealScale,
+        });
+
+        const mapCenter = {
+            x: miniMapStage.width() / 2,
+            y: miniMapStage.height() / 2
+        };
+
+        const imageCenter = {
+            x: layerCopy.width / 2,
+            y: layerCopy.height / 2,
+        };
+
+        if (!miniMapLayer.getChildren()[0])  // Initialise map image
+        {
+            miniMapLayer.add(   // add layer copy as image
+                new Konva.Image({
+                    name: "background",
+                    image: layerCopy,
+                    x: mapCenter.x - imageCenter.x,
+                    y: mapCenter.y - imageCenter.y,
+                })
+            );
+
+            miniMapLayer.add(   // add viewport square
+                new Konva.Rect({
+                    name: "viewPort",
+                    stroke: "white",
+                    fill: "#abbec220",
+                    strokeWidth: 1,
+                    x: 0,
+                    y: 0,
+                    perfectDrawEnabled: false,
+                })
+            );
+        }
+        else 
+        {
+            const image: Konva.Image = miniMapLayer.findOne(".background");
+
+            image.image(layerCopy);
+            image.x(mapCenter.x - imageCenter.x);
+            image.y(mapCenter.y - imageCenter.y);
+        }
+        updateMapPort();
     }
-
-    // find the smallest ratio
-    const idealScale = Math.min(
-        miniMapStage.height() / (maxY - minY + 100),
-        miniMapStage.width() / (maxX - minX + 100),
-        defaultScale);  // if default scale is smaller, use that
-    
-    // store map details for view port estimates
-    miniMapDetails = {
-        x: minX,
-        y: minY,
-        scale: idealScale,
-    };
-
-    const layerCopy = mapGroup.toCanvas({
-        pixelRatio: idealScale,
-    });
-
-    const mapCenter = {
-        x: miniMapStage.width() / 2,
-        y: miniMapStage.height() / 2
-    };
-
-    const imageCenter = {
-        x: layerCopy.width / 2,
-        y: layerCopy.height / 2,
-    };
-
-    if (!miniMapLayer.getChildren()[0])  // Initialise map image
-    {
-        miniMapLayer.add(   // add layer copy as image
-            new Konva.Image({
-                name: "background",
-                image: layerCopy,
-                x: mapCenter.x - imageCenter.x,
-                y: mapCenter.y - imageCenter.y,
-            })
-        );
-
-        miniMapLayer.add(   // add viewport square
-            new Konva.Rect({
-                name: "viewPort",
-                stroke: "white",
-                fill: "#abbec220",
-                strokeWidth: 1,
-                x: 0,
-                y: 0,
-                perfectDrawEnabled: false,
-            })
-        );
-    }
-    else 
-    {
-        const image: Konva.Image = miniMapLayer.findOne(".background");
-
-        image.image(layerCopy);
-        image.x(mapCenter.x - imageCenter.x);
-        image.y(mapCenter.y - imageCenter.y);
-    }
-    updateMapPort();
 }
 
 /**

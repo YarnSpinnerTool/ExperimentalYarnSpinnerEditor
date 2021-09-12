@@ -63,7 +63,7 @@ const workingFiles = document.getElementById("workingFilesDetail");
 
 if (workingFiles) 
 {
-    //Set the intiated new empty file into working space
+    //Set the initiated new empty file into working space
     addFileToDisplay(yarnFileManager.getCurrentOpenFile());
     editor.setReadOnly(false);
 
@@ -148,7 +148,7 @@ if (workingFiles)
 
         if (event && event.target && (event.target as HTMLElement).tagName !== "DETAILS" && (event.target as HTMLElement).tagName !== "SUMMARY" && (event.target as HTMLParagraphElement).parentElement?.id !== "workingFilesDetail") 
         {
-            console.log("We right click the P erlement not the div");
+            console.log("We right click the P element not the div");
             console.log((event.target as HTMLParagraphElement).parentElement?.id);
         }
     });
@@ -371,7 +371,26 @@ ipcRenderer.on("fileSaveResponse", (event, response, filePath, fileName) =>
     }
     else 
     {
-        console.error("File save error occured");
+        console.error("File save error occurred");
+    }
+});
+
+ipcRenderer.on("setOpenFile", (event, uid) => 
+{
+    yarnFileManager.setCurrentOpenYarnFile(uid);
+    editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
+    editor.setReadOnly(false);
+    setActiveFile(uid);
+});
+
+ipcRenderer.on("setFileSaved", (event, uid) =>
+{
+    yarnFileManager.getYarnFile(uid).fileSaved();
+    const workingDetailDiv = document.getElementById(uid.toString());
+
+    if (workingDetailDiv) 
+    {
+        workingDetailDiv.children[0].innerHTML = yarnFileManager.getYarnFile(uid).getName();
     }
 });
 
@@ -383,6 +402,11 @@ ipcRenderer.on("mainRequestSaveAs", () =>
 ipcRenderer.on("mainRequestSave", () => 
 {
     saveEmitter();
+});
+
+ipcRenderer.on("mainRequestUnsavedFiles", () =>
+{
+    getUnsavedFiles();
 });
 
 ipcRenderer.on("mainRequestNewFile", () => 
@@ -414,8 +438,6 @@ ipcRenderer.on("gotPing", (event, arg) =>
 {
     console.log(arg);//Should be pong
 });
-
-
 
 /*
     ------------------------------------
@@ -449,6 +471,30 @@ function saveEmitter()
 {
     ipcRenderer.send("fileSaveToMain", yarnFileManager.getCurrentOpenFile().getPath(), yarnFileManager.getCurrentOpenFile().getContents());
 }
+/**
+ * Creates a list of unsaved files open in the editor and sends the info to main.
+ * 
+ * @returns {void}
+ */
+function getUnsavedFiles()
+{
+    const unsaved:string[][] = [[],[],[],[]];
+
+    yarnFileManager.getFiles().forEach((value) => 
+    {
+        console.log(value);
+        if(!value.getSaved())
+        {
+            unsaved[0].push(value.getUniqueIdentifier().toString());
+            unsaved[1].push(value.getName());
+            unsaved[2].push(value.getPath());
+            unsaved[3].push(value.getContents());
+        }
+    });
+    console.log(unsaved);
+    ipcRenderer.send("returnUnsavedFiles", unsaved);
+}
+
 
 /**
  * Emits an event to request that main opens a file.

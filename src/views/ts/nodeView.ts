@@ -119,7 +119,7 @@ export function newNode(newNode: YarnNode): void
     miniLayer.add(miniGroup);
     miniGroup.on("click", function () 
     {
-        //For centering the selected node.
+        //For centring the selected node.
         const node = nodeMap.get(parseInt(miniGroup.id()));
         centerNode(node);
 

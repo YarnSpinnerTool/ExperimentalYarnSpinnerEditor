@@ -5,7 +5,7 @@
  *---------------------------------------------------------------------------------------------
 */
 
-import { app, BrowserWindow, Menu, ipcMain, shell, screen } from "electron";
+import { app, BrowserWindow, Menu, ipcMain, shell, screen, dialog} from "electron";
 import { openFile as YarnOpenFile } from "./controllers/fileSystem/fileOpenController";
 import { writeFile as YarnWriteFile } from "./controllers/fileSystem/fileWriteController";
 
@@ -43,6 +43,13 @@ function createWindow()
 
     // and load the index.html of the app.
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+
+    // add event to prompt user if they exit without saving
+    mainWindow.on("close", (e) =>
+    {   
+        e.preventDefault();
+        requestUnsavedFiles();
+    });
 
 }
 
@@ -232,6 +239,58 @@ Menu.setApplicationMenu(menu);
 
 app.whenReady().then(createWindow);
 
+/** 
+ * Prevents the user from closing the application when there are files unsaved in the application.
+ * 
+ * @param {string} unsaved 2D array of unsaved files
+ * @return {void}
+ */
+function returnSavePrompt(unsaved: string[][])
+{
+    let cancel = false;
+    if (unsaved[0].length != 0)
+    {
+        //unsaved[0] = UID
+        //unsaved[1] = name
+        //unsaved[2] = path
+        //unsaved[3] = contents
+
+        for(let i = 0; i < unsaved[0].length; i++)
+        {
+            handleSetActiveFile(parseInt(unsaved[0][i]));   // displays the unsaved file in application
+            const savePrompt = dialog.showMessageBoxSync(BrowserWindow.getAllWindows()[0],
+                {
+                    type: "warning",
+                    buttons: ["Save","Don't Save","Cancel"],
+                    defaultId: 0,
+                    title: "Careful!",
+                    message: "Do you want to save changes to " + unsaved[1][i] + "?",
+                    noLink: true
+                });
+    
+            switch (savePrompt) 
+            {
+            case 0:     // save
+                YarnWriteFile(unsaved[2][i], unsaved[3][i]);
+                handleFileSaved(parseInt(unsaved[0][i]));
+                break;
+    
+            case 1:     // don't save
+                break;
+                
+            default:    // do nothing
+                cancel = true;
+                break;
+            }
+            if(cancel) break;
+        }
+    }
+    if(!cancel)
+    {
+        BrowserWindow.getAllWindows()[0].destroy();
+    }
+}
+
 app.on("window-all-closed", () => 
 {
     if (process.platform !== "darwin") 
@@ -278,7 +337,7 @@ ipcMain.on("getPing", (event) =>
 
 ipcMain.on("fileOpenToMain", (event, filePath) => 
 {
-    console.log(filePath);
+    //console.log(filePath);
     handleFileOpen(filePath);
 });
 
@@ -289,12 +348,17 @@ ipcMain.on("fileSaveToMain", (event, filePath, contents) =>
     event.reply("fileSaveResponse", result.result, result.path, result.name);
 });
 
+ipcMain.on("returnUnsavedFiles", (event, unsaved) =>
+{
+    returnSavePrompt(unsaved);
+});
+
 /*
 	------------------------------------
 				EMITTERS
 	------------------------------------
 */
-//Sends message from Main to Renderer
+//Sends from Main to Renderer
 //BrowserWindow.getFocusedWindow()?.webContents.send("ChannelMessage", args);
 //This should ONLY be used for menu interaction
 
@@ -347,6 +411,39 @@ function handleFileSaveAs()
     BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestSaveAs"); 
 }
 
+/**
+ * Emits a message to renderer to receive unsaved files in the FileManager, replies by calling "returnUnsavedFiles".
+ * 
+ * @returns {void}
+ */
+function requestUnsavedFiles()
+{
+    BrowserWindow.getAllWindows()[0].webContents.send("mainRequestUnsavedFiles");
+}
+
+/**
+ * Emits a message to renderer to transition to a file in working files.
+ * 
+ * @param {number} yarnFileUID id of yarn file to set as active
+ * @returns {void}
+ */
+function handleSetActiveFile(yarnFileUID : number)
+{
+    BrowserWindow.getAllWindows()[0].webContents.send("setOpenFile", yarnFileUID);
+}
+
+/**
+ * Emits a message to confirm that the file was written.
+ * Used for save prompt case only.
+ * 
+ * @param {number} yarnFileUID id of the yarn file to report saved
+ * @returns {void}
+ */
+function handleFileSaved(yarnFileUID : number)
+{
+    BrowserWindow.getAllWindows()[0].webContents.send("setFileSaved", yarnFileUID);
+}
+
 //Edit Options
 //----------------------------
 
@@ -389,4 +486,3 @@ function handleRedo()
 {
     BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestRedo"); 
 }
-

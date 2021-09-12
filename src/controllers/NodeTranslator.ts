@@ -287,7 +287,6 @@ headerTag: otherTest
         allLines.unshift("JUNK LINE TO ALLIGN CONTENT");
         let runRegexCheck = true;
 
-
         if(contentChangeEvent.changes[0].text.split(contentChangeEvent.eol).length > 1) 
         {
             const pastedLines = contentChangeEvent.changes[0].text.split(contentChangeEvent.eol);
@@ -299,7 +298,8 @@ headerTag: otherTest
                     this.reverseSearchTextForNode(allLines, lineNumber + contentChangeEvent.changes[0].range.startLineNumber, listOfReturns);
                 }
             });
-            runRegexCheck = false;
+            //TODO Changed to true by Cullie for multiple files, but to not remove the check for later.
+            runRegexCheck = true;
         }
 
         else
@@ -331,13 +331,15 @@ headerTag: otherTest
              * Handles veritcal line number changes, additive and substractive
              * -------------------------------------------------
              */
-            if (contentChangeEvent.changes[0].text === "") 
-            {
-                //Deletion may have occured
-                this.recalculateLineNumbersSub(allLines, contentChangeEvent, listOfReturns);
-            }
+            
+            //TODO Removed by Cullie for multiple files
+            //if (contentChangeEvent.changes[0].text === "") 
+            //Deletion may have occured
+            this.recalculateLineNumbersSub(allLines, contentChangeEvent, listOfReturns);
+            
 
-            else if (splitLinesToRegexCheck.length > 1) 
+            //else if (splitLinesToRegexCheck.length > 1) 
+            if (splitLinesToRegexCheck.length > 1) 
             {
                 //Additions may have occured - This just adjusts all nodes line information accordingly
                 this.recalculateLineNumbersAdd(contentChangeEvent);

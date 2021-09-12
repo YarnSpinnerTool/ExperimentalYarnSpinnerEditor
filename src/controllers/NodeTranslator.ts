@@ -92,7 +92,7 @@ export class YarnNodeList
     private nodes: Map<number, YarnNode>
     private jumps: NodeJump[];
 
-    private titleRegexExp = /(Title:.*)/g;//Get title match
+    private titleRegexExp = /(title:.*)/g;//Get title match
     private dialogueDelimiterExp = /---/; //Get the --- of the node that begins the dialogue
     private metadataRegexExp = /(.*):(.*)/;//Get regex match UNTESTED
     private endRegexExp = /===/g; //Get the end of the node match
@@ -161,7 +161,7 @@ export class YarnNodeList
      */
     formatTitleString(titleLine: string): string 
     {
-        let titleFound = titleLine.replace("Title:", "");
+        let titleFound = titleLine.replace("title:", "");
         titleFound = titleFound.replace(" ", "");
         titleFound = titleFound.trim();
         return titleFound;

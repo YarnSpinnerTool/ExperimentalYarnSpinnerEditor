@@ -119,7 +119,7 @@ export function newNode(newNode: YarnNode): void
     miniLayer.add(miniGroup);
     miniGroup.on("click", function () 
     {
-        //For centering the selected node.
+        //For centring the selected node.
         const node = nodeMap.get(parseInt(miniGroup.id()));
         centerNode(node);
 
@@ -311,7 +311,7 @@ export function connectNodes(from: number, to: number): void
     layer.add(arrow);
     arrow.moveToBottom();
     layer.draw;
-    updateMiniMap();
+    //updateMiniMap();
 }
 
 /**
@@ -481,64 +481,74 @@ function updateMiniMap()
         mapGroup.add(clonedShape);  // get shape from main stage and add to map group
     }
 
-    // find the smallest ratio
-    const idealScale = Math.min(
-        miniMapStage.height() / (maxY - minY + 100),
-        miniMapStage.width() / (maxX - minX + 100),
-        defaultScale);  // if default scale is smaller, use that
-    
-    // store map details for view port estimates
-    miniMapDetails = {
-        x: minX,
-        y: minY,
-        scale: idealScale,
-    };
+            const clonedShape = i.clone();
+            mapGroup.add(clonedShape);
+        }
 
-    const layerCopy = mapGroup.toCanvas({
-        pixelRatio: idealScale,
-    });
+        // find the smallest ratio
+        const idealScale = Math.min(
+            miniMapStage.height() / (maxY - minY + 100),
+            miniMapStage.width() / (maxX - minX + 100),
+            defaultScale);    // if default scale is smaller, use that
+        
+        // store map details for view port estimates
+        miniMapDetails = {
+            x: minX,
+            y: minY,
+            scale: idealScale,
+        };
 
-    const mapCenter = {
-        x: miniMapStage.width() / 2,
-        y: miniMapStage.height() / 2
-    };
+        const layerCopy = mapGroup.toCanvas({
+            pixelRatio: idealScale,
+        });
 
-    const imageCenter = {
-        x: layerCopy.width / 2,
-        y: layerCopy.height / 2,
-    };
+        const mapCenter = {
+            x: miniMapStage.width() / 2,
+            y: miniMapStage.height() / 2
+        };
 
-    if (!miniMapLayer.getChildren()[0])  // Initialise map image
-    {
-        miniMapLayer.add(   // add layer copy as image
-            new Konva.Image({
-                name: "background",
-                image: layerCopy,
-                x: mapCenter.x - imageCenter.x,
-                y: mapCenter.y - imageCenter.y,
-            })
-        );
+        const imageCenter = {
+            x: layerCopy.width / 2,
+            y: layerCopy.height / 2,
+        };
 
-        miniMapLayer.add(   // add viewport square
-            new Konva.Rect({
-                name: "viewPort",
-                stroke: "white",
-                fill: "#abbec220",
-                strokeWidth: 1,
-                x: 0,
-                y: 0,
-                perfectDrawEnabled: false,
-            })
-        );
+        if (!miniMapLayer.getChildren()[0])  // Initialise map image
+        {
+            miniMapLayer.add(   // add layer copy as image
+                new Konva.Image({
+                    name: "background",
+                    image: layerCopy,
+                    x: mapCenter.x - imageCenter.x,
+                    y: mapCenter.y - imageCenter.y,
+                })
+            );
+
+            miniMapLayer.add(   // add viewport square
+                new Konva.Rect({
+                    name: "viewPort",
+                    stroke: "white",
+                    fill: "#abbec220",
+                    strokeWidth: 1,
+                    x: 0,
+                    y: 0,
+                    perfectDrawEnabled: false,
+                })
+            );
+        }
+        else 
+        {
+            const image: Konva.Image = miniMapLayer.findOne(".background");
+
+            image.image(layerCopy);
+            image.x(mapCenter.x - imageCenter.x);
+            image.y(mapCenter.y - imageCenter.y);
+        }
     }
-    else 
+    else if(miniMapLayer.hasChildren()) // clear map when no nodes
     {
-        const image: Konva.Image = miniMapLayer.findOne(".background");
-
-        image.image(layerCopy);
-        image.x(mapCenter.x - imageCenter.x);
-        image.y(mapCenter.y - imageCenter.y);
+        miniMapLayer.destroyChildren();
     }
+
     updateMapPort();
 }
 
@@ -639,18 +649,32 @@ export function removeNode(deletedNode: YarnNode) : void
 {
 
     miniNodeY -= 60;
-    //REMOVE MINI NODE AND NORMAL NODE FROM MAP
-    //REMOVE GROUP FROM LAYER 
+    
+    
+    let afterDeletedNode = false;
+    
+    // Traverse miniNodeMap, find the miniNode to delete and delete it.
+    // Once the miniNode is deleted, shift all following nodes up.
+    miniNodeMap.forEach((miniNode, key) => 
+    {
+        if (afterDeletedNode)
+        {
+            miniNode.y(miniNode.y() - 60);
+        }
+        if (key === deletedNode.getUniqueIdentifier())
+        {
+            afterDeletedNode = true;
+            //REMOVE GROUP FROM LAYER 
+            miniNode.destroy();
+        }
+    });
+
     nodeMap.get(deletedNode.getUniqueIdentifier()).destroy();
     nodeMap.delete(deletedNode.getUniqueIdentifier());
-
-    miniNodeMap.get(deletedNode.getUniqueIdentifier()).destroy();
+    
     miniNodeMap.delete(deletedNode.getUniqueIdentifier());
 
     updateMiniMap();
-    //TODO MOVE ALL MINI NODES
-
-    //TODO REMOVE JUMPS
 }
 
 
@@ -684,14 +708,13 @@ export function receiveJumps(jumps: NodeJump[]) : void
     //CLEAR THE MAP
     jumpMap.clear();
 
-    //Required for when the below loop is not entered.
-    updateMiniMap();
-
     //DRAW ALL THE NEW ARROWS
     for (let i = 0; i < jumps.length ; i++)
     {
         connectNodes(jumps[i].getSource(), jumps[i].getTarget());
     }
+
+    updateMiniMap();
     /*
     const oldJumps = Array.from(jumpMap.keys());
     const newJumps = new Array<Array<number>>();

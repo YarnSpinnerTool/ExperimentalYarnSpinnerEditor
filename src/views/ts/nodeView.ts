@@ -459,30 +459,28 @@ function updateMiniMap()
     const defaultScale = 0.2;
     const mapGroup: Konva.Group = new Konva.Group;
 
-    // node values used to define scaling
-    let maxY: number = nodeMap.values().next().value.y();   // highest point of image
-    let minY: number = nodeMap.values().next().value.y();   // lowest point of image
-    let maxX: number = nodeMap.values().next().value.x();   // furthest right of image
-    let minX: number = nodeMap.values().next().value.x();   // furthest left of image
-    for (const shape of layer.getChildren()) 
+    if(nodeMap.size)
     {
-        if(nodeMap.has(parseInt(shape.id())))   // if the shape is a Yarn Node
+        // node values used to define scaling
+        let maxY: number = nodeMap.values().next().value.y();   // highest point of image
+        let minY: number = nodeMap.values().next().value.y();   // lowest point of image
+        let maxX: number = nodeMap.values().next().value.x();   // furthest right of image
+        let minX: number = nodeMap.values().next().value.x();   // furthest left of image
+        for (const shape of layer.getChildren()) 
         {
-            if (maxY < shape.y()) { maxY = shape.y(); }
+            if(nodeMap.has(parseInt(shape.id())))   // if the shape is a Yarn Node
+            {
+                if (maxY < shape.y()) { maxY = shape.y(); }
 
-            if (minY > shape.y()) { minY = shape.y(); }
+                if (minY > shape.y()) { minY = shape.y(); }
 
-            if (maxX < shape.x()) { maxX = shape.x(); }
+                if (maxX < shape.x()) { maxX = shape.x(); }
 
-            if (minX > shape.x()) { minX = shape.x(); }
-        }
+                if (minX > shape.x()) { minX = shape.x(); }
+            }
 
-        const clonedShape = shape.clone();
-        mapGroup.add(clonedShape);  // get shape from main stage and add to map group
-    }
-
-            const clonedShape = i.clone();
-            mapGroup.add(clonedShape);
+            const clonedShape = shape.clone();
+            mapGroup.add(clonedShape);  // get shape from main stage and add to map group
         }
 
         // find the smallest ratio

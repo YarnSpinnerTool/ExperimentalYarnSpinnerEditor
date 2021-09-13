@@ -67,7 +67,7 @@ export const tokens : Monaco.languages.IMonarchLanguage =
             { include: "whitespace"},
 
             //Per Yarn Spec: Title's tag text must follow identifier rules, and other header tags' names must follow identifier rules.
-            [ /Title:\s?@yarnIdentifier/, "Default"],
+            [ /title:\s?@yarnIdentifier/, "Default"],
             
             //Header Tags
             [ /@yarnIdentifier:.*\n/, "Metadata" ],

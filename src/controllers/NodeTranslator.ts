@@ -105,7 +105,7 @@ export class YarnNodeList
     private nodes: Map<number, YarnNode>
     private jumps: NodeJump[];
 
-    private titleRegexExp = /(Title:.*)/g;//Get title match
+    private titleRegexExp = /(title:.*)/g;//Get title match
     private dialogueDelimiterExp = /---/; //Get the --- of the node that begins the dialogue
     private metadataRegexExp = /(.*):(.*)/;//Get regex match UNTESTED
     private endRegexExp = /===/g; //Get the end of the node match
@@ -174,7 +174,7 @@ export class YarnNodeList
      */
     formatTitleString(titleLine: string): string 
     {
-        let titleFound = titleLine.replace("Title:", "");
+        let titleFound = titleLine.replace("title:", "");
         titleFound = titleFound.replace(" ", "");
         titleFound = titleFound.trim();
         return titleFound;
@@ -310,54 +310,6 @@ headerTag: otherTest
         allLines.unshift("JUNK LINE TO ALLIGN CONTENT");
         let runRegexCheck = true;
 
-
-        // if (currentListOfNodes.size !== 0)
-        // {
-        //     console.log("List of nodes coming from node view is not empty");
-        //     currentListOfNodes.forEach((node, uniqueID) => 
-        //     {
-
-        // Causes an infinite loop because it's on every content change
-        // let metadataDecrement = this.nodes.get(uniqueID).getLineStart();//Begin decrementer on the node's --- line
-        // console.log(metadataDecrement);
-
-        // let runSearchForMetadata = true;
-        // while (runSearchForMetadata)
-        // {
-        //     console.log(allLines[metadataDecrement]);
-
-        //     if (allLines[metadataDecrement].match(this.metadataRegexExp) && !allLines[metadataDecrement].match(this.titleRegexExp)) 
-        //     {
-        //         const lineSplit = allLines[metadataDecrement].split(":");
-
-        //         if (this.nodes.get(uniqueID).getMetaData().get(lineSplit[0].trim()))
-        //         {
-        //             this.nodes.get(uniqueID).getMetaData().set(lineSplit[0].trim(), node.getMetaData().get(lineSplit[0]));
-        //             listOfReturns.push(this.notifyContentChange(metadataDecrement, "" + lineSplit[0].trim() + ": " + node.getMetaData().get(lineSplit[0])));
-        //         }
-
-        //         console.log("Setting metadata");
-        //         console.log(this.nodes.get(uniqueID));
-        //     }
-
-        //     if (allLines[metadataDecrement].match(this.endRegexExp))
-        //     {
-        //         console.log("End of other node found");
-        //         runSearchForMetadata = false;
-        //     }
-
-        //     metadataDecrement--;
-
-        //     if (metadataDecrement === 1)
-        //     {
-        //         console.log("Stopping search because decrement is at 1");
-        //         runSearchForMetadata = false;
-        //     }
-        // }
-              
-        //     });
-        // }
-
         if(contentChangeEvent.changes[0].text.split(contentChangeEvent.eol).length > 1) 
         {
             const pastedLines = contentChangeEvent.changes[0].text.split(contentChangeEvent.eol);
@@ -369,7 +321,8 @@ headerTag: otherTest
                     this.reverseSearchTextForNode(allLines, lineNumber + contentChangeEvent.changes[0].range.startLineNumber, listOfReturns);
                 }
             });
-            runRegexCheck = false;
+            //TODO Changed to true by Cullie for multiple files, but to not remove the check for later.
+            runRegexCheck = true;
         }
 
         else
@@ -401,13 +354,15 @@ headerTag: otherTest
              * Handles veritcal line number changes, additive and substractive
              * -------------------------------------------------
              */
-            if (contentChangeEvent.changes[0].text === "") 
-            {
-                //Deletion may have occured
-                this.recalculateLineNumbersSub(allLines, contentChangeEvent, listOfReturns);
-            }
+            
+            //TODO Removed by Cullie for multiple files
+            //if (contentChangeEvent.changes[0].text === "") 
+            //Deletion may have occured
+            this.recalculateLineNumbersSub(allLines, contentChangeEvent, listOfReturns);
+            
 
-            else if (splitLinesToRegexCheck.length > 1) 
+            //else if (splitLinesToRegexCheck.length > 1) 
+            if (splitLinesToRegexCheck.length > 1) 
             {
                 //Additions may have occured - This just adjusts all nodes line information accordingly
                 this.recalculateLineNumbersAdd(contentChangeEvent);

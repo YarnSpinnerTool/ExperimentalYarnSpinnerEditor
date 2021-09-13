@@ -259,7 +259,7 @@ export class YarnNodeList
     test string to copy paste in
     #This is a file tag
     //This is a comment
-Title: abc
+title: abc
 headerTag: otherTest
 xpos: 1
 ypos: 1
@@ -269,18 +269,18 @@ ypos: 1
 ===
 
 preceedingTag: wahoo
-Title: 333
-headerTag: otherTest
+title: 333
+headerTag: tester
 ---
 <<jump ttt>>
 ===
 
-Title: ttt
+title: ttt
 headerTag: otherTest
 ---
 ===
 
-Title: ttt2ElectricBoogaloo
+title: ttt2ElectricBoogaloo
 headerTag: otherTest
 --- 
 === 
@@ -374,24 +374,6 @@ headerTag: otherTest
             /**
              * Handles regex running to add new nodes and update existing 
              */
-
-
-            // if (allLines[lineStart].match(this.titleRegexExp)) 
-            // {
-            //     if (this.checkIfNewTitle(content, contentChangeEvent)) 
-            //     {
-            //         console.log("New title found");
-            //         this.reverseSearchTextForNode(allLines, splitLinesToRegexCheck.length, listOfReturns);
-            //     }
-            //     else 
-            //     {
-            //         const nodeOfTitleChange = this.getNodeByTitle(this.formatTitleString(allLines[lineStart - 1]));
-            //         if (nodeOfTitleChange) 
-            //         {
-            //             listOfReturns.push(this.notifyTitleChange(nodeOfTitleChange));
-            //         }
-            //     }
-            // }
 
             if (allLines[lineStart].match(this.metadataRegexExp) && !allLines[lineStart].match(this.titleRegexExp)) 
             {

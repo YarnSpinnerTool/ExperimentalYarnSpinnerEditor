@@ -97,6 +97,32 @@ export class EditorController
             lineNumbersMinChars: 1
         });
 
+        const eventHandler = document.getElementById("miniNodeContainer");
+        eventHandler.addEventListener("newNode", function(e: CustomEvent)
+        {
+            console.log("Editor controller : NEW NODE HAS BEEN CLICKED");
+
+            const insertNode = [
+                "title: ",
+                "xpos: ",
+                "ypos: ",
+                "---",
+                " ",
+                "===",
+                " "
+            ];
+
+            const allLines = this.editor.getValue().split("\n");
+
+            for (let i = 0; i < insertNode.length; i++)
+            {
+                allLines.push(insertNode[i]);
+            }
+
+            this.editor.setValue(allLines.join("\n"));
+
+        }.bind(this));
+
         //Instantiate with new empty file
         this.editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
 
@@ -150,39 +176,107 @@ export class EditorController
         this.editor.focus();
     }
 
-    
 
     //Editor specific events
     modelChangeHandler(e: monaco.editor.IModelContentChangedEvent): void 
     {
         //TODO SETH - Maybe pass the ILineChange event info into this method too?
-        const listOfNodes = nodeView.getAllNodes();
-        console.log("CURRENT NODES IN NODE VIEW");
-        console.log(listOfNodes);
-        //Another line to get a new node?
+       
 
         //TODO pass in the insertions here (the reassigning of the editor content) with a check to prevent the convert from content to node being ran on this run
         // As changing the content will call this again, prevents a double run (which wont cause any problems, just will make it more efficient)
 
         const allLines = this.editor.getValue().split("\n");
-        const titleRegexExp = /(Title:.*)/g;//Get title match
+        const titleRegexExp = /(title:.*)/g;//Get title match
 
         let lastNodeTitle = "";
         let lastNode: YarnNode = null;
         let metadata: Map<string, string>;
 
+
+        
+        
+    
+        const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue(), e);
+            
+    
+        for (let i = 0; i < returnedObjectList.length; i++) 
+        {
+            const currentObject: ReturnObject = returnedObjectList[i];
+    
+            if (currentObject.returnCode) 
+            {
+                switch (currentObject.returnCode) 
+                {
+                case ReturnCode.Error:
+                    //Do smth
+                    throw new Error("how did we let this happen");
+                    break;
+                case ReturnCode.Add:
+                    console.log("Adding node");
+                    if (currentObject.returnNode) 
+                    {
+                        nodeView.addNode(currentObject.returnNode);
+                    }
+                    break;
+                case ReturnCode.Delete:
+                    console.log("Delete node");
+                    if (currentObject.returnNode) 
+                    {
+                        nodeView.removeNode(currentObject.returnNode);
+                    }
+                    break;
+                case ReturnCode.Update:
+                    console.log("Updating node");
+                    if(currentObject.returnNode)
+                    {
+                        nodeView.changeNodeName(currentObject.returnNode);   
+                    }
+                    break;
+                case ReturnCode.Jumps:
+                    console.log("Doing the jumps");
+                    //if (currentObject.returnJumps.length !== 0)
+                    //{
+                    nodeView.receiveJumps(currentObject.returnJumps);
+    
+                    //}
+                    break;
+                case ReturnCode.Content:
+    
+                    console.log("We are setting content");
+                    console.log(currentObject.returnLineContent);
+                    // eslint-disable-next-line no-case-declarations
+                    const operation: monaco.editor.IIdentifiedSingleEditOperation = {
+                        range: {
+                            startLineNumber: currentObject.returnLineNumber,
+                            endLineNumber: currentObject.returnLineNumber,
+                            startColumn: 1,
+                            endColumn: currentObject.returnLineContent.length + 1,
+                        },
+                        text: currentObject.returnLineContent
+                    };
+    
+                    this.editor.executeEdits(currentObject.returnLineContent, [operation]);
+                    break;
+                }
+            }
+        }
+        
+        const listOfNodes = nodeView.getAllNodes();
+        //Another line to get a new node?
+
+        let changesOccured = false;
+
         if (listOfNodes.size !== 0)
         {
-
-            console.log("Starting run of all Lines");
             for (let i = 0; i < allLines.length; i++)
             {
                 if (allLines[i].match(titleRegexExp))
                 {
                     //TODO pop the last node found out of the list of nodes
-
+    
                     lastNodeTitle = this.yarnNodeList.formatTitleString(allLines[i]);
-                    console.log("Found : " + lastNodeTitle);
+                        
                     listOfNodes.forEach((node, ID) => 
                     {
                         if (node.getTitle() === lastNodeTitle)
@@ -192,7 +286,7 @@ export class EditorController
                         }    
                     });
                 }
-
+    
                 else if (lastNodeTitle !== "")
                 {
                     if (allLines[i].match(/---/))
@@ -206,120 +300,57 @@ export class EditorController
                                 const stringToInsert = key + ": " + value;
                                 allLines.splice(i + increment - 1, 0, stringToInsert);
                                 increment++;
-
+    
+                                changesOccured = true;
                                 metadata.delete(key.trim());
                             });
                             //Assign the lines
                         }
                     }
-
+    
                     if (allLines[i].match(/(.*):(.*)/) && !allLines[i].match(titleRegexExp))
                     {
                         //Matches metadata but not title
                         const lineSplit = allLines[i].split(":");
+                        
+
                         if (metadata !== null && metadata.get(lineSplit[0].trim()))
                         {
                             //Metadata exists in node, so update the line
                             const metaValue = metadata.get(lineSplit[0].trim());
-                            allLines[i] = lineSplit[0] + ": " + metaValue;
 
+                            if (lineSplit[1].trim() !== metaValue)
+                            {
+                                allLines[i] = lineSplit[0] + ": " + metaValue;
+                                changesOccured = true;
+                            }
                             metadata.delete(lineSplit[0].trim());//Remove the metadata from the list
                         }
                     }
-
+    
                     if (allLines[i].match(/===/))
                     {
                         if (lastNode !== null)
                         {
                             listOfNodes.delete(lastNode.getUniqueIdentifier());
                         }
-
+    
                         lastNodeTitle = "";
                         metadata = null;
                         lastNode = null;
                     }
                 }
             }
-
-            console.log("ending run of all lines with these leftovers:");
+    
             console.log(listOfNodes);
         }
-
-        if (allLines.length !== this.editor.getValue().split("\n").length)
+    
+        if (changesOccured)
         {
             console.log("Resetting editor value");
             this.editor.setValue(allLines.join("\n"));
-        }
-        else
-        {
-            console.log("EDITOR CONMTROLLER");
-            console.log(listOfNodes);
-    
-            const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue(), e);
-            
-    
-            for (let i = 0; i < returnedObjectList.length; i++) 
-            {
-                const currentObject: ReturnObject = returnedObjectList[i];
-    
-                if (currentObject.returnCode) 
-                {
-                    switch (currentObject.returnCode) 
-                    {
-                    case ReturnCode.Error:
-                        //Do smth
-                        throw new Error("how did we let this happen");
-                        break;
-                    case ReturnCode.Add:
-                        console.log("Adding node");
-                        if (currentObject.returnNode) 
-                        {
-                            nodeView.addNode(currentObject.returnNode);
-                        }
-                        break;
-                    case ReturnCode.Delete:
-                        console.log("Delete node");
-                        if (currentObject.returnNode) 
-                        {
-                            nodeView.removeNode(currentObject.returnNode);
-                        }
-                        break;
-                    case ReturnCode.Update:
-                        console.log("Updating node");
-                        if(currentObject.returnNode)
-                        {
-                            nodeView.changeNodeName(currentObject.returnNode);   
-                        }
-                        break;
-                    case ReturnCode.Jumps:
-                        console.log("Doing the jumps");
-                        //if (currentObject.returnJumps.length !== 0)
-                        //{
-                        nodeView.receiveJumps(currentObject.returnJumps);
-    
-                        //}
-                        break;
-                    case ReturnCode.Content:
-    
-                        console.log("We are setting content");
-                        console.log(currentObject.returnLineContent);
-                        // eslint-disable-next-line no-case-declarations
-                        const operation: monaco.editor.IIdentifiedSingleEditOperation = {
-                            range: {
-                                startLineNumber: currentObject.returnLineNumber,
-                                endLineNumber: currentObject.returnLineNumber,
-                                startColumn: 1,
-                                endColumn: currentObject.returnLineContent.length + 1,
-                            },
-                            text: currentObject.returnLineContent
-                        };
-    
-                        this.editor.executeEdits(currentObject.returnLineContent, [operation]);
-                        break;
-                    }
-                }
-            }
-        }
+            changesOccured = false;
+        }    
 
         // Leaving this here to stop eslint complaining about unused vars
         //console.log(e);

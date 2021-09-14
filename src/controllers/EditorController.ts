@@ -6,7 +6,6 @@ import { YarnFileManager } from "../models/YarnFileManager";
 import { YarnFile } from "../models/YarnFile";
 import { ReturnCode, ReturnObject, YarnNodeList } from "./NodeTranslator";
 import { YarnNode } from "../models/YarnNode";
-import { TouchBarScrubber } from "electron";
 
 export class EditorController 
 {
@@ -100,7 +99,7 @@ export class EditorController
         const eventHandler = document.getElementById("miniNodeContainer");
         eventHandler.addEventListener("newNode", function(e: CustomEvent)
         {
-            console.log("Editor controller : NEW NODE HAS BEEN CLICKED");
+            console.log("Editor controller : NEW NODE HAS BEEN CLICKED " + e);
 
             const insertNode = [
                 "title: ",
@@ -277,7 +276,7 @@ export class EditorController
     
                     lastNodeTitle = this.yarnNodeList.formatTitleString(allLines[i]);
                         
-                    listOfNodes.forEach((node, ID) => 
+                    listOfNodes.forEach((node) => 
                     {
                         if (node.getTitle() === lastNodeTitle)
                         {
@@ -383,10 +382,10 @@ export class EditorController
         }
     }
 
-    nodeViewToEditorPass(devString: string)
-    {
-        console.log(devString);
-    }
+    // nodeViewToEditorPass(devString: string)
+    // {
+    //     console.log(devString);
+    // }
 
 
     /**

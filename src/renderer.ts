@@ -18,7 +18,6 @@
 // Use preload.js to selectively enable features
 // needed in the renderer process.
 import "./index.css";
-import "./views/YSLogo.png";
 import { ipcRenderer } from "electron";
 import { ThemeReader } from "./controllers/themeReader";
 import { YarnFileManager } from "./models/YarnFileManager";

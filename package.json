@@ -22,6 +22,7 @@
 				"icon": "./assets/icons/YSLogo.png",
 				"appCategoryType": "public.app-category.utilities",
 				"extendInfo": "assets/Info.plist",
+                "name": "Yarn Spinner Editor",
 				"extraResource": [
 					"assets/icons/yarnIcon.png",
 					"assets/icons/YSLogo.png"

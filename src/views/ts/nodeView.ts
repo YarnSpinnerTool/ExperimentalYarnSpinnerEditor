@@ -64,7 +64,8 @@ zoomOnCursor();
 window.addEventListener("resize", responsiveSize);
 
 /**
- * 
+ * Function for creating a mininode at the top of the list with an addition event
+ * @returns {void}
  */
 function createAdditionMiniNode(): void
 {

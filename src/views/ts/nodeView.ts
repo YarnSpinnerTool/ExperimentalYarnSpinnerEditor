@@ -152,8 +152,25 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
         id: node.getUniqueIdentifier().toString()
     });
 
-    nodeGroup.x(-stage.x() * stage.scaleX() + (Math.random() * stage.width()));
-    nodeGroup.y(-stage.y() * stage.scaleX() + (Math.random() * stage.height()));
+    //Get the x and y metadata
+    const nodeMetaData = node.getMetaData();
+    
+    if(nodeMetaData)
+    {
+        const xPos = parseInt(nodeMetaData.get("xPos"));
+        const yPos = parseInt(nodeMetaData.get("yPos"));   
+        
+        //Set position based on metadata
+        nodeGroup.x(-stage.x() * stage.scaleX() + xPos);
+        nodeGroup.y(-stage.y() * stage.scaleX() + yPos);
+    }
+    else
+    {
+        //Set position to random value if metadata doesn't exist
+        nodeGroup.x(-stage.x() * stage.scaleX() + (Math.random() * stage.width()));
+        nodeGroup.y(-stage.y() * stage.scaleX() + (Math.random() * stage.height()));
+    }
+   
     // Add the rectangle using both h + w parameters.
     nodeGroup.add(
         new Konva.Rect({

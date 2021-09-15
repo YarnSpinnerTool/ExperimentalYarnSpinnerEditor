@@ -15,8 +15,10 @@ const miniNodeMap = new Map<number,Konva.Group>();
 
 const jumpMap = new Map<Array<number>, Konva.Group>();
 
+const eventHandler = document.getElementById("miniNodeContainer"); 
+
 let selectedNode: Konva.Group;  // Currently selected node for highlighting purposes.
-let miniNodeY = 5;              // Variable to increment height of miniNodes.
+let miniNodeY = 65;              // Variable to increment height of miniNodes. //ADAM set to 65 so addition button can sit on top
 let miniMapDetails: {x: number, y: number, scale: number};          // Global variable for storing the top right of the minimap image.
 
 //Create the main stage.
@@ -54,11 +56,71 @@ miniMapStage.add(miniMapLayer);
 
 //Draw the layers.
 layer.draw();
+createAdditionMiniNode();
 
 //Resize the stage appropriately, recall on window resize.
 responsiveSize();
 zoomOnCursor();
 window.addEventListener("resize", responsiveSize);
+
+/**
+ * Function for creating a mininode at the top of the list with an addition event
+ * @returns {void}
+ */
+function createAdditionMiniNode(): void
+{
+    const miniNodeSize = 50;
+
+    const miniGroup = new Konva.Group({
+        name: "addition",
+        id: "addition"
+    });
+    const miniRect = new Konva.Rect({
+        width: miniNodeSize,
+        height: miniNodeSize,
+        fill: "#f5f0b0",
+        stroke: "#f2deac",
+        strokeWidth: 2,
+        shadowColor: "black",
+        shadowBlur: 10,
+        shadowOffset: { x: 1, y: 1 },
+        shadowOpacity: 0.1,
+        perfectDrawEnabled: false,
+        x: miniStage.width() - (miniNodeSize / 2),
+        y: 5,
+    });
+    const miniText = new Konva.Text({
+        name: "text",
+        width: miniNodeSize,
+        height: miniNodeSize,
+        fill: "black",
+        ellipsis: true,
+        perfectDrawEnabled: false,
+        text: "New Node\n\n        +",
+        wrap: "word",
+        fontSize: 10,
+        x: miniStage.width() - (miniNodeSize / 2),
+        y: 5,
+        strokeWidth: 0,
+    });
+
+    // Adds all onclick functionality for the mini node.
+
+    miniText.moveToTop();
+    miniGroup.add(miniRect);
+    miniGroup.add(miniText);
+
+    miniLayer.add(miniGroup);
+    miniGroup.on("click", function () 
+    {
+        //TODO CREATE THE NODE
+        const newNodeEvent = new CustomEvent("newNode",{detail:5});
+        eventHandler.dispatchEvent(newNodeEvent);
+        console.log("NodeView: Event has been dispatched");
+    });
+    miniLayer.draw();
+}
+
 
 /**  
  * Function for creating a new node, and related mini node, externally.
@@ -796,3 +858,36 @@ export function receiveJumps(jumps: NodeJump[]) : void
     });
     */
 }
+
+/**
+ * Gets a map representation of all the nodes in the node view
+ * @returns {Map<number,YarnNode>} A map of all nodes currently existing within the node view
+ */
+export function getAllNodes() : Map<number,YarnNode>
+{
+    const returnNodeMap = new Map<number,YarnNode>();
+
+    nodeMap.forEach((group, uniqueID) => 
+    {
+        const metaDataMap = new Map<string,string>();
+        metaDataMap.set("xpos", Math.round(group.x()).toString());
+        metaDataMap.set("ypos", Math.round(group.y()).toString());
+
+        returnNodeMap.set(uniqueID, new YarnNode
+        (
+            uniqueID, group.name(), -1, -1, -1, metaDataMap
+        ));
+    });
+
+    return returnNodeMap;
+}
+
+/*
+    TODO
+    Create a function to pass info back to editor controller
+    Take that function and pass node position on selected node back to text view metadata
+        Create the metadata if not exist and assign
+    Create a function to create node via some arbitrary command
+    Add a [+] button somewhere on the node view (put on top of mininode, might be able to create popup across the right on click like a context menu)
+    Create the node, and pass that to the text view
+*/

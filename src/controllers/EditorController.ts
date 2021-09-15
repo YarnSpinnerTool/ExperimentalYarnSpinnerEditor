@@ -5,6 +5,7 @@ import * as nodeView from "../views/ts/nodeView";
 import { YarnFileManager } from "../models/YarnFileManager";
 import { YarnFile } from "../models/YarnFile";
 import { ReturnCode, ReturnObject, YarnNodeList } from "./NodeTranslator";
+import { YarnNode } from "../models/YarnNode";
 
 export class EditorController 
 {
@@ -95,6 +96,32 @@ export class EditorController
             lineNumbersMinChars: 1
         });
 
+        const eventHandler = document.getElementById("miniNodeContainer");
+        eventHandler.addEventListener("newNode", function(e: CustomEvent)
+        {
+            console.log("Editor controller : NEW NODE HAS BEEN CLICKED " + e);
+
+            const insertNode = [
+                "title: ",
+                "xpos: ",
+                "ypos: ",
+                "---",
+                " ",
+                "===",
+                " "
+            ];
+
+            const allLines = this.editor.getValue().split("\n");
+
+            for (let i = 0; i < insertNode.length; i++)
+            {
+                allLines.push(insertNode[i]);
+            }
+
+            this.editor.setValue(allLines.join("\n"));
+
+        }.bind(this));
+
         //Instantiate with new empty file
         this.editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
 
@@ -148,18 +175,34 @@ export class EditorController
         this.editor.focus();
     }
 
+
     //Editor specific events
     modelChangeHandler(e: monaco.editor.IModelContentChangedEvent): void 
     {
         //TODO SETH - Maybe pass the ILineChange event info into this method too?
+       
+
+        //TODO pass in the insertions here (the reassigning of the editor content) with a check to prevent the convert from content to node being ran on this run
+        // As changing the content will call this again, prevents a double run (which wont cause any problems, just will make it more efficient)
+
+        const allLines = this.editor.getValue().split("\n");
+        const titleRegexExp = /(title:.*)/g;//Get title match
+
+        let lastNodeTitle = "";
+        let lastNode: YarnNode = null;
+        let metadata: Map<string, string>;
+
+
         
+        
+    
         const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue(), e);
-
-
+            
+    
         for (let i = 0; i < returnedObjectList.length; i++) 
         {
             const currentObject: ReturnObject = returnedObjectList[i];
-
+    
             if (currentObject.returnCode) 
             {
                 switch (currentObject.returnCode) 
@@ -194,12 +237,119 @@ export class EditorController
                     //if (currentObject.returnJumps.length !== 0)
                     //{
                     nodeView.receiveJumps(currentObject.returnJumps);
-
+    
                     //}
+                    break;
+                case ReturnCode.Content:
+    
+                    console.log("We are setting content");
+                    console.log(currentObject.returnLineContent);
+                    // eslint-disable-next-line no-case-declarations
+                    const operation: monaco.editor.IIdentifiedSingleEditOperation = {
+                        range: {
+                            startLineNumber: currentObject.returnLineNumber,
+                            endLineNumber: currentObject.returnLineNumber,
+                            startColumn: 1,
+                            endColumn: currentObject.returnLineContent.length + 1,
+                        },
+                        text: currentObject.returnLineContent
+                    };
+    
+                    this.editor.executeEdits(currentObject.returnLineContent, [operation]);
                     break;
                 }
             }
         }
+        
+        const listOfNodes = nodeView.getAllNodes();
+        //Another line to get a new node?
+
+        let changesOccured = false;
+
+        if (listOfNodes.size !== 0)
+        {
+            for (let i = 0; i < allLines.length; i++)
+            {
+                if (allLines[i].match(titleRegexExp))
+                {
+                    //TODO pop the last node found out of the list of nodes
+    
+                    lastNodeTitle = this.yarnNodeList.formatTitleString(allLines[i]);
+                        
+                    listOfNodes.forEach((node) => 
+                    {
+                        if (node.getTitle() === lastNodeTitle)
+                        {
+                            lastNode = node;
+                            metadata = node.getMetaData();
+                        }    
+                    });
+                }
+    
+                else if (lastNodeTitle !== "")
+                {
+                    if (allLines[i].match(/---/))
+                    {
+                        //End of metadata and can then insert above this line, any metadata that wasn't identified to exist
+                        if (metadata !== null && metadata.size !== 0)
+                        {
+                            let increment = 0;
+                            metadata.forEach((value, key) => 
+                            {
+                                const stringToInsert = key + ": " + value;
+                                allLines.splice(i + increment - 1, 0, stringToInsert);
+                                increment++;
+    
+                                changesOccured = true;
+                                metadata.delete(key.trim());
+                            });
+                            //Assign the lines
+                        }
+                    }
+    
+                    if (allLines[i].match(/(.*):(.*)/) && !allLines[i].match(titleRegexExp))
+                    {
+                        //Matches metadata but not title
+                        const lineSplit = allLines[i].split(":");
+                        
+
+                        if (metadata !== null && metadata.get(lineSplit[0].trim()))
+                        {
+                            //Metadata exists in node, so update the line
+                            const metaValue = metadata.get(lineSplit[0].trim());
+
+                            if (lineSplit[1].trim() !== metaValue)
+                            {
+                                allLines[i] = lineSplit[0] + ": " + metaValue;
+                                changesOccured = true;
+                            }
+                            metadata.delete(lineSplit[0].trim());//Remove the metadata from the list
+                        }
+                    }
+    
+                    if (allLines[i].match(/===/))
+                    {
+                        if (lastNode !== null)
+                        {
+                            listOfNodes.delete(lastNode.getUniqueIdentifier());
+                        }
+    
+                        lastNodeTitle = "";
+                        metadata = null;
+                        lastNode = null;
+                    }
+                }
+            }
+    
+            console.log(listOfNodes);
+        }
+    
+        if (changesOccured)
+        {
+            console.log("Resetting editor value");
+            this.editor.setValue(allLines.join("\n"));
+            changesOccured = false;
+        }    
 
         // Leaving this here to stop eslint complaining about unused vars
         //console.log(e);
@@ -232,6 +382,12 @@ export class EditorController
         }
     }
 
+    // nodeViewToEditorPass(devString: string)
+    // {
+    //     console.log(devString);
+    // }
+
+
     /**
  * 
  * @param {YarnFile} fileToAdd The file of which contents to push to the editor
@@ -240,6 +396,8 @@ export class EditorController
     updateEditor(fileToAdd: YarnFile): void 
     {
         //TODO Swap to push edit operations? https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.itextmodel.html#pusheditoperations
+        // this.setValue("");
+
         this.setValue(fileToAdd.getContents());
         this.setReadOnly(false);
     }
@@ -251,6 +409,7 @@ export class EditorController
 
     setValue(value: string): void 
     {
+        this.editor.setValue("");
         this.editor.setValue(value);
     }
 

@@ -15,7 +15,8 @@ export enum ReturnCode {
     Add = 1,
     Delete = 2,
     Update = 3,
-    Jumps = 4
+    Jumps = 4,
+    Content = 5
 }
 
 //TODO WORKING TITLE
@@ -24,8 +25,10 @@ export class ReturnObject
     returnCode: ReturnCode;
     returnJumps?: NodeJump[];
     returnNode?: YarnNode;
+    returnLineNumber?: number;
+    returnLineContent?: string
 
-    constructor(returnCode: ReturnCode, returnJumps?: NodeJump[], returnNode?: YarnNode) 
+    constructor(returnCode: ReturnCode, returnJumps?: NodeJump[], returnNode?: YarnNode, returnLineNumber?: number, returnLineContent?: string) 
     {
         this.returnCode = returnCode;
         if (returnJumps) 
@@ -36,6 +39,16 @@ export class ReturnObject
         if (returnNode) 
         {
             this.returnNode = returnNode;
+        }
+
+        if (returnLineNumber)
+        {
+            this.returnLineNumber = returnLineNumber;
+        }
+
+        if (returnLineContent)
+        {
+            this.returnLineContent = returnLineContent;
         }
     }
 }
@@ -246,30 +259,39 @@ export class YarnNodeList
     test string to copy paste in
     #This is a file tag
     //This is a comment
-Title: abc
+title: abc
 headerTag: otherTest
+xpos: 1
+ypos: 1
 ---
 <<jump 333>>
 <<jump ttt>>
 ===
 
 preceedingTag: wahoo
-Title: 333
-headerTag: otherTest
+title: 333
+headerTag: tester
 ---
 <<jump ttt>>
 ===
 
-Title: ttt
+title: ttt
 headerTag: otherTest
 ---
 ===
 
-Title: ttt2ElectricBoogaloo
+title: ttt2ElectricBoogaloo
 headerTag: otherTest
 --- 
 === 
             */
+
+
+
+    convertFromNodeToContent(): void 
+    {
+        console.log("TODO, convert node content with metadta into a full text thing");
+    }
 
     /**
      * Main function to convert the Monaco document into YarnNode objects, in order to pass them through to the Node View
@@ -280,6 +302,7 @@ headerTag: otherTest
      */
     convertFromContentToNode(content: string, contentChangeEvent: monaco.editor.IModelContentChangedEvent): ReturnObject[] 
     {
+
         const listOfReturns: ReturnObject[] = [];
         //console.log(contentChangeEvent);
 
@@ -299,7 +322,7 @@ headerTag: otherTest
                 }
             });
             //TODO Changed to true by Cullie for multiple files, but to not remove the check for later.
-            runRegexCheck = true;
+            runRegexCheck = false;
         }
 
         else
@@ -333,13 +356,16 @@ headerTag: otherTest
              */
             
             //TODO Removed by Cullie for multiple files
-            //if (contentChangeEvent.changes[0].text === "") 
             //Deletion may have occured
-            this.recalculateLineNumbersSub(allLines, contentChangeEvent, listOfReturns);
+            
+            if (contentChangeEvent.changes[0].text === "") 
+            {
+                this.recalculateLineNumbersSub(allLines, contentChangeEvent, listOfReturns);
+            }
             
 
             //else if (splitLinesToRegexCheck.length > 1) 
-            if (splitLinesToRegexCheck.length > 1) 
+            else if (splitLinesToRegexCheck.length > 1) 
             {
                 //Additions may have occured - This just adjusts all nodes line information accordingly
                 this.recalculateLineNumbersAdd(contentChangeEvent);
@@ -351,24 +377,6 @@ headerTag: otherTest
             /**
              * Handles regex running to add new nodes and update existing 
              */
-
-
-            // if (allLines[lineStart].match(this.titleRegexExp)) 
-            // {
-            //     if (this.checkIfNewTitle(content, contentChangeEvent)) 
-            //     {
-            //         console.log("New title found");
-            //         this.reverseSearchTextForNode(allLines, splitLinesToRegexCheck.length, listOfReturns);
-            //     }
-            //     else 
-            //     {
-            //         const nodeOfTitleChange = this.getNodeByTitle(this.formatTitleString(allLines[lineStart - 1]));
-            //         if (nodeOfTitleChange) 
-            //         {
-            //             listOfReturns.push(this.notifyTitleChange(nodeOfTitleChange));
-            //         }
-            //     }
-            // }
 
             if (allLines[lineStart].match(this.metadataRegexExp) && !allLines[lineStart].match(this.titleRegexExp)) 
             {
@@ -1007,6 +1015,11 @@ headerTag: otherTest
         console.log(this.jumps);
         return new ReturnObject(ReturnCode.Jumps, this.jumps);
         //Outputs this.jumps to nodeView
+    }
+
+    notifyContentChange(lineNumber: number, content: string): ReturnObject
+    {
+        return new ReturnObject(ReturnCode.Content, undefined, undefined, lineNumber, content);
     }
 
 }

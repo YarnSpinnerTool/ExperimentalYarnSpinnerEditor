@@ -155,7 +155,7 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
     //Get the x and y metadata
     const nodeMetaData = node.getMetaData();
     
-    if(nodeMetaData)
+    if(nodeMetaData.get("xPos"))
     {
         const xPos = parseInt(nodeMetaData.get("xPos"));
         const yPos = parseInt(nodeMetaData.get("yPos"));   

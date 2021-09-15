@@ -155,10 +155,10 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
     //Get the x and y metadata
     const nodeMetaData = node.getMetaData();
     
-    if(nodeMetaData.get("xPos"))
+    if(nodeMetaData.get("xpos"))
     {
-        const xPos = parseInt(nodeMetaData.get("xPos"));
-        const yPos = parseInt(nodeMetaData.get("yPos"));   
+        const xPos = parseInt(nodeMetaData.get("xpos"));
+        const yPos = parseInt(nodeMetaData.get("ypos"));   
         
         //Set position based on metadata
         nodeGroup.x(-stage.x() * stage.scaleX() + xPos);

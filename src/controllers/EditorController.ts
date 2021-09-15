@@ -297,7 +297,7 @@ export class EditorController
                             metadata.forEach((value, key) => 
                             {
                                 const stringToInsert = key + ": " + value;
-                                allLines.splice(i + increment - 1, 0, stringToInsert);
+                                allLines.splice(i + increment, 0, stringToInsert);
                                 increment++;
     
                                 changesOccured = true;

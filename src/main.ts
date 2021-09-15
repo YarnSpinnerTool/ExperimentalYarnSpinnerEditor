@@ -262,7 +262,7 @@ function returnSavePrompt(unsaved: string[][])
             const savePrompt = dialog.showMessageBoxSync(BrowserWindow.getAllWindows()[0],
                 {
                     type: "warning",
-                    buttons: ["Save","Don't Save","Cancel"],
+                    buttons: ["Save","Save All","Don't Save","Cancel"],
                     defaultId: 0,
                     title: "Careful!",
                     message: "Do you want to save changes to " + unsaved[1][i] + "?",
@@ -276,10 +276,18 @@ function returnSavePrompt(unsaved: string[][])
                 handleFileSaved(parseInt(unsaved[0][i]));
                 break;
     
-            case 1:     // don't save
+            case 1:     // save all
+                for(let index = i; index < unsaved[0].length; ++index)  // for all files awaiting action
+                {
+                    YarnWriteFile(unsaved[2][i], unsaved[3][i]);
+                    i = index;  // override the original loop
+                }
+                break;
+
+            case 2:     // don't save
                 break;
                 
-            default:    // do nothing
+            default:    // cancel / prompt close
                 cancel = true;
                 break;
             }

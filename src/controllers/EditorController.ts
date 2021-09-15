@@ -396,6 +396,8 @@ export class EditorController
     updateEditor(fileToAdd: YarnFile): void 
     {
         //TODO Swap to push edit operations? https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.itextmodel.html#pusheditoperations
+        // this.setValue("");
+
         this.setValue(fileToAdd.getContents());
         this.setReadOnly(false);
     }
@@ -407,6 +409,7 @@ export class EditorController
 
     setValue(value: string): void 
     {
+        this.editor.setValue("");
         this.editor.setValue(value);
     }
 

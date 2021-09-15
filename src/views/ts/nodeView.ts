@@ -458,25 +458,29 @@ function updateMiniMap()
 {
     const defaultScale = 0.2;
     const mapGroup: Konva.Group = new Konva.Group;
-    if (layer.hasChildren())  // when nodes exist in node view
+
+    if(nodeMap.size)
     {
-        let maxY: number = layer.getChildren()[0].y();   // initialise variables with first node values
-        let minY: number = layer.getChildren()[0].y();
-        let maxX: number = layer.getChildren()[0].x();
-        let minX: number = layer.getChildren()[0].x();
-
-        for (const i of layer.getChildren()) 
+        // node values used to define scaling
+        let maxY: number = nodeMap.values().next().value.y();   // highest point of image
+        let minY: number = nodeMap.values().next().value.y();   // lowest point of image
+        let maxX: number = nodeMap.values().next().value.x();   // furthest right of image
+        let minX: number = nodeMap.values().next().value.x();   // furthest left of image
+        for (const shape of layer.getChildren()) 
         {
-            if (maxY < i.y()) { maxY = i.y(); }
+            if(nodeMap.has(parseInt(shape.id())))   // if the shape is a Yarn Node
+            {
+                if (maxY < shape.y()) { maxY = shape.y(); }
 
-            if (minY > i.y()) { minY = i.y(); }
+                if (minY > shape.y()) { minY = shape.y(); }
 
-            if (maxX < i.x()) { maxX = i.x(); }
+                if (maxX < shape.x()) { maxX = shape.x(); }
 
-            if (minX > i.x()) { minX = i.x(); }
+                if (minX > shape.x()) { minX = shape.x(); }
+            }
 
-            const clonedShape = i.clone();
-            mapGroup.add(clonedShape);
+            const clonedShape = shape.clone();
+            mapGroup.add(clonedShape);  // get shape from main stage and add to map group
         }
 
         // find the smallest ratio

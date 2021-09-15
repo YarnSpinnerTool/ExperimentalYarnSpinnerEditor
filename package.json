@@ -16,17 +16,18 @@
 	"license": "MIT",
 	"config": {
 		"forge": {
-            "packagerConfig": {
-                "asar": true,
-                "packageManager": "yarn",
-                "icon": "assets/icons/yarnIcon.png",
-                "appCategoryType": "public.app-category.utilities",
-                "extendInfo": "assets/Info.plist",
-                "extraResource": [
-                    "assets/icons/yarnIcon.png",
-                    "assets/icons/YSLogo.png"
-                ]
-            },
+			"packagerConfig": {
+				"asar": true,
+				"packageManager": "yarn",
+				"icon": "./assets/icons/YSLogo.png",
+				"appCategoryType": "public.app-category.utilities",
+				"extendInfo": "assets/Info.plist",
+                "name": "Yarn Spinner Editor",
+				"extraResource": [
+					"assets/icons/yarnIcon.png",
+					"assets/icons/YSLogo.png"
+				]
+			},
 			"makers": [
 				{
 					"name": "@electron-forge/maker-squirrel",
@@ -92,6 +93,7 @@
 		"@typescript-eslint/eslint-plugin": "^4.0.1",
 		"@typescript-eslint/parser": "^4.0.1",
 		"@vercel/webpack-asset-relocator-loader": "1.6.0",
+		"copy-webpack-plugin": "^9.0.1",
 		"css-loader": "^6.0.0",
 		"electron": "13.2.1",
 		"eslint": "^7.6.0",

@@ -143,20 +143,46 @@ export function newNode(newNode: YarnNode): void
         name: newNode.getTitle(),
         id: newNode.getUniqueIdentifier().toString()
     });
-    const miniRect = new Konva.Rect({
-        width: miniNodeSize,
-        height: miniNodeSize,
-        fill: "#f5f0b0",
-        stroke: "#f2deac",
-        strokeWidth: 2,
-        shadowColor: "black",
-        shadowBlur: 10,
-        shadowOffset: { x: 1, y: 1 },
-        shadowOpacity: 0.1,
-        perfectDrawEnabled: false,
-        x: miniStage.width() / 2 - (miniNodeSize / 2),
-        y: miniNodeY,
-    });
+    
+    const nodeMetaData = newNode.getMetaData();
+    if(nodeMetaData.get("colour"))
+    {
+        const nodeColour = nodeMetaData.get("colour");
+        const nodeLighterColour = nodeColour;
+        const miniRect = new Konva.Rect({
+            width: miniNodeSize,
+            height: miniNodeSize,
+            fill: nodeLighterColour,
+            stroke: nodeColour,
+            strokeWidth: 2,
+            shadowColor: "black",
+            shadowBlur: 10,
+            shadowOffset: { x: 1, y: 1 },
+            shadowOpacity: 0.1,
+            perfectDrawEnabled: false,
+            x: miniStage.width() / 2 - (miniNodeSize / 2),
+            y: miniNodeY,
+        });
+        miniGroup.add(miniRect);
+    } 
+    else
+    {
+        const miniRect = new Konva.Rect({
+            width: miniNodeSize,
+            height: miniNodeSize,
+            fill: "#f5f0b0",
+            stroke: "#f2deac",
+            strokeWidth: 2,
+            shadowColor: "black",
+            shadowBlur: 10,
+            shadowOffset: { x: 1, y: 1 },
+            shadowOpacity: 0.1,
+            perfectDrawEnabled: false,
+            x: miniStage.width() / 2 - (miniNodeSize / 2),
+            y: miniNodeY,
+        });    
+        miniGroup.add(miniRect);
+    }
     const miniText = new Konva.Text({
         name: "text",
         width: miniNodeSize,
@@ -173,9 +199,7 @@ export function newNode(newNode: YarnNode): void
     });
 
     // Adds all onclick functionality for the mini node.
-
     miniText.moveToTop();
-    miniGroup.add(miniRect);
     miniGroup.add(miniText);
 
     miniLayer.add(miniGroup);

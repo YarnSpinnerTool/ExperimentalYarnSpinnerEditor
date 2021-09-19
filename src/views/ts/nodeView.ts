@@ -301,6 +301,10 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
     nodeGroup.on("dragend", function () 
     {
         updateMiniMap();
+
+        //Tells the controller to update the position
+        const nodeMovement = new CustomEvent("nodeMovement",{detail:5});
+        eventHandler.dispatchEvent(nodeMovement);
     });
     nodeGroup.moveToTop();
 

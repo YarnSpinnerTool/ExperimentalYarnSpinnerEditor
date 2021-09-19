@@ -52,7 +52,7 @@ function createWindow()
         requestUnsavedFiles();
     });
     
-    app.on('open-file', (event, filePath) => handleFileOpen([filePath]));
+    app.on("open-file", (event, filePath) => handleFileOpen([filePath]));
 
 }
 

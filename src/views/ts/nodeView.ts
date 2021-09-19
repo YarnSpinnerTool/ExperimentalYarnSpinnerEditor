@@ -223,14 +223,14 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
         const yPos = parseInt(nodeMetaData.get("ypos"));   
         
         //Set position based on metadata
-        nodeGroup.x(-stage.x() * stage.scaleX() + xPos);
-        nodeGroup.y(-stage.y() * stage.scaleX() + yPos);
+        nodeGroup.x(xPos);
+        nodeGroup.y(yPos);
     }
     else
     {
         //Set position to random value if metadata doesn't exist
-        nodeGroup.x(-stage.x() * stage.scaleX() + (Math.random() * stage.width()));
-        nodeGroup.y(-stage.y() * stage.scaleX() + (Math.random() * stage.height()));
+        nodeGroup.x((Math.random() * stage.width()));
+        nodeGroup.y((Math.random() * stage.height()));
     }
    
     // Add the rectangle using both h + w parameters.

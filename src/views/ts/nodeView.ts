@@ -143,20 +143,48 @@ export function newNode(newNode: YarnNode): void
         name: newNode.getTitle(),
         id: newNode.getUniqueIdentifier().toString()
     });
-    const miniRect = new Konva.Rect({
-        width: miniNodeSize,
-        height: miniNodeSize,
-        fill: "#f5f0b0",
-        stroke: "#f2deac",
-        strokeWidth: 2,
-        shadowColor: "black",
-        shadowBlur: 10,
-        shadowOffset: { x: 1, y: 1 },
-        shadowOpacity: 0.1,
-        perfectDrawEnabled: false,
-        x: miniStage.width() / 2 - (miniNodeSize / 2),
-        y: miniNodeY,
-    });
+    
+    const nodeMetaData = newNode.getMetaData();
+    if(nodeMetaData.get("colour"))
+    {
+        let nodeColour = "#f2deac";
+        let nodeLighterColour = "#f5f0b0";
+        nodeColour = nodeMetaData.get("colour").toUpperCase();
+        nodeLighterColour = nodeMetaData.get("colour").toUpperCase();
+        const miniRect = new Konva.Rect({
+            width: miniNodeSize,
+            height: miniNodeSize,
+            fill: nodeLighterColour,
+            stroke: nodeColour,
+            strokeWidth: 2,
+            shadowColor: "black",
+            shadowBlur: 10,
+            shadowOffset: { x: 1, y: 1 },
+            shadowOpacity: 0.1,
+            perfectDrawEnabled: false,
+            x: miniStage.width() / 2 - (miniNodeSize / 2),
+            y: miniNodeY,
+        });
+        miniGroup.add(miniRect);
+    } 
+    else
+    {
+        const miniRect = new Konva.Rect({
+            width: miniNodeSize,
+            height: miniNodeSize,
+            fill: "#f5f0b0",
+            stroke: "#f2deac",
+            strokeWidth: 2,
+            shadowColor: "black",
+            shadowBlur: 10,
+            shadowOffset: { x: 1, y: 1 },
+            shadowOpacity: 0.1,
+            perfectDrawEnabled: false,
+            x: miniStage.width() / 2 - (miniNodeSize / 2),
+            y: miniNodeY,
+        });    
+        miniGroup.add(miniRect);
+    }
     const miniText = new Konva.Text({
         name: "text",
         width: miniNodeSize,
@@ -173,9 +201,7 @@ export function newNode(newNode: YarnNode): void
     });
 
     // Adds all onclick functionality for the mini node.
-
     miniText.moveToTop();
-    miniGroup.add(miniRect);
     miniGroup.add(miniText);
 
     miniLayer.add(miniGroup);
@@ -216,50 +242,79 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
 
     //Get the x and y metadata
     const nodeMetaData = node.getMetaData();
-    
     if(nodeMetaData.get("xpos"))
     {
-        const xPos = parseInt(nodeMetaData.get("xpos"));
-        const yPos = parseInt(nodeMetaData.get("ypos"));   
-        
-        //Set position based on metadata
-        nodeGroup.x(xPos);
-        nodeGroup.y(yPos);
+        const xpos = parseInt(nodeMetaData.get("xpos"));
+        const ypos = parseInt(nodeMetaData.get("ypos"));
+        nodeGroup.x(xpos);
+        nodeGroup.y(ypos);
+    }
+    // Add the rectangle using both h + w parameters.
+    if(nodeMetaData.get("colour"))
+    {
+        let nodeColour = "#f2deac";
+        let nodeLighterColour = "#f5f0b0";
+        nodeColour = nodeMetaData.get("colour").toUpperCase();
+        nodeLighterColour = nodeMetaData.get("colour").toUpperCase();
+        //Check for hex colour format
+        //if (!nodeColour.match(/^#(?:[0-9a-fA-F]{3}){1,2}$/))
+        //{
+        // nodeColour = convert.keyword.hex(nodeColour);
+        //}
+        nodeGroup.add(
+            new Konva.Rect({
+                name: "bigSquare",
+                width: width,
+                height: height,
+                fill: nodeLighterColour,
+                stroke: nodeColour,
+                strokeWidth: 2,
+                shadowColor: "black",
+                shadowBlur: 10,
+                shadowOffset: { x: 3, y: 3 },
+                shadowOpacity: 0.2,
+                perfectDrawEnabled: false,
+            })
+        );
+        nodeGroup.add(
+            new Konva.Rect({
+                width: width,
+                height: height / 5,
+                fill: nodeColour,
+                stroke: nodeColour,
+                strokeWidth: 1,
+                perfectDrawEnabled: false,
+            })
+        );
     }
     else
     {
-        //Set position to random value if metadata doesn't exist
-        nodeGroup.x((Math.random() * stage.width()));
-        nodeGroup.y((Math.random() * stage.height()));
+        nodeGroup.add(
+            new Konva.Rect({
+                name: "bigSquare",
+                width: width,
+                height: height,
+                fill: "#f5f0b0",
+                stroke: "#f2deac",
+                strokeWidth: 2,
+                shadowColor: "black",
+                shadowBlur: 10,
+                shadowOffset: { x: 3, y: 3 },
+                shadowOpacity: 0.2,
+                perfectDrawEnabled: false,
+            })
+        );
+        nodeGroup.add(
+            new Konva.Rect({
+                width: width,
+                height: height / 5,
+                fill: "#f2deac",
+                stroke: "#f2deac",
+                strokeWidth: 1,
+                perfectDrawEnabled: false,
+            })
+        );
     }
-   
-    // Add the rectangle using both h + w parameters.
-    nodeGroup.add(
-        new Konva.Rect({
-            name: "bigSquare",
-            width: width,
-            height: height,
-            fill: "#f5f0b0",
-            stroke: "#f2deac",
-            strokeWidth: 2,
-            shadowColor: "black",
-            shadowBlur: 10,
-            shadowOffset: { x: 3, y: 3 },
-            shadowOpacity: 0.2,
-            perfectDrawEnabled: false,
-        })
-    );
-
-    nodeGroup.add(
-        new Konva.Rect({
-            width: width,
-            height: height / 5,
-            fill: "#f2deac",
-            stroke: "#f2deac",
-            strokeWidth: 1,
-            perfectDrawEnabled: false,
-        })
-    );
 
     // Add text using the parameter.
     nodeGroup.add(
@@ -278,6 +333,7 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
             ellipsis: true,
         })
     );
+    
 
     //* Node Mouse Event
     // show software reaction to selection

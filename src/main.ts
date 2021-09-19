@@ -58,6 +58,8 @@ function createWindow()
         e.preventDefault();
         requestUnsavedFiles();
     });
+    
+    app.on("open-file", (event, filePath) => handleFileOpen([filePath]));
 
 }
 

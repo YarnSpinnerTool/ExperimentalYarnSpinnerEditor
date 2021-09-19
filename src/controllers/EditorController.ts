@@ -139,6 +139,13 @@ export class EditorController
 
         }.bind(this));
 
+        eventHandler.addEventListener("nodeMovement", function()
+        {
+            console.log("Updating position of node based on movement");
+            this.editor.setValue(this.editor.getValue());
+
+        }.bind(this));
+
         //Instantiate with new empty file
         this.editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
 

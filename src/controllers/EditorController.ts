@@ -113,12 +113,29 @@ export class EditorController
 
             const allLines = this.editor.getValue().split("\n");
 
+            let lineToInsert = allLines.length - 1;
+
+            for (let n = allLines.length - 1; n > 0; n--)
+            {
+                if (allLines[n] === "")
+                {
+                    lineToInsert = n;
+                }
+
+                else
+                {
+                    n = 0;
+                }
+            }
+
             for (let i = 0; i < insertNode.length; i++)
             {
-                allLines.push(insertNode[i]);
+                allLines.splice(lineToInsert + i, 0, insertNode[i]);
             }
 
             this.editor.setValue(allLines.join("\n"));
+            this.editor.focus();
+            this.editor.setPosition({column: 8, lineNumber: lineToInsert + 1});
 
         }.bind(this));
 

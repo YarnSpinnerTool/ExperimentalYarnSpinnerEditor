@@ -390,7 +390,7 @@ ipcMain.on("returnUnsavedFiles", (event, unsaved) =>
  */
 function handleNewFile() 
 {
-    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestNewFile"); //Pass the result to renderer
+    BrowserWindow.getAllWindows()[0].webContents.send("mainRequestNewFile"); //Pass the result to renderer
 }
 
 /**
@@ -416,7 +416,7 @@ function handleFileOpen(filePath? : string[])
  */
 function handleFileSave() 
 {
-    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestSave"); 
+    BrowserWindow.getAllWindows()[0].webContents.send("mainRequestSave"); 
 }
 
 /**
@@ -426,7 +426,7 @@ function handleFileSave()
  */
 function handleFileSaveAs() 
 {
-    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestSaveAs"); 
+    BrowserWindow.getAllWindows()[0].webContents.send("mainRequestSaveAs"); 
 }
 
 /**
@@ -472,7 +472,7 @@ function handleFileSaved(yarnFileUID : number)
  */
 function handleFind() 
 {
-    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestFind"); 
+    BrowserWindow.getAllWindows()[0].webContents.send("mainRequestFind"); 
 }
 
 /**
@@ -482,7 +482,7 @@ function handleFind()
  */
 function handleReplace() 
 {
-    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestFindAndReplace"); 
+    BrowserWindow.getAllWindows()[0].webContents.send("mainRequestFindAndReplace"); 
 }
 
 /**
@@ -492,7 +492,7 @@ function handleReplace()
  */
 function handleUndo() 
 {
-    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestUndo"); 
+    BrowserWindow.getAllWindows()[0].webContents.send("mainRequestUndo"); 
 }
 
 /**
@@ -502,5 +502,5 @@ function handleUndo()
  */
 function handleRedo() 
 {
-    BrowserWindow.getFocusedWindow()?.webContents.send("mainRequestRedo"); 
+    BrowserWindow.getAllWindows()[0].webContents.send("mainRequestRedo"); 
 }

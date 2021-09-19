@@ -37,14 +37,21 @@ function createWindow()
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-        }
+        },
+        show: false
     });
 
-
     // and load the index.html of the app.
-    mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+    mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY).then(() => 
+    {
+        setTimeout(() => 
+        {
+            mainWindow.show();
+        }, 100);
+    });
 
     mainWindow.setTitle("Yarn Spinner Editor");
+
     // add event to prompt user if they exit without saving
     mainWindow.on("close", (e) =>
     {   

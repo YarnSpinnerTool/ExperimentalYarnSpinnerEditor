@@ -147,8 +147,10 @@ export function newNode(newNode: YarnNode): void
     const nodeMetaData = newNode.getMetaData();
     if(nodeMetaData.get("colour"))
     {
-        const nodeColour = nodeMetaData.get("colour");
-        const nodeLighterColour = nodeColour;
+        let nodeColour = "#f2deac";
+        let nodeLighterColour = "#f5f0b0";
+        nodeColour = nodeMetaData.get("colour").toUpperCase();
+        nodeLighterColour = nodeMetaData.get("colour").toUpperCase();
         const miniRect = new Konva.Rect({
             width: miniNodeSize,
             height: miniNodeSize,
@@ -250,14 +252,15 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
     // Add the rectangle using both h + w parameters.
     if(nodeMetaData.get("colour"))
     {
-        const nodeColour = nodeMetaData.get("colour");
+        let nodeColour = "#f2deac";
+        let nodeLighterColour = "#f5f0b0";
+        nodeColour = nodeMetaData.get("colour").toUpperCase();
+        nodeLighterColour = nodeMetaData.get("colour").toUpperCase();
         //Check for hex colour format
         //if (!nodeColour.match(/^#(?:[0-9a-fA-F]{3}){1,2}$/))
         //{
         // nodeColour = convert.keyword.hex(nodeColour);
         //}
-        
-        const nodeLighterColour = nodeColour;
         nodeGroup.add(
             new Konva.Rect({
                 name: "bigSquare",

@@ -105,6 +105,7 @@ export class EditorController
                 "title: ",
                 "xpos: ",
                 "ypos: ",
+                "colour: ",
                 "---",
                 " ",
                 "===",

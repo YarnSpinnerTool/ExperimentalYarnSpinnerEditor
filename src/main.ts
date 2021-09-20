@@ -16,6 +16,7 @@ if (require("electron-squirrel-startup")) app.quit();
 // plugin that tells the Electron app where to look for the Webpack-bundled app code (depending on
 // whether you're running in development or production).
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const SETTINGS_WINDOW_WEBPACK_ENTRY: string;
 
 /**
  * Creates the main window. This is a change.
@@ -259,6 +260,26 @@ const template = [
                     await shell.openExternal("https://github.com/setho246/YarnSpinnerEditor/issues"); //TODO will need to change once ownership changes
                 }
             },
+            {
+                label: "Settings",
+                click: () =>
+                {
+                    const settingsWindow = new BrowserWindow(
+                        {
+                            height: 520,
+                            width: 540,
+                            minHeight: 480,
+                            minWidth: 540,
+                            webPreferences: {
+                                nodeIntegration: true,
+                                contextIsolation: false,
+                            },
+                            show: false
+                        });
+						
+                    settingsWindow.loadURL(SETTINGS_WINDOW_WEBPACK_ENTRY).then(() => {settingsWindow.show();});
+                }
+            }
         ]
     }
 ];

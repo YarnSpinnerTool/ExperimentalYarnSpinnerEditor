@@ -74,6 +74,11 @@
 									"html": "./src/index.html",
 									"js": "./src/renderer.ts",
 									"name": "main_window"
+								},
+								{
+									"html": "./src/settingsIndex.html",
+									"js": "./src/settingsRenderer.ts",
+									"name": "settings_window"
 								}
 							],
 							"nodeIntegration": true

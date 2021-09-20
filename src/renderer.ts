@@ -56,6 +56,15 @@ nodeView.newNode("Node Five");
 nodeView.newNode("Node Six");
 */
 
+/**
+ * Updates the theme based on parameter choice
+ * @param {string} theme String representation of theme choice
+ * @returns {void}
+ */
+function updateTheme(theme: string): void 
+{
+    console.log("TODO IMPLEMENT UPDATE THEME");
+}
 
 
 //Working file details specific events

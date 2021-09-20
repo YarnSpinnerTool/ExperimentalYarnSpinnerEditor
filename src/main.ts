@@ -8,6 +8,7 @@
 import { app, BrowserWindow, Menu, ipcMain, shell, screen, dialog} from "electron";
 import { openFile as YarnOpenFile } from "./controllers/fileSystem/fileOpenController";
 import { writeFile as YarnWriteFile } from "./controllers/fileSystem/fileWriteController";
+import path from "path";
 
 if (require("electron-squirrel-startup")) app.quit();
 
@@ -218,7 +219,26 @@ const template = [
         submenu: [
             { label: "themes" },
             { label: "accessibility" },
-            { label: "settings" },
+            { 
+                label: "Settings",
+                click: async () =>
+                {
+                    console.log("Creating a new window");
+                    const mainWindowReference = BrowserWindow.getAllWindows()[0];
+
+                    const childWindow = new BrowserWindow({title: "Settings" , parent: mainWindowReference, modal: true, alwaysOnTop: true});
+
+                    console.log(path.join(__dirname,"./settings.html"));
+                    childWindow.loadFile(path.join(__dirname,"./settings.html"));
+                    childWindow.setMenu(null);
+                    
+                    // childWindow.once("ready-to-show", () => 
+                    // {
+                    console.log("Showing new child");
+                    childWindow.show();
+                    // });
+                } 
+            },
             { label: "search" },
         ]
     },

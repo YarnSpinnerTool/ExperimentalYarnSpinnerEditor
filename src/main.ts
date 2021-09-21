@@ -8,7 +8,6 @@
 import { app, BrowserWindow, Menu, ipcMain, shell, screen, dialog} from "electron";
 import { openFile as YarnOpenFile } from "./controllers/fileSystem/fileOpenController";
 import { writeFile as YarnWriteFile } from "./controllers/fileSystem/fileWriteController";
-import path from "path";
 
 if (require("electron-squirrel-startup")) app.quit();
 
@@ -18,6 +17,9 @@ if (require("electron-squirrel-startup")) app.quit();
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const SETTINGS_WINDOW_WEBPACK_ENTRY: string;
 
+
+const debug = true;
+
 /**
  * Creates the main window. This is a change.
  * 
@@ -25,7 +27,6 @@ declare const SETTINGS_WINDOW_WEBPACK_ENTRY: string;
  */
 function createWindow() 
 {
-
     // Create the browser window.
     // Create a window that fills the screen's available work area.
     const primaryDisplay = screen.getPrimaryDisplay();
@@ -42,6 +43,7 @@ function createWindow()
         },
         show: false
     });
+
 
     // and load the index.html of the app.
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY).then(() => 
@@ -129,7 +131,7 @@ const template = [
         submenu: [
             { 
                 label: "Undo",
-                accelerator: "CmdOrCtrl+Z",     //!Fails to get called
+                accelerator: "CmdOrCtrl+Z",     
                 click: async () =>
                 {   
                     handleUndo();
@@ -137,7 +139,7 @@ const template = [
             },
             { 
                 label: "Redo",
-                accelerator: "CmdOrCtrl+Y",     //!Fails to get called 
+                accelerator: "CmdOrCtrl+Y",   
                 click: async () =>
                 {
                     handleRedo();
@@ -221,23 +223,37 @@ const template = [
             { label: "themes" },
             { label: "accessibility" },
             { 
-                label: "Settings",
+                label: "settings",
                 click: async () =>
                 {
                     console.log("Creating a new window");
                     const mainWindowReference = BrowserWindow.getAllWindows()[0];
 
-                    const childWindow = new BrowserWindow({title: "Settings" , parent: mainWindowReference, modal: true, alwaysOnTop: true});
+                    const childWindow = new BrowserWindow(
+                        {
+                            title: "Settings" , 
+                            parent: mainWindowReference, 
+                            modal: true, 
+                            alwaysOnTop: true,
+                            webPreferences: {
+                                nodeIntegration: true,
+                                contextIsolation: false,
+                            },
+                        });
 
-                    console.log(path.join(__dirname,"./settings.html"));
-                    childWindow.loadFile(path.join(__dirname,"./settings.html"));
-                    childWindow.setMenu(null);
+                    childWindow.loadURL(SETTINGS_WINDOW_WEBPACK_ENTRY);
+
+                    if (!debug)
+                    {
+                        childWindow.setMenu(null);
+                    }
                     
-                    // childWindow.once("ready-to-show", () => 
-                    // {
-                    console.log("Showing new child");
-                    childWindow.show();
-                    // });
+                    childWindow.once("ready-to-show", () => 
+                    {
+                        console.log("Showing new child");
+                        childWindow.show();
+                    });
+                    
                 } 
             },
             { label: "search" },
@@ -261,23 +277,10 @@ const template = [
                 }
             },
             {
-                label: "Settings",
+                label: "settings",
                 click: () =>
                 {
-                    const settingsWindow = new BrowserWindow(
-                        {
-                            height: 520,
-                            width: 540,
-                            minHeight: 480,
-                            minWidth: 540,
-                            webPreferences: {
-                                nodeIntegration: true,
-                                contextIsolation: false,
-                            },
-                            show: false
-                        });
-						
-                    settingsWindow.loadURL(SETTINGS_WINDOW_WEBPACK_ENTRY).then(() => {settingsWindow.show();});
+                    console.log("Help settings yet to be implemented");
                 }
             }
         ]

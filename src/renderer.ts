@@ -64,6 +64,9 @@ nodeView.newNode("Node Six");
 function updateTheme(theme: string): void 
 {
     console.log("TODO IMPLEMENT UPDATE THEME");
+
+    
+
 }
 
 
@@ -283,6 +286,10 @@ function createNewFile()
     addFileToDisplay(yarnFileManager.createEmptyFile());
     editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
     editor.setReadOnly(false);
+
+
+    ipcRenderer.send("getPing", null, null);
+
 }
 
 /**
@@ -447,6 +454,13 @@ ipcRenderer.on("gotPing", (event, arg) =>
 {
     console.log(arg);//Should be pong
 });
+
+ipcRenderer.on("getPing", (event, arg) =>
+{
+    console.log("Got ping?");
+});
+
+
 
 /*
     ------------------------------------

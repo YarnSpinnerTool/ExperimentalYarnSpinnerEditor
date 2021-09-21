@@ -358,6 +358,7 @@ select{
     border-radius: 15px;
     margin-top: 5px;
     margin-right: -10px;
+    margin-bottom: 5px;
     float: right;
 }
 
@@ -368,6 +369,7 @@ select{
     background-color: var(--editor);
     margin-left: 15px;
     margin-top: 15px;
+    margin-bottom:15px;
     width: 100%;
     /* padding-top: 5px; */
 }
@@ -429,12 +431,11 @@ cursor: col-resize;
 }
 
 .mainEditorView {
-    height: 98vh;    
+    height: 100vh;    
     border-style: hidden;
     border-top-right-radius: 15px;
     border-top-left-radius: 15px;
     background-color: var(--editor);
-    margin-top: 15px;
     width: 100%;
     display: flex;
     /* padding-top: 5px; */
@@ -453,14 +454,15 @@ cursor: col-resize;
 .nodeView{
     position: relative;
     width: 45%;
-    height: 82vh;
+    height: auto;
     display:flex;
     float: left;
+    margin-bottom: 120px;
 }
 
 .nodeEditorView {
     /* position: absolute; */
-    height: 84vh;
+    height: 100%;
 
     background-color: #CFD8DC;
 }

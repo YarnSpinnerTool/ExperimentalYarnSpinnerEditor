@@ -56,12 +56,12 @@ miniMapStage.add(miniMapLayer);
 
 //Draw the layers.
 layer.draw();
-createAdditionMiniNode();
 
 //Resize the stage appropriately, recall on window resize.
 responsiveSize();
 zoomOnCursor();
 window.addEventListener("resize", responsiveSize);
+createAdditionMiniNode();
 
 /**
  * Function for creating a mininode at the top of the list with an addition event
@@ -86,30 +86,31 @@ function createAdditionMiniNode(): void
         shadowOffset: { x: 1, y: 1 },
         shadowOpacity: 0.1,
         perfectDrawEnabled: false,
-        x: miniStage.width() - (miniNodeSize / 2),
+        x: miniStage.width() / 2 - (miniNodeSize / 2),
         y: 5,
     });
-    const miniText = new Konva.Text({
-        name: "text",
-        width: miniNodeSize,
-        height: miniNodeSize,
-        fill: "black",
-        ellipsis: true,
-        perfectDrawEnabled: false,
-        text: "New Node\n\n        +",
-        wrap: "word",
-        fontSize: 10,
-        fontFamily: "'Roboto', sans-serif;",
-        x: miniStage.width() - (miniNodeSize / 2),
-        y: 5,
-        strokeWidth: 0,
+    const miniVert = new Konva.Rect({
+        width: 7,
+        height: miniNodeSize - 10,
+        x: 33,
+        y: 10,
+        fill: "#f3d186"
     });
-
+    const miniHorizon = new Konva.Rect({
+        width: miniNodeSize - 10,
+        height: 7,
+        x: 17,
+        y: 26,
+        fill: "#f3d186"
+    }); 
+    
     // Adds all onclick functionality for the mini node.
 
-    miniText.moveToTop();
+    miniVert.moveToTop();
+    miniHorizon.moveToTop();
     miniGroup.add(miniRect);
-    miniGroup.add(miniText);
+    miniGroup.add(miniVert);
+    miniGroup.add(miniHorizon);
 
     miniLayer.add(miniGroup);
     miniGroup.on("click", function () 
@@ -356,7 +357,7 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
     {
         nodeGroup.moveToTop();
     });
-
+    
     nodeGroup.on("dragend", function () 
     {
         updateMiniMap();
@@ -408,7 +409,9 @@ export function connectNodes(from: number, to: number): void
         );
         arrow.add(arrow2);
         arrow.add(circle);
-        nodeFrom.on("dragmove", () => 
+        if(jumpMap.size >= 10)
+        {
+        nodeFrom.on("dragend", () => 
         {
             const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
             arrow2.points([nodeFrom.x() + nodeCenterLength * 2, nodeFrom.y() + nodeCenterLength, nodeFrom.x() + nodeCenterLength * 2 + 10, nodeFrom.y() + nodeCenterLength - 2]);
@@ -416,6 +419,18 @@ export function connectNodes(from: number, to: number): void
             circle.y(nodeTo.y());
             layer.draw();
         });
+        }
+        else
+        {
+            nodeFrom.on("dragmove", () => 
+            {
+                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+                arrow2.points([nodeFrom.x() + nodeCenterLength * 2, nodeFrom.y() + nodeCenterLength, nodeFrom.x() + nodeCenterLength * 2 + 10, nodeFrom.y() + nodeCenterLength - 2]);
+                circle.x(nodeTo.x() + nodeCenterLength * 2);
+                circle.y(nodeTo.y());
+                layer.draw();
+            });  
+        }
     }
     else
     {
@@ -433,7 +448,9 @@ export function connectNodes(from: number, to: number): void
         arrow.add(line);
         
         //Redraw the line when moving the from node.
-        nodeFrom.on("dragmove", () => 
+        if(jumpMap.size >= 10)
+        {
+        nodeFrom.on("dragend", () => 
         {
             const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
             line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
@@ -441,12 +458,30 @@ export function connectNodes(from: number, to: number): void
         });
 
         //Redraw the line when moving the to node.
-        nodeTo.on("dragmove", () => 
+        nodeTo.on("dragend", () => 
         {
             const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
             line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
             layer.draw();
         });
+        }
+        else
+        {
+            nodeFrom.on("dragmove", () => 
+            {
+                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+                line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
+                layer.draw();
+            });
+    
+            //Redraw the line when moving the to node.
+            nodeTo.on("dragmove", () => 
+            {
+                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+                line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
+                layer.draw();
+            });    
+        }
     }
     //Add to the map of jumps
     jumpMap.set([from, to], arrow);

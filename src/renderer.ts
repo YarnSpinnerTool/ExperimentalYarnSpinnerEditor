@@ -19,16 +19,17 @@
 // needed in the renderer process.
 import "./index.css";
 import { ipcRenderer } from "electron";
-import { ThemeReader } from "./controllers/themeReader";
 import { YarnFileManager } from "./models/YarnFileManager";
 import { YarnFile } from "./models/YarnFile";
 import { YarnNodeList } from "./controllers/NodeTranslator";
 import { setUpResizing } from "./views/ts/WindowResizing";
 import { EditorController } from "./controllers/EditorController";
+import { ThemeReader } from "./controllers/themeReader";
 
 const yarnFileManager = new YarnFileManager();
 const yarnNodeList = new YarnNodeList();
-const theme = new ThemeReader().OGBlue;
+const themeReader = new ThemeReader();
+const theme = themeReader.OGBlue;
 const editor = new EditorController("container", theme, yarnFileManager, yarnNodeList);
 setUpResizing();
 
@@ -61,12 +62,19 @@ nodeView.newNode("Node Six");
  * @param {string} theme String representation of theme choice
  * @returns {void}
  */
-function updateTheme(theme: string): void 
+function updateTheme(theme: Record<string,string>): void 
 {
     console.log("TODO IMPLEMENT UPDATE THEME");
-
+    document.documentElement.style.setProperty("--editor", theme.editor);
+    document.documentElement.style.setProperty("--topSideEdit", theme.editor);
+    document.documentElement.style.setProperty("--workingFile", theme.workingFile);
+    document.documentElement.style.setProperty("--tabGap", theme.tabGap);
+    document.documentElement.style.setProperty("--dividerColour", theme.invertDefault);
+    document.documentElement.style.setProperty("--primary_text", theme.default);
+    document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
+    document.documentElement.style.setProperty("--selectedFileBg", theme.selectedFileBg);
     
-
+    editor.setThemeOfEditor(theme);
 }
 
 
@@ -460,7 +468,13 @@ ipcRenderer.on("getPing", (event, arg) =>
     console.log("Got ping?");
 });
 
-
+ipcRenderer.on("themeRequestChange", (event, arg) =>
+{
+    console.log("Got request for " + arg);
+    console.log(themeReader.returnThemeOnStringName(arg));
+    console.log(typeof(themeReader.returnThemeOnStringName(arg)));
+    updateTheme(themeReader.returnThemeOnStringName(arg));
+});
 
 /*
     ------------------------------------

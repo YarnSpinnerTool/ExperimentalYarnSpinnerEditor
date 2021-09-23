@@ -168,6 +168,59 @@ export class EditorController
         });
     }
 
+
+    setThemeOfEditor(theme: Record<string,string>): void
+    {
+        monaco.editor.defineTheme("customTheme", {
+            base: "vs",
+            inherit: true,
+            rules: [
+                //{ background: 'CFD8DC'},
+                { token: "body.bold", foreground: theme.default, fontStyle: "bold" },
+                { token: "body.underline", foreground: theme.default, fontStyle: "underline" },
+                { token: "body.italic", foreground: theme.default, fontStyle: "italic" },
+
+                { token: "Commands", foreground: theme.commands },
+                { token: "CommandsInternals", foreground: theme.commandsInternal },
+                { token: "VarAndNum", foreground: theme.varAndNum },
+                { token: "Options", foreground: theme.options },
+                { token: "Interpolation", foreground: theme.interpolation },
+                { token: "Strings", foreground: theme.strings },
+                { token: "Metadata", foreground: theme.metadata },
+                { token: "Comments", foreground: theme.comments },
+                { token: "Default", foreground: theme.default },
+
+                { token: "Invalid", foreground: "#931621" }
+
+            ],
+            // * A list of colour names: https://github.com/Microsoft/monaco-editor/blob/main/test/playground.generated/customizing-the-appearence-exposed-colors.html
+            colors: {
+                "editor.foreground": theme.default,
+                "editor.background": theme.editor,
+                "editorCursor.foreground": theme.invertDefault,
+                //"editor.lineHighlightBackground": theme.invertDefault, //Removed from parameter
+
+                //Shows indentation
+                "editorIndentGuide.background": theme.metadata,
+
+                //lineNumberColour
+                "editorLineNumber.foreground": theme.default,
+                //Changes bgColour of lineNumbers
+                "editorGutter.background": theme.editorMinimap,
+
+                "editor.selectionBackground": theme.invertDefault,
+                "editor.inactiveSelectionBackground": theme.editor,
+                "minimap.background": theme.editorMinimap
+
+            }
+        });
+
+        this.editor.updateOptions({
+            theme: "customTheme"
+        });
+    }
+
+
     /**
     * Generic function for inserting at the front and the end of a selection.
     *

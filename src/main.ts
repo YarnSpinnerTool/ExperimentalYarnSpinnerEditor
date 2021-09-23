@@ -415,6 +415,14 @@ ipcMain.on("returnUnsavedFiles", (event, unsaved) =>
     returnSavePrompt(unsaved);
 });
 
+
+ipcMain.on("themeChange", (event, themeSelection) =>
+{
+    console.log("THEME chosen: " + themeSelection);
+    //Set to 1 because windows act as a queue system
+    BrowserWindow.getAllWindows()[1].webContents.send("themeRequestChange", themeSelection);
+});
+
 /*
 	------------------------------------
 				EMITTERS

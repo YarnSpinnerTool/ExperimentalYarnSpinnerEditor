@@ -17,8 +17,8 @@
 // nodeIntegration is set to true in webPreferences.
 // Use preload.js to selectively enable features
 // needed in the renderer process.
-import { ipcRenderer, BrowserWindow  } from "electron";
-import "./index.css";
+import { ipcRenderer } from "electron";
+// import "./index.css";
 
 
 console.log("This should only be shown on creation of window");
@@ -29,6 +29,15 @@ if (settingsButton)
 
     settingsButton.addEventListener("click", (event) =>
     {
+        const themeSelectElement: HTMLSelectElement = document.getElementById("ThemeValue") as HTMLSelectElement;
+
+        if (themeSelectElement)
+        {
+            const value = themeSelectElement.options[themeSelectElement.selectedIndex].value;
+            console.log(value);
+            ipcRenderer.send("themeChange", value);
+        }
+
         console.log("Settings button beeeeeen clicked");
         ipcRenderer.send("getPing", null, null);
     });

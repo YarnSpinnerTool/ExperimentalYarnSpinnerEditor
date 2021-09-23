@@ -22,7 +22,7 @@
 				"icon": "./assets/icons/YSLogo.png",
 				"appCategoryType": "public.app-category.utilities",
 				"extendInfo": "assets/Info.plist",
-                "name": "Yarn Spinner Editor",
+				"name": "Yarn Spinner Editor",
 				"extraResource": [
 					"assets/icons/yarnIcon.png",
 					"assets/icons/YSLogo.png"
@@ -111,6 +111,7 @@
 	},
 	"dependencies": {
 		"@electron-forge/publisher-github": "^6.0.0-beta.59",
+		"electron-settings": "^4.0.2",
 		"electron-squirrel-startup": "^1.0.0",
 		"file-loader": "^6.2.0",
 		"konva": "^8.1.3",

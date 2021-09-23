@@ -13,27 +13,95 @@
 	<meta charset="UTF-8" />
 	<title>Yarn Spinner Editor</title>
 	<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+
+    <style>
+
+        body {
+            background-color: lightgrey;
+
+        }
+
+        .centerDiv {
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 10px;
+            width: 75%;
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+
+            background-color: ghostwhite;
+        }
+
+        .settingsElement{
+            border-bottom-style: solid;
+            border-bottom-width: 1px;
+            border-color: grey;
+
+            margin-top: 5px;
+            padding-bottom: 5px;
+
+            display: flex;
+            justify-content: space-evenly;
+        }
+
+
+        #themeValue{
+            width: 200px;
+            color: pink;
+            background-color: pink;
+        }
+
+        #themeValue option {
+            width: 200px;
+        }
+
+        #settingsConfirmChangeButton{
+            border: 1px solid black;
+            background-color: green;
+            color: white;
+        }
+    </style>
 </head>
 
 <body>
-	<p>✨ THIS IS THE SETTINGS PAGE! ✨</p>
-    <div>
-        <p>Hello Guv'Nar</p>
-        
-        <form>
-            <div horizontal layout>
-                <label for="ThemeOption">Current Theme:</label>
-                <select name="ThemeValue" id="ThemeValue">
-                    <option value ="OGBlue">OGBlue</option>
-                    <option value ="Pink">Pink</option>
-                    <option value ="Night">Night</option>
-                    <option value ="WireFrame">WireFrame</option>
-                </select>
-            </div>
-            <div>
-                <button id=settingsConfirmChangeButton>Confirm change</button>
-            </div>
-        </form>
+	<p class="centerDiv">✨ THIS IS THE SETTINGS PAGE! ✨</p>
+    <div class="centerDiv">
+        <div horizontal layout class="settingsElement">
+            <label for="ThemeOption">Current Theme:</label>
+            <select name="ThemeValue" id="ThemeValue">
+                <option value ="OGBlue">OGBlue</option>
+                <option value ="Pink">Pink</option>
+                <option value ="Night">Night</option>
+                <option value ="WireFrame">WireFrame</option>
+            </select>
+        </div>
+
+        <div class="settingsElement">
+            <p>Future setting placeholder</p>
+        </div>
+
+        <div class="settingsElement">
+            <p>Future setting placeholder</p>
+        </div>
+
+        <div class="settingsElement">
+            <p>Future setting placeholder</p>
+        </div>
+
+        <div class="settingsElement">
+            <p>Future setting placeholder</p>
+        </div>
+
+        <div class="settingsElement">
+            <p>Future setting placeholder</p>
+        </div>
+
+
+
+        <div class="settingsElement">
+            <button id=settingsConfirmChangeButton>Confirm changes</button>
+        </div>
     </div>
 </body>
 </html>

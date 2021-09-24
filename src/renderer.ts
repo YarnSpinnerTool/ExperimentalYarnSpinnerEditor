@@ -27,6 +27,24 @@ import { EditorController } from "./controllers/EditorController";
 import { ThemeReader } from "./controllers/themeReader";
 import settings from "electron-settings";
 
+//Forces the creation of settings with our defaults
+if (!settings.hasSync("theme"))
+{
+    settings.setSync("theme", {
+        name: "OGBlue",
+        code: {
+            themeName: "OGBlue"
+        }
+    });
+
+    settings.setSync("font", {
+        fontname: "Roboto",
+        code: {
+            fontname: "Roboto"
+        }
+    });
+}
+
 const yarnFileManager = new YarnFileManager();
 const yarnNodeList = new YarnNodeList();
 const themeReader = new ThemeReader();

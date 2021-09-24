@@ -25,11 +25,12 @@ import { YarnNodeList } from "./controllers/NodeTranslator";
 import { setUpResizing } from "./views/ts/WindowResizing";
 import { EditorController } from "./controllers/EditorController";
 import { ThemeReader } from "./controllers/themeReader";
+import settings from "electron-settings";
 
 const yarnFileManager = new YarnFileManager();
 const yarnNodeList = new YarnNodeList();
 const themeReader = new ThemeReader();
-const theme = themeReader.OGBlue;
+const theme = themeReader.returnThemeOnStringName(settings.getSync("theme.name").toString());
 const editor = new EditorController("container", theme, yarnFileManager, yarnNodeList);
 setUpResizing();
 
@@ -37,6 +38,7 @@ setUpResizing();
 //set css variables
 //TODO streamline variables, a few of these are using the same colour
 document.documentElement.style.setProperty("--editor", theme.editor);
+document.documentElement.style.setProperty("--editorMinimap", theme.editorMinimap);
 document.documentElement.style.setProperty("--topSideEdit", theme.editor);
 document.documentElement.style.setProperty("--workingFile", theme.workingFile);
 document.documentElement.style.setProperty("--tabGap", theme.tabGap);
@@ -44,6 +46,7 @@ document.documentElement.style.setProperty("--dividerColour", theme.invertDefaul
 document.documentElement.style.setProperty("--primary_text", theme.default);
 document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
 document.documentElement.style.setProperty("--selectedFileBg", theme.selectedFileBg);
+document.documentElement.style.setProperty("--font_choice", settings.getSync("font.fontname").toString());
 
 
 // * Initialise and create a node in the node view.
@@ -66,6 +69,7 @@ function updateTheme(theme: Record<string,string>): void
 {
     console.log("TODO IMPLEMENT UPDATE THEME");
     document.documentElement.style.setProperty("--editor", theme.editor);
+    document.documentElement.style.setProperty("--editorMinimap", theme.editorMinimap);
     document.documentElement.style.setProperty("--topSideEdit", theme.editor);
     document.documentElement.style.setProperty("--workingFile", theme.workingFile);
     document.documentElement.style.setProperty("--tabGap", theme.tabGap);
@@ -77,6 +81,16 @@ function updateTheme(theme: Record<string,string>): void
     editor.setThemeOfEditor(theme);
 }
 
+/**
+ * Updates the font based on parameter choice
+ * @param {string} font Font family to change to 
+ * @returns {void}
+ */
+function updateFont(font: string): void
+{
+    document.documentElement.style.setProperty("--font_choice", settings.getSync("font.fontname").toString());
+    editor.setFontOfEditor(font);
+}
 
 //Working file details specific events
 const workingFiles = document.getElementById("workingFilesDetail");
@@ -474,6 +488,12 @@ ipcRenderer.on("themeRequestChange", (event, arg) =>
     console.log(themeReader.returnThemeOnStringName(arg));
     console.log(typeof(themeReader.returnThemeOnStringName(arg)));
     updateTheme(themeReader.returnThemeOnStringName(arg));
+});
+
+ipcRenderer.on("fontChangeRequest", (event, arg) =>
+{
+    console.log("Request to change font to: " + arg);
+    updateFont(arg.toString());
 });
 
 /*

@@ -37,6 +37,7 @@ img {
     /* ~~CONSTANT COLOURS~~ */
     /* --primary_text: #000000;
     --secondary_text: #FFFFFF;  */
+    font-family: var(--font_choice);
 
 }
 
@@ -462,14 +463,14 @@ cursor: col-resize;
     /* position: absolute; */
     height: 84vh;
 
-    background-color: #CFD8DC;
+    background-color: var(--editor);
 }
 
 .miniNodeEditorView{
     /* position: absolute; */
     width: 75px;
     height: 98vh;
-    background-color: var(--selectedFileBg);
+    background-color: var(--editorMinimap);
     /* z-index: 2; */
 }
 

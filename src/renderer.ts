@@ -25,11 +25,15 @@ import { YarnFile } from "./models/YarnFile";
 import { YarnNodeList } from "./controllers/NodeTranslator";
 import { setUpResizing } from "./views/ts/WindowResizing";
 import { EditorController } from "./controllers/EditorController";
+import {setActiveFile, addFileToDisplay} from './controllers/DomHelpers';
+import { RendererIPC, saveEmitter, saveAsEmitter, openFileEmitter} from "./controllers/RendererIPC";
+
 
 const yarnFileManager = new YarnFileManager();
 const yarnNodeList = new YarnNodeList();
 const theme = new ThemeReader().OGBlue;
 const editor = new EditorController("container", theme, yarnFileManager, yarnNodeList);
+let ipcHandler = new RendererIPC(yarnFileManager, editor)
 setUpResizing();
 
 
@@ -155,27 +159,7 @@ if (workingFiles)
 }
 
 
-/**
- * Add and remove classes to correctly highlight the active file.
- * 
- * @param {string|number} fileToMarkCurrent The file to mark current.
- * 
- * @returns {void}
- */
-function setActiveFile(fileToMarkCurrent: string | number) 
-{
-    // Convert mixed type to string.
-    fileToMarkCurrent = fileToMarkCurrent.toString();
 
-    const activeFiles = document.getElementsByClassName("active-file");
-    Array.from(activeFiles).forEach((value) => 
-    {
-        value.classList.remove("active-file");
-    });
-
-    document.getElementById(fileToMarkCurrent)?.classList.add("active-file");
-
-}
 
 //Set selection to BOLD
 const boldText = document.getElementById("boldTextIcon");
@@ -223,7 +207,7 @@ if (saveFileIcon)
 const newFileIcon = document.getElementById("newFileIcon");
 if (newFileIcon) 
 {
-    newFileIcon.onclick = function () { createNewFile(); };
+    newFileIcon.onclick = function () { ipcHandler.createNewFile(); };
 }
 
 const openFolderIcon = document.getElementById("openFolderIcon");
@@ -261,248 +245,4 @@ const findIcon = document.getElementById("searchFolderIcon");
 if (findIcon) 
 {
     findIcon.onclick = function () { editor.showFindDialog(); };
-}
-
-/**
- * Creates a new file and shows it in the display.
- * 
- * @returns {void}
- */
-function createNewFile() 
-{
-    yarnFileManager.createEmptyFile();
-    addFileToDisplay(yarnFileManager.createEmptyFile());
-    editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-    editor.setReadOnly(false);
-}
-
-/**
- * Creates and appends the HTML required for showing a new file.
- * 
- * @param {YarnFIleClass} file The file to add to the display.
- * 
- * @returns {void}
- */
-function addFileToDisplay(file: YarnFile): void 
-{
-    const div = document.createElement("div");
-    div.setAttribute("id", file.getUniqueIdentifier().toString());
-
-    const closeButton = document.createElement("button");
-    closeButton.textContent = "x";
-
-    const para = document.createElement("p");
-    para.textContent = file.getName();
-
-    div.appendChild(para);
-    div.appendChild(closeButton);
-
-
-    const fileListElement = document.getElementById("workingFilesDetail");
-
-    if (fileListElement) 
-    {
-        fileListElement.appendChild(div);
-    }
-    else 
-    {
-        console.error("OpenFileError: Cannot append file to display list");
-    }
-
-    setActiveFile(file.getUniqueIdentifier());
-}
-
-
-/*
-    ******************************************************************************************************************
-                                        IPCRenderer Listeners and Emitters                                                                                                                                                                                            
-    ******************************************************************************************************************
-*/
-
-/*
-    ------------------------------------
-                LISTENERS
-    ------------------------------------
-*/
-
-ipcRenderer.on("openFile", (event, files:{ path: string, contents: string, name: string }[]) => 
-{
-    files.forEach(openedFileDetails => 
-    {
-        if (!openedFileDetails.name) 
-        {
-            openedFileDetails.name = "New File";
-        }
-    
-        const openedFile = new YarnFile(openedFileDetails.path, openedFileDetails.contents, openedFileDetails.name, Date.now());
-        yarnFileManager.addToFiles(openedFile);
-        yarnFileManager.setCurrentOpenYarnFile(openedFile.getUniqueIdentifier());
-        addFileToDisplay(openedFile);
-        editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-        editor.setReadOnly(false);
-        
-    });
-});
-
-
-ipcRenderer.on("fileSaveResponse", (event, response, filePath, fileName) => 
-{
-    if (response) 
-    {
-        if (filePath) 
-        {
-            yarnFileManager.getCurrentOpenFile().setFilePath(filePath);
-        }
-
-        if (fileName) 
-        {
-            yarnFileManager.getCurrentOpenFile().setName(fileName);
-
-            const workingDetailDiv = document.getElementById(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString());
-
-            if (workingDetailDiv) 
-            {
-                workingDetailDiv.children[0].innerHTML = yarnFileManager.getCurrentOpenFile().getName();
-            }
-        }
-
-        yarnFileManager.getCurrentOpenFile().fileSaved();
-
-    }
-    else 
-    {
-        console.error("File save error occurred");
-    }
-});
-
-ipcRenderer.on("setOpenFile", (event, uid) => 
-{
-    yarnFileManager.setCurrentOpenYarnFile(uid);
-    editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-    editor.setReadOnly(false);
-    setActiveFile(uid);
-});
-
-ipcRenderer.on("setFileSaved", (event, uid) =>
-{
-    yarnFileManager.getYarnFile(uid).fileSaved();
-    const workingDetailDiv = document.getElementById(uid.toString());
-
-    if (workingDetailDiv) 
-    {
-        workingDetailDiv.children[0].innerHTML = yarnFileManager.getYarnFile(uid).getName();
-    }
-});
-
-ipcRenderer.on("mainRequestSaveAs", () => 
-{
-    saveAsEmitter();
-});
-
-ipcRenderer.on("mainRequestSave", () => 
-{
-    saveEmitter();
-});
-
-ipcRenderer.on("mainRequestUnsavedFiles", () =>
-{
-    getUnsavedFiles();
-});
-
-ipcRenderer.on("mainRequestNewFile", () => 
-{
-    createNewFile();
-});
-
-ipcRenderer.on("mainRequestFind", () => 
-{
-    editor.showFindDialog();
-});
-
-ipcRenderer.on("mainRequestUndo", () => 
-{
-    editor.actionUndo();
-});
-
-ipcRenderer.on("mainRequestRedo", () => 
-{
-    editor.actionRedo();
-});
-
-ipcRenderer.on("mainRequestFindAndReplace", () => 
-{
-    editor.showFindAndReplaceDialog();
-});
-
-ipcRenderer.on("gotPing", (event, arg) => 
-{
-    console.log(arg);//Should be pong
-});
-
-/*
-    ------------------------------------
-                EMITTERS
-    ------------------------------------
-*/
-
-/*
-    FORMAT:
-        EVENT LISTENER (EVENT, => {
-            ipcRenderer.send(CHANNEL, ARGS)
-        })
-*/
-
-/**
- * Emits an event containing the contents of the editor, instructing the main process to perform the Save As function.
- * 
- * @returns {void}
- */
-function saveAsEmitter() 
-{
-    ipcRenderer.send("fileSaveToMain", null, yarnFileManager.getCurrentOpenFile().getContents());
-}
-
-/**
- * Emits an event containing the contents of the editor, instructing the main process to perform the Save As function.
- * 
- * @returns {void}
- */
-function saveEmitter() 
-{
-    ipcRenderer.send("fileSaveToMain", yarnFileManager.getCurrentOpenFile().getPath(), yarnFileManager.getCurrentOpenFile().getContents());
-}
-/**
- * Creates a list of unsaved files open in the editor and sends the info to main.
- * 
- * @returns {void}
- */
-function getUnsavedFiles()
-{
-    const unsaved:string[][] = [[],[],[],[]];
-
-    yarnFileManager.getFiles().forEach((value) => 
-    {
-        console.log(value);
-        if(!value.getSaved())
-        {
-            unsaved[0].push(value.getUniqueIdentifier().toString());
-            unsaved[1].push(value.getName());
-            unsaved[2].push(value.getPath());
-            unsaved[3].push(value.getContents());
-        }
-    });
-    console.log(unsaved);
-    ipcRenderer.send("returnUnsavedFiles", unsaved);
-}
-
-
-/**
- * Emits an event to request that main opens a file.
- * 
- * @param {string} filepath file path if available
- * @returns {void}
- */
-function openFileEmitter(filepath?: string[]) 
-{
-    ipcRenderer.send("fileOpenToMain", filepath);
 }

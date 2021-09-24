@@ -48,7 +48,7 @@ export class YarnFileManager
 
 	createEmptyFile(): YarnFile 
 	{
-	    const newFile: YarnFile = new YarnFile(null, null, null, Date.now());
+	    const newFile = new YarnFile(null, null, null, Date.now());
 	    this.addToFiles(newFile);
 	    this.setCurrentOpenYarnFile(newFile.getUniqueIdentifier());
 

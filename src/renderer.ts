@@ -18,22 +18,20 @@
 // Use preload.js to selectively enable features
 // needed in the renderer process.
 import "./index.css";
-import { ipcRenderer } from "electron";
 import { ThemeReader } from "./controllers/themeReader";
 import { YarnFileManager } from "./models/YarnFileManager";
-import { YarnFile } from "./models/YarnFile";
 import { YarnNodeList } from "./controllers/NodeTranslator";
 import { setUpResizing } from "./views/ts/WindowResizing";
 import { EditorController } from "./controllers/EditorController";
-import {setActiveFile, addFileToDisplay} from './controllers/DomHelpers';
-import { RendererIPC, saveEmitter, saveAsEmitter, openFileEmitter} from "./controllers/RendererIPC";
+import { setActiveFile, addFileToDisplay } from "./controllers/DomHelpers";
+import { RendererIPC } from "./controllers/RendererIPC";
 
 
 const yarnFileManager = new YarnFileManager();
 const yarnNodeList = new YarnNodeList();
 const theme = new ThemeReader().OGBlue;
 const editor = new EditorController("container", theme, yarnFileManager, yarnNodeList);
-let ipcHandler = new RendererIPC(yarnFileManager, editor)
+const ipcHandler = new RendererIPC(yarnFileManager, editor);
 setUpResizing();
 
 
@@ -201,7 +199,7 @@ const saveFileIcon = document.getElementById("saveFileIcon");
 
 if (saveFileIcon) 
 {
-    saveFileIcon.onclick = () => { saveEmitter(); };
+    saveFileIcon.onclick = () => { ipcHandler.saveEmitter(); };
 }
 
 const newFileIcon = document.getElementById("newFileIcon");
@@ -213,30 +211,30 @@ if (newFileIcon)
 const openFolderIcon = document.getElementById("openFolderIcon");
 if (openFolderIcon) 
 {
-    openFolderIcon.onclick = function () { openFileEmitter(); };
+    openFolderIcon.onclick = function () { ipcHandler.openFileEmitter(); };
 }
 
 // Load a file into the application if it has a .yarn extension
-document.ondrop = (e) =>
+document.ondrop = (e) => 
 {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const paths = [];
-    
+
     const files = e.dataTransfer.files;
     for (let i = 0; i < files.length; i++) 
     {
-        if(files[i].path.endsWith(".yarn")) 
+        if (files[i].path.endsWith(".yarn")) 
         {
             paths.push(files[i].path);
-        }        
+        }
     }
-    openFileEmitter(paths);
+    ipcHandler.openFileEmitter(paths);
 };
 
 // ! Prevents issue with electron and ondrop event not firing
-document.ondragover = (e) =>
+document.ondragover = (e) => 
 {
     e.preventDefault();
 };

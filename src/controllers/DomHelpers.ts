@@ -7,18 +7,18 @@ import { YarnFile } from "../models/YarnFile";
 * 
 * @returns {void}
 */
-export function setActiveFile(fileToMarkCurrent: string | number) 
+export function setActiveFile(fileToMarkCurrent: string | number)  : void
 {
-   // Convert mixed type to string.
-   fileToMarkCurrent = fileToMarkCurrent.toString();
+    // Convert mixed type to string.
+    fileToMarkCurrent = fileToMarkCurrent.toString();
 
-   const activeFiles = document.getElementsByClassName("active-file");
-   Array.from(activeFiles).forEach((value) => 
-   {
-       value.classList.remove("active-file");
-   });
+    const activeFiles = document.getElementsByClassName("active-file");
+    Array.from(activeFiles).forEach((value) => 
+    {
+        value.classList.remove("active-file");
+    });
 
-   document.getElementById(fileToMarkCurrent)?.classList.add("active-file");
+    document.getElementById(fileToMarkCurrent)?.classList.add("active-file");
 
 }
 
@@ -30,30 +30,30 @@ export function setActiveFile(fileToMarkCurrent: string | number)
  * @returns {void}
  */
 export function addFileToDisplay(file: YarnFile): void 
- {
-     const div = document.createElement("div");
-     div.setAttribute("id", file.getUniqueIdentifier().toString());
+{
+    const div = document.createElement("div");
+    div.setAttribute("id", file.getUniqueIdentifier().toString());
  
-     const closeButton = document.createElement("button");
-     closeButton.textContent = "x";
+    const closeButton = document.createElement("button");
+    closeButton.textContent = "x";
  
-     const para = document.createElement("p");
-     para.textContent = file.getName();
+    const para = document.createElement("p");
+    para.textContent = file.getName();
  
-     div.appendChild(para);
-     div.appendChild(closeButton);
+    div.appendChild(para);
+    div.appendChild(closeButton);
  
  
-     const fileListElement = document.getElementById("workingFilesDetail");
+    const fileListElement = document.getElementById("workingFilesDetail");
  
-     if (fileListElement) 
-     {
-         fileListElement.appendChild(div);
-     }
-     else 
-     {
-         console.error("OpenFileError: Cannot append file to display list");
-     }
+    if (fileListElement) 
+    {
+        fileListElement.appendChild(div);
+    }
+    else 
+    {
+        console.error("OpenFileError: Cannot append file to display list");
+    }
  
-     setActiveFile(file.getUniqueIdentifier());
- }
+    setActiveFile(file.getUniqueIdentifier());
+}

@@ -97,7 +97,7 @@ export class EditorController
         });
 
         const eventHandler = document.getElementById("miniNodeContainer");
-        eventHandler.addEventListener("newNode", function(e: CustomEvent)
+        eventHandler.addEventListener("newNode", function (e: CustomEvent) 
         {
             console.log("Editor controller : NEW NODE HAS BEEN CLICKED " + e);
 
@@ -115,31 +115,31 @@ export class EditorController
 
             let lineToInsert = allLines.length - 1;
 
-            for (let n = allLines.length - 1; n > 0; n--)
+            for (let n = allLines.length - 1; n > 0; n--) 
             {
-                if (allLines[n] === "")
+                if (allLines[n] === "") 
                 {
                     lineToInsert = n;
                 }
 
-                else
+                else 
                 {
                     n = 0;
                 }
             }
 
-            for (let i = 0; i < insertNode.length; i++)
+            for (let i = 0; i < insertNode.length; i++) 
             {
                 allLines.splice(lineToInsert + i, 0, insertNode[i]);
             }
 
             this.editor.setValue(allLines.join("\n"));
             this.editor.focus();
-            this.editor.setPosition({column: 8, lineNumber: lineToInsert + 1});
+            this.editor.setPosition({ column: 8, lineNumber: lineToInsert + 1 });
 
         }.bind(this));
 
-        eventHandler.addEventListener("nodeMovement", function()
+        eventHandler.addEventListener("nodeMovement", function () 
         {
             console.log("Updating position of node based on movement");
             this.editor.setValue(this.editor.getValue());
@@ -204,7 +204,7 @@ export class EditorController
     modelChangeHandler(e: monaco.editor.IModelContentChangedEvent): void 
     {
         //TODO SETH - Maybe pass the ILineChange event info into this method too?
-       
+
 
         //TODO pass in the insertions here (the reassigning of the editor content) with a check to prevent the convert from content to node being ran on this run
         // As changing the content will call this again, prevents a double run (which wont cause any problems, just will make it more efficient)
@@ -217,16 +217,16 @@ export class EditorController
         let metadata: Map<string, string>;
 
 
-        
-        
-    
+
+
+
         const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue(), e);
-            
-    
+
+
         for (let i = 0; i < returnedObjectList.length; i++) 
         {
             const currentObject: ReturnObject = returnedObjectList[i];
-    
+
             if (currentObject.returnCode) 
             {
                 switch (currentObject.returnCode) 
@@ -251,9 +251,9 @@ export class EditorController
                     break;
                 case ReturnCode.Update:
                     console.log("Updating node");
-                    if(currentObject.returnNode)
+                    if (currentObject.returnNode) 
                     {
-                        nodeView.changeNodeName(currentObject.returnNode);   
+                        nodeView.changeNodeName(currentObject.returnNode);
                     }
                     break;
                 case ReturnCode.Jumps:
@@ -261,11 +261,11 @@ export class EditorController
                     //if (currentObject.returnJumps.length !== 0)
                     //{
                     nodeView.receiveJumps(currentObject.returnJumps);
-    
+
                     //}
                     break;
                 case ReturnCode.Content:
-    
+
                     console.log("We are setting content");
                     console.log(currentObject.returnLineContent);
                     // eslint-disable-next-line no-case-declarations
@@ -278,44 +278,44 @@ export class EditorController
                         },
                         text: currentObject.returnLineContent
                     };
-    
+
                     this.editor.executeEdits(currentObject.returnLineContent, [operation]);
                     break;
                 }
             }
         }
-        
+
         const listOfNodes = nodeView.getAllNodes();
         //Another line to get a new node?
 
         let changesOccured = false;
 
-        if (listOfNodes.size !== 0)
+        if (listOfNodes.size !== 0) 
         {
-            for (let i = 0; i < allLines.length; i++)
+            for (let i = 0; i < allLines.length; i++) 
             {
-                if (allLines[i].match(titleRegexExp))
+                if (allLines[i].match(titleRegexExp)) 
                 {
                     //TODO pop the last node found out of the list of nodes
-    
+
                     lastNodeTitle = this.yarnNodeList.formatTitleString(allLines[i]);
-                        
+
                     listOfNodes.forEach((node) => 
                     {
-                        if (node.getTitle() === lastNodeTitle)
+                        if (node.getTitle() === lastNodeTitle) 
                         {
                             lastNode = node;
                             metadata = node.getMetaData();
-                        }    
+                        }
                     });
                 }
-    
-                else if (lastNodeTitle !== "")
+
+                else if (lastNodeTitle !== "") 
                 {
-                    if (allLines[i].match(/---/))
+                    if (allLines[i].match(/---/)) 
                     {
                         //End of metadata and can then insert above this line, any metadata that wasn't identified to exist
-                        if (metadata !== null && metadata.size !== 0)
+                        if (metadata !== null && metadata.size !== 0) 
                         {
                             let increment = 0;
                             metadata.forEach((value, key) => 
@@ -323,26 +323,26 @@ export class EditorController
                                 const stringToInsert = key + ": " + value;
                                 allLines.splice(i + increment, 0, stringToInsert);
                                 increment++;
-    
+
                                 changesOccured = true;
                                 metadata.delete(key.trim());
                             });
                             //Assign the lines
                         }
                     }
-    
-                    if (allLines[i].match(/(.*):(.*)/) && !allLines[i].match(titleRegexExp))
+
+                    if (allLines[i].match(/(.*):(.*)/) && !allLines[i].match(titleRegexExp)) 
                     {
                         //Matches metadata but not title
                         const lineSplit = allLines[i].split(":");
-                        
 
-                        if (metadata !== null && metadata.get(lineSplit[0].trim()))
+
+                        if (metadata !== null && metadata.get(lineSplit[0].trim())) 
                         {
                             //Metadata exists in node, so update the line
                             const metaValue = metadata.get(lineSplit[0].trim());
 
-                            if (lineSplit[1].trim() !== metaValue)
+                            if (lineSplit[1].trim() !== metaValue) 
                             {
                                 allLines[i] = lineSplit[0] + ": " + metaValue;
                                 changesOccured = true;
@@ -350,30 +350,30 @@ export class EditorController
                             metadata.delete(lineSplit[0].trim());//Remove the metadata from the list
                         }
                     }
-    
-                    if (allLines[i].match(/===/))
+
+                    if (allLines[i].match(/===/)) 
                     {
-                        if (lastNode !== null)
+                        if (lastNode !== null) 
                         {
                             listOfNodes.delete(lastNode.getUniqueIdentifier());
                         }
-    
+
                         lastNodeTitle = "";
                         metadata = null;
                         lastNode = null;
                     }
                 }
             }
-    
+
             console.log(listOfNodes);
         }
-    
-        if (changesOccured)
+
+        if (changesOccured) 
         {
             console.log("Resetting editor value");
             this.editor.setValue(allLines.join("\n"));
             changesOccured = false;
-        }    
+        }
 
         // Leaving this here to stop eslint complaining about unused vars
         //console.log(e);

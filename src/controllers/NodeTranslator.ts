@@ -278,12 +278,35 @@ headerTag: tester
 title: ttt
 headerTag: otherTest
 ---
+<<jump ttt2ElectricBoogaloo>>
 ===
 
 title: ttt2ElectricBoogaloo
 headerTag: otherTest
 --- 
+<<jump test1>>
+<<jump test2>>
+<<jump test3>>
+<<jump test4>>
+<<jump test5>>
 === 
+
+title: test1
+---
+===
+
+title: test2
+---
+===
+
+title: test3
+---
+===
+
+title: test4
+---
+<<jump abc>>
+===
             */
 
 

@@ -6,12 +6,15 @@ import { YarnFileManager } from "../models/YarnFileManager";
 import { YarnFile } from "../models/YarnFile";
 import { ReturnCode, ReturnObject, YarnNodeList } from "./NodeTranslator";
 import { YarnNode } from "../models/YarnNode";
+import { NodeObject, TreeRepresentationOfGraph } from "./TreeGenerator";
 
 export class EditorController 
 {
     editor: monaco.editor.IStandaloneCodeEditor;
     yarnFileManager: YarnFileManager;
     yarnNodeList: YarnNodeList;
+
+    generateTreeRun = false;
 
     constructor(editorContainerId: string, theme: Record<string, string>, yarnFileManager: YarnFileManager, yarnNodeList: YarnNodeList) 
     {
@@ -200,15 +203,100 @@ export class EditorController
     }
 
 
+    convertFromNodeToYarnNode(treeRep: TreeRepresentationOfGraph) : Map<number,YarnNode>
+    {
+        const treeRepNodes = treeRep.allNodes;
+        const allYarnNodes = new Map<number, YarnNode>();
+
+
+        treeRepNodes.forEach((node, idNumber) => 
+        {
+            const metaDataMap = new Map<string,string>();
+            metaDataMap.set("xpos", node.getXPosition().toString());
+            metaDataMap.set("ypos", node.getYPosition().toString());
+
+            const yarnNode = new YarnNode(
+                idNumber,
+                node.getTitle(),
+                -1,
+                -1,
+                -1,
+                metaDataMap
+            );
+
+            allYarnNodes.set(idNumber, yarnNode);
+        });
+
+
+        return allYarnNodes;
+    }
+
+    convertAllNodesFromYarnNodeToNode(treeRep: TreeRepresentationOfGraph, listOfNodes: Map<number, YarnNode>) : void
+    {
+        console.log("Converting from yarn node to node");
+        console.log("list of nodes passewd through");
+        console.log(listOfNodes);
+        const ArrayOfAllJumps = this.yarnNodeList.getJumps();
+
+        console.log("length of all nodes " + this.yarnNodeList.getNodes().size);
+        let assumeFirstNodeRoot = true;
+
+        listOfNodes.forEach((node, idNumber) => 
+        {
+            console.log("Converting :" + node.getTitle());
+
+            const createdNodeObject = new NodeObject(
+                node.getUniqueIdentifier(),
+                node.getTitle()
+            );
+
+            if (assumeFirstNodeRoot)
+            {
+                treeRep.rootNode = createdNodeObject;
+                assumeFirstNodeRoot = false;
+            }
+
+            console.log("Created: NODE " + createdNodeObject.getTitle());
+
+            treeRep.addChildToNodeList(createdNodeObject);
+        });
+
+        ArrayOfAllJumps.forEach((NodeJump) => 
+        {
+            console.log("Iterate over each jump and assign child based on targets and sources");
+            
+            if (treeRep.allNodes.get(NodeJump.getSource()) && treeRep.allNodes.get(NodeJump.getTarget()))
+            {
+                treeRep.addChildIDToNodeParentID(NodeJump.getSource(), NodeJump.getTarget());
+                
+            }
+            
+        });
+
+
+        console.log(treeRep.rootNode);
+
+        treeRep.buildTreeCoordinates(70,70,70,70);
+
+        console.log(treeRep.allNodes);
+
+
+    }
+
+    handleNodeTreeBuild()
+    {
+        console.log("Running tree");
+        const TreeRep = new TreeRepresentationOfGraph();
+
+        this.convertAllNodesFromYarnNodeToNode(TreeRep, this.yarnNodeList.getNodes());
+        const listOfNodes = this.convertFromNodeToYarnNode(TreeRep);
+        nodeView.updateNodePositions(listOfNodes, this.yarnNodeList.getJumps());
+        this.generateTreeRun = false;
+    }
+
     //Editor specific events
     modelChangeHandler(e: monaco.editor.IModelContentChangedEvent): void 
     {
-        //TODO SETH - Maybe pass the ILineChange event info into this method too?
-       
-
-        //TODO pass in the insertions here (the reassigning of the editor content) with a check to prevent the convert from content to node being ran on this run
-        // As changing the content will call this again, prevents a double run (which wont cause any problems, just will make it more efficient)
-
         const allLines = this.editor.getValue().split("\n");
         const titleRegexExp = /(title:.*)/g;//Get title match
 
@@ -216,12 +304,7 @@ export class EditorController
         let lastNode: YarnNode = null;
         let metadata: Map<string, string>;
 
-
-        
-        
-    
         const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue(), e);
-            
     
         for (let i = 0; i < returnedObjectList.length; i++) 
         {
@@ -284,8 +367,9 @@ export class EditorController
                 }
             }
         }
-        
+
         const listOfNodes = nodeView.getAllNodes();
+
         //Another line to get a new node?
 
         let changesOccured = false;
@@ -373,7 +457,8 @@ export class EditorController
             console.log("Resetting editor value");
             this.editor.setValue(allLines.join("\n"));
             changesOccured = false;
-        }    
+        }  
+          
 
         // Leaving this here to stop eslint complaining about unused vars
         //console.log(e);

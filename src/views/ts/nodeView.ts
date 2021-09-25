@@ -951,3 +951,26 @@ export function getAllNodes() : Map<number,YarnNode>
     Add a [+] button somewhere on the node view (put on top of mininode, might be able to create popup across the right on click like a context menu)
     Create the node, and pass that to the text view
 */
+
+/**
+ * Updates node positions based on list of nodes
+ * @param {Map<number, YarnNode>} nodesFromEditor Node map from the editor controller
+ * @param {NodeJump[]} jumps Jumps to update positioning of drawn jumps
+ * @returns {void}
+ */
+export function updateNodePositions(nodesFromEditor: Map<number,YarnNode>, jumps: NodeJump[]) : void
+{
+    nodesFromEditor.forEach((node, number) => 
+    {
+        nodeMap.get(number).x(parseInt(node.getMetaData().get("xpos")));
+        nodeMap.get(number).y(parseInt(node.getMetaData().get("ypos")));
+
+
+        //Updates views
+        updateMapPort();
+        updateMiniMap();
+        receiveJumps(jumps);
+        const nodeMovement = new CustomEvent("nodeMovement",{detail:5});
+        eventHandler.dispatchEvent(nodeMovement);
+    });
+}

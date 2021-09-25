@@ -369,7 +369,6 @@ select{
     background-color: var(--editor);
     margin-left: 15px;
     margin-top: 15px;
-    margin-bottom:15px;
     width: 100%;
     /* padding-top: 5px; */
 }
@@ -442,9 +441,8 @@ cursor: col-resize;
 }
 
 .editorView {
-    margin-top: 1vh;
-    margin-right: 2vw;
-    height: 82vh;
+    margin-right: 26px;
+    height: 83vh;
     /* z-index: 3; */
     flex: 1 1 0%;
     /* float: right; */

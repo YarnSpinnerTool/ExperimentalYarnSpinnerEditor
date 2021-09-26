@@ -74,6 +74,11 @@
 									"html": "./src/index.html",
 									"js": "./src/renderer.ts",
 									"name": "main_window"
+								},
+								{
+									"html": "./src/settingsIndex.html",
+									"js": "./src/settingsRenderer.ts",
+									"name": "settings_window"
 								}
 							],
 							"nodeIntegration": true
@@ -106,6 +111,7 @@
 	},
 	"dependencies": {
 		"@electron-forge/publisher-github": "^6.0.0-beta.59",
+		"electron-settings": "^4.0.2",
 		"electron-squirrel-startup": "^1.0.0",
 		"file-loader": "^6.2.0",
 		"konva": "^8.1.3",

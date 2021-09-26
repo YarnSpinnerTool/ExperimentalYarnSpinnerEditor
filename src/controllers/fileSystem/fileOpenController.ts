@@ -5,7 +5,7 @@
  *---------------------------------------------------------------------------------------------
  */
 
-import { dialog } from "electron";
+import { dialog, app } from "electron";
 import * as path from "path";
 import * as fs from "fs";
 
@@ -23,9 +23,9 @@ export function openFile(filePaths?: string|string[]): { path: string; contents:
     {
         const openFileResult = dialog.showOpenDialogSync(
             {
-                filters: [{ name: "Yarn file", extensions: ["txt", "yarn"] }],
+                filters: [{ name: "Yarn file", extensions: ["yarn"] }],
                 properties: ["openFile", "createDirectory", "multiSelections"],
-                defaultPath: path.join(__dirname, "../src/Test.txt")	//!change before release!
+                defaultPath: app.getPath("documents")
             });
 
         if (openFileResult && openFileResult[0]) 

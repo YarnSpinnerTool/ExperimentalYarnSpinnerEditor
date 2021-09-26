@@ -757,8 +757,8 @@ export function changeNodeName(titleNode: YarnNode) : void
 export function changeNodeColour(colourNode: YarnNode) : void
 {
     const node : Konva.Group = nodeMap.get(colourNode.getUniqueIdentifier());
-    const littleSquare = node.getChildren()[0];
-    const bigSquare = node.getChildren()[1];
+    const littleSquare = node.getChildren()[1];
+    const bigSquare = node.getChildren()[0];
 
     const nodeMetaData = colourNode.getMetaData();
     
@@ -773,6 +773,18 @@ export function changeNodeColour(colourNode: YarnNode) : void
         bigSquare.fill(colour);
         //@ts-expect-error Forge
         bigSquare.stroke(colour);
+    }else
+    {
+        let nodeColour = "#f2deac";
+        let nodeLighterColour = "#f5f0b0";
+        //@ts-expect-error Forge
+        littleSquare.fill(nodeColour);
+        //@ts-expect-error Forge
+        littleSquare.stroke(nodeColour);
+        //@ts-expect-error Forge
+        bigSquare.fill(nodeLighterColour);
+        //@ts-expect-error Forge
+        bigSquare.stroke(nodeColour);
     }
 }
 /**  

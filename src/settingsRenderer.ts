@@ -86,6 +86,8 @@ if (settingsButton)
 
         console.log("Settings button been clicked " + event );
         ipcRenderer.send("getPing", null, null); 
+        window.close();
+        
     });
 }
 

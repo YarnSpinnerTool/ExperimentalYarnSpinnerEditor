@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Generates a random integer based on min and max range
  * @param {number} min Minimum number to begin the range from

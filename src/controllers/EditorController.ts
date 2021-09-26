@@ -241,7 +241,7 @@ export class EditorController
         console.log("length of all nodes " + this.yarnNodeList.getNodes().size);
         let assumeFirstNodeRoot = true;
 
-        listOfNodes.forEach((node, idNumber) => 
+        listOfNodes.forEach((node) => 
         {
             console.log("Converting :" + node.getTitle());
 

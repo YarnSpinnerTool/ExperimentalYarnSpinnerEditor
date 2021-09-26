@@ -773,10 +773,11 @@ export function changeNodeColour(colourNode: YarnNode) : void
         bigSquare.fill(colour);
         //@ts-expect-error Forge
         bigSquare.stroke(colour);
-    }else
+    }
+    else
     {
-        let nodeColour = "#f2deac";
-        let nodeLighterColour = "#f5f0b0";
+        const nodeColour = "#f2deac";
+        const nodeLighterColour = "#f5f0b0";
         //@ts-expect-error Forge
         littleSquare.fill(nodeColour);
         //@ts-expect-error Forge

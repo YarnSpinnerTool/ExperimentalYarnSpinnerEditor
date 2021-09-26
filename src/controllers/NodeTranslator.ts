@@ -379,7 +379,7 @@ headerTag: otherTest
             if (allLines[lineStart].match(this.metadataRegexExp) && !allLines[lineStart].match(this.titleRegexExp)) 
             {
                 console.log("Metadata regex has been found on line " + lineStart);
-                this.checkForMetadataUpdate(allLines, contentChangeEvent);
+                listOfReturns.push(new ReturnObject(ReturnCode.Update, undefined, this.checkForMetadataUpdate(allLines, contentChangeEvent)));
             }
 
             if (allLines[lineStart].match(this.endRegexExp)) 
@@ -752,7 +752,7 @@ headerTag: otherTest
      * @param {monaco.editor.IModelContentChangedEvent} contentChangeEvent Monaco's content change event
      * @returns {void}
      */
-    checkForMetadataUpdate(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent): void 
+    checkForMetadataUpdate(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent): YarnNode 
     {
         let currentCursor = contentChangeEvent.changes[0].range.startLineNumber - 1;
         let nodeTitle = "";
@@ -801,6 +801,7 @@ headerTag: otherTest
         {
             node.setMetadata(metadata);
         }
+        return node;
     }
 
     

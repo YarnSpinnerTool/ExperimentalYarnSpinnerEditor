@@ -283,7 +283,7 @@ export class EditorController
 
     }
 
-    handleNodeTreeBuild()
+    handleNodeTreeBuild() : void
     {
         console.log("Running tree");
         const TreeRep = new TreeRepresentationOfGraph();

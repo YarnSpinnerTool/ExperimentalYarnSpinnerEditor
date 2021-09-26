@@ -11,7 +11,9 @@ function getRandomIntInclusive(min : number, max : number): number
     return Math.floor(Math.random() * (max - min + 1)) + min; // max & min both included 
 }
 
-
+/**
+ * Class to store node information that may not be able to translate directly into the Node object.
+ */
 class NodeTranslationTemporaryObject
 {
     parentNode?: NodeObject;
@@ -77,73 +79,73 @@ export class NodeObject
         this.buildFamilyHierarchy();
     }
 
-    getParentNode()
+    getParentNode(): NodeObject
     {
         return this.parentNode;
     }
 
-    getChildren()
+    getChildren() : NodeObject[]
     {
         return this.children;
     }
 
-    getFamilyHierarchyPath()
+    getFamilyHierarchyPath() : number[]
     {
         return this.familyHierarchyPath;
     }
 
-    getIdentificationNumber()
+    getIdentificationNumber() : number
     {
         return this.identificationNumber;
     }
 
-    getTitle()
+    getTitle() : string
     {
         return this.title;
     }
 
-    getXPosition()
+    getXPosition() : number
     {
         return this.xPosition;
     }
 
-    getYPosition()
+    getYPosition() : number
     {
         return this.yPosition;
     }
 
-    setParentNode(parent: NodeObject)
+    setParentNode(parent: NodeObject) : void
     {
         this.parentNode = parent;
     }
 
-    setChildren(children: NodeObject[])
+    setChildren(children: NodeObject[]) : void
     {
         this.children = children;
     }
 
-    setFamilyHierarchyPath(path: number[])
+    setFamilyHierarchyPath(path: number[]) : void
     {
         this.familyHierarchyPath = path;
     }
 
-    setIdentificationNumber(identificationNumber: number)
+    setIdentificationNumber(identificationNumber: number) : void
     {
         this.identificationNumber = identificationNumber;
     }
 
-    setTitle(title: string)
+    setTitle(title: string) : void
     {
         this.title = title;
     }
 
-    setPosition(xPosition: number, yPosition: number)
+    setPosition(xPosition: number, yPosition: number) : void
     {
         this.xPosition = xPosition;
         this.yPosition = yPosition;
     }
 
-    buildFamilyHierarchy()
+    buildFamilyHierarchy() : void
     {
         let nodeToCheck: NodeObject = this.parentNode;
         const newPath: number[] = [];
@@ -166,7 +168,7 @@ export class NodeObject
         this.setFamilyHierarchyPath(newPath);
     }
 
-    addChild(child: NodeObject)
+    addChild(child: NodeObject) : void
     {
         this.children.push(child);
         child.setParentNode(this);
@@ -174,12 +176,12 @@ export class NodeObject
     }
 
     //! Untested
-    removeChild(child: NodeObject)
+    removeChild(child: NodeObject) : void
     {
         this.children.splice(this.children.indexOf(child) , 1);
     }
 
-    returnNodeLevel()
+    returnNodeLevel() : number
     {
         this.buildFamilyHierarchy();
         return this.familyHierarchyPath.length;
@@ -205,17 +207,17 @@ export class TreeRepresentationOfGraph
         console.log("Creating tree");
     }
 
-    setRootNode(rootNode: NodeObject)
+    setRootNode(rootNode: NodeObject) : void
     {
         this.rootNode = rootNode;
     }
 
-    addChildToNodeList(nodeToAdd: NodeObject)
+    addChildToNodeList(nodeToAdd: NodeObject) : void
     {
         this.allNodes.set(nodeToAdd.getIdentificationNumber(), nodeToAdd);
     }
 
-    addChildToNode(parentNode: NodeObject, childNode: NodeObject)
+    addChildToNode(parentNode: NodeObject, childNode: NodeObject) : void
     {
         parentNode.addChild(childNode);
         this.allNodes.set(childNode.getIdentificationNumber(), childNode);
@@ -223,7 +225,7 @@ export class TreeRepresentationOfGraph
         this.checkAndSetNewDeepestLevel(parentNode.getIdentificationNumber());
     }
 
-    addChildToNodeParentID(parentNode: number, childNode: NodeObject)
+    addChildToNodeParentID(parentNode: number, childNode: NodeObject) : void
     {
         this.allNodes.get(parentNode).addChild(childNode);
         this.allNodes.set(childNode.getIdentificationNumber(), childNode);
@@ -231,13 +233,13 @@ export class TreeRepresentationOfGraph
         this.checkAndSetNewDeepestLevel(parentNode);
     }
 
-    addChildIDToNodeParentID(parentNode: number, childNode: number)
+    addChildIDToNodeParentID(parentNode: number, childNode: number) : void
     {
         this.allNodes.get(parentNode).addChild(this.allNodes.get(childNode));
         this.checkAndSetNewDeepestLevel(parentNode);
     }
 
-    checkAndSetNewDeepestLevel(nodeToCheckID: number)
+    checkAndSetNewDeepestLevel(nodeToCheckID: number) : void
     {
         if (this.allNodes.get(nodeToCheckID).returnNodeLevel() + 1 > this.deepestLevel)
         {
@@ -245,7 +247,7 @@ export class TreeRepresentationOfGraph
         }
     }
 
-    buildTreeCoordinates(nodeWidth: number, nodeHeight: number,marginHorizontal: number, marginVertical: number)
+    buildTreeCoordinates(nodeWidth: number, nodeHeight: number,marginHorizontal: number, marginVertical: number): void
     {
         const levels: NodeObject[][] = [];
 
@@ -259,7 +261,8 @@ export class TreeRepresentationOfGraph
             levels.push([]);
         }
 
-        this.allNodes.forEach((node, idNumber) => {
+        this.allNodes.forEach((node, idNumber) => 
+        {
 
             levels[node.returnNodeLevel()].push(node);            
         });

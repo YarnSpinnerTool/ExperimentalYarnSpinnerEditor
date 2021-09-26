@@ -411,14 +411,14 @@ export function connectNodes(from: number, to: number): void
         arrow.add(circle);
         if(jumpMap.size >= 10)
         {
-        nodeFrom.on("dragend", () => 
-        {
-            const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-            arrow2.points([nodeFrom.x() + nodeCenterLength * 2, nodeFrom.y() + nodeCenterLength, nodeFrom.x() + nodeCenterLength * 2 + 10, nodeFrom.y() + nodeCenterLength - 2]);
-            circle.x(nodeTo.x() + nodeCenterLength * 2);
-            circle.y(nodeTo.y());
-            layer.draw();
-        });
+            nodeFrom.on("dragend", () => 
+            {
+                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+                arrow2.points([nodeFrom.x() + nodeCenterLength * 2, nodeFrom.y() + nodeCenterLength, nodeFrom.x() + nodeCenterLength * 2 + 10, nodeFrom.y() + nodeCenterLength - 2]);
+                circle.x(nodeTo.x() + nodeCenterLength * 2);
+                circle.y(nodeTo.y());
+                layer.draw();
+            });
         }
         else
         {
@@ -450,20 +450,20 @@ export function connectNodes(from: number, to: number): void
         //Redraw the line when moving the from node.
         if(jumpMap.size >= 10)
         {
-        nodeFrom.on("dragend", () => 
-        {
-            const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-            line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
-            layer.draw();
-        });
+            nodeFrom.on("dragend", () => 
+            {
+                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+                line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
+                layer.draw();
+            });
 
-        //Redraw the line when moving the to node.
-        nodeTo.on("dragend", () => 
-        {
-            const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-            line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
-            layer.draw();
-        });
+            //Redraw the line when moving the to node.
+            nodeTo.on("dragend", () => 
+            {
+                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+                line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
+                layer.draw();
+            });
         }
         else
         {

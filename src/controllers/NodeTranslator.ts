@@ -321,7 +321,6 @@ headerTag: otherTest
                     this.reverseSearchTextForNode(allLines, lineNumber + contentChangeEvent.changes[0].range.startLineNumber, listOfReturns);
                 }
             });
-            //TODO Changed to true by Cullie for multiple files, but to not remove the check for later.
             runRegexCheck = false;
         }
 
@@ -336,7 +335,7 @@ headerTag: otherTest
                     console.log("title is a new title");
                     if (title.length > 1)
                     {
-                        console.log("Fiunding nodce");
+                        console.log("Finding node");
                         this.forwardSearchTextForNode(allLines, listOfReturns,contentChangeEvent.changes[0].range.startLineNumber, allLines);
                         runRegexCheck = false;
                     }

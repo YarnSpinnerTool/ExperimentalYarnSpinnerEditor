@@ -15,7 +15,7 @@ const miniNodeMap = new Map<number,Konva.Group>();
 const jumpMap = new Map<Array<number>, Konva.Group>();
 const validColours = ["aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige", "bisque", "black", "blanchealmond", "blue", "blueviolet", "brown", "burlywood", "cadetblue", "chartreuse", "chocolate", "coral", "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue", "darkcyan", "darkgoldenrod", "darkgray", "darkgreen", "darkgrey", "darkkhaki", "darkmagenta", "darkolivegreen", 
     "darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategrey","darkslategray","darkturqoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","fuchsia","gainsboro","ghostwhite","gold","goldenrod","gray","green","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavendar","lavendarblush","lawngreen",
-    "lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldrenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategrey","lightslategray","lightsteelblue","lightyellow","lime","limegreen","linen","magenta","maroon","mediumaquamarine","mediumorchid","mediumpurple","mediumseagreen", "mediumslateblue", "mediumspringgreen", "mediumturqoise", 
+    "lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategrey","lightslategray","lightsteelblue","lightyellow","lime","limegreen","linen","magenta","maroon","mediumaquamarine","mediumorchid","mediumpurple","mediumseagreen", "mediumslateblue", "mediumspringgreen", "mediumturqoise", 
     "mediumvioletred", "midnightblue", "mintcream", "mistyrose", "moccasin", "navajowhite","navy","oldlace", "olive","olivedrab","orange","orangered","orchid","palegoldenrod","palegreen","paleturqoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","purple","red","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","silver","skyblue","slateblue","slategray",
     "slategrey","snow","springgreen","steelblue","tan","teal","thistle","tomato","turqoise","violet","wheat","white","whitesmoke","yellow","yellowgreen"];
 
@@ -149,7 +149,7 @@ export function newNode(newNode: YarnNode): void
     });
     
     const nodeMetaData = newNode.getMetaData();
-    
+
     //If the colour exists, and it's either in hex format #ffffff, or a css extended colour keyword.
     if(nodeMetaData.get("colour") && (nodeMetaData.get("colour").match(/^#(?:[0-9a-fA-F]{3}){1,2}$/) || validColours.includes(nodeMetaData.get("colour"))))
     {
@@ -281,6 +281,7 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
         );
         nodeGroup.add(
             new Konva.Rect({
+                name: "littleSquare",
                 width: width,
                 height: height / 5,
                 fill: nodeColour,
@@ -749,13 +750,30 @@ export function changeNodeName(titleNode: YarnNode) : void
 
 /**  
  * Function for changing a node's colour. 
- * @param {YarnNode} node The node which is getting its colour changed.
+ * @param {YarnNode} colourNode The node which is getting its colour changed.
  *
  * @returns {void}
  */
-export function changeNodeColour(node: YarnNode) : void
+export function changeNodeColour(colourNode: YarnNode) : void
 {
-    console.log("Changing colour of: " + node.getTitle());
+    const node : Konva.Group = nodeMap.get(colourNode.getUniqueIdentifier());
+    const littleSquare = node.getChildren()[0];
+    const bigSquare = node.getChildren()[1];
+
+    const nodeMetaData = colourNode.getMetaData();
+    
+    if(nodeMetaData.get("colour") && (nodeMetaData.get("colour").match(/^#(?:[0-9a-fA-F]{3}){1,2}$/) || validColours.includes(nodeMetaData.get("colour"))))
+    {
+        const colour = nodeMetaData.get("colour");
+        //@ts-expect-error Forge
+        littleSquare.fill(colour);
+        //@ts-expect-error Forge
+        littleSquare.stroke(colour);
+        //@ts-expect-error Forge
+        bigSquare.fill(colour);
+        //@ts-expect-error Forge
+        bigSquare.stroke(colour);
+    }
 }
 /**  
  * Function for getting info on all nodes, including x & y position, and title.

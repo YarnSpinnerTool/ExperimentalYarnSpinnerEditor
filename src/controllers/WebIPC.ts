@@ -8,12 +8,15 @@ export class WebIPC
 {
     yarnFileManager: YarnFileManager
     editor: EditorController
+    fileOpenCount : number
 
     constructor(fileManager: YarnFileManager, editor: EditorController) 
     {
         this.yarnFileManager = fileManager;
         this.editor = editor;
+        this.fileOpenCount = 0;
 
+        
         ipcRenderer.on("openFile", (event, files: { path: string, contents: string, name: string }[]) => 
         {
             files.forEach(openedFileDetails => 
@@ -90,7 +93,7 @@ export class WebIPC
      * 
      * @returns {void}
      */
-    createNewFile() : void
+    createNewFile(): void 
     {
         // this.yarnFileManager.createEmptyFile();
         addFileToDisplay(this.yarnFileManager.createEmptyFile());
@@ -103,7 +106,7 @@ export class WebIPC
  * 
  * @returns {void}
  */
-    saveAsEmitter() : void
+    saveAsEmitter(): void 
     {
         ipcRenderer.send("fileSaveToMain", null, this.yarnFileManager.getCurrentOpenFile().getContents());
     }
@@ -113,7 +116,7 @@ export class WebIPC
      * 
      * @returns {void}
      */
-    saveEmitter() : void
+    saveEmitter(): void 
     {
         ipcRenderer.send("fileSaveToMain", this.yarnFileManager.getCurrentOpenFile().getPath(), this.yarnFileManager.getCurrentOpenFile().getContents());
     }
@@ -123,7 +126,7 @@ export class WebIPC
      * 
      * @returns {void}
      */
-    getUnsavedFiles() : void
+    getUnsavedFiles(): void 
     {
         const unsaved: string[][] = [[], [], [], []];
 
@@ -149,11 +152,36 @@ export class WebIPC
      * @param {string} filepath file path if available
      * @returns {void}
      */
-    openFileEmitter(filepath?: string[]) : void
+    openFileEmitter(filepath?: string[]): void 
     {
-        document.getElementById('file-input').addEventListener('change', readSingleFile, false);
-        document.getElementById('file-input').click();
+        const _self = this;
+
+        document.getElementById("file-input").addEventListener("change", this.readFile.bind(_self), false);
+        document.getElementById("file-input").click();
+    }
+
+    readFile(e : any) 
+    {
+
+        const file = e.target.files[0];
+        if (!file) 
+        {
+            return;
+        }
         
+        const reader = new FileReader();
+        reader.onload =  (e) => 
+        {
+            const contents = e.target.result;
+            const newFile = new YarnFile(file.path, contents.toString(), file.name, Date.now());
+            this.yarnFileManager.addToFiles(newFile);
+            this.yarnFileManager.setCurrentOpenYarnFile(newFile.getUniqueIdentifier());
+            addFileToDisplay(newFile);
+            this.editor.setValue(this.yarnFileManager.getCurrentOpenFile().getContents());
+            this.editor.setReadOnly(false);
+        };
+        
+        reader.readAsText(file);
     }
 
 }

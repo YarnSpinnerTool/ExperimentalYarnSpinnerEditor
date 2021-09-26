@@ -40,7 +40,7 @@ if (debugButton)
 {
     debugButton.addEventListener("click", (event) =>
     {
-        console.log("clicked debugButton");
+        console.log("clicked debugButton " + event);
         loadSettings();
     });
 }
@@ -84,8 +84,8 @@ if (settingsButton)
             });
         }
 
-        console.log("Settings button beeeeeen clicked");
-        ipcRenderer.send("getPing", null, null);
+        console.log("Settings button been clicked " + event );
+        ipcRenderer.send("getPing", null, null); 
     });
 }
 

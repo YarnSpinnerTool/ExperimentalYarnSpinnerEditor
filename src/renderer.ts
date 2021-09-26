@@ -497,7 +497,7 @@ ipcRenderer.on("gotPing", (event, arg) =>
 
 ipcRenderer.on("getPing", (event, arg) =>
 {
-    console.log("Got ping?");
+    console.log("Got ping? " + arg);
 });
 
 ipcRenderer.on("themeRequestChange", (event, arg) =>

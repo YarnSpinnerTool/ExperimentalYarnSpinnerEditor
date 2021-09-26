@@ -125,6 +125,7 @@ if (workingFiles)
     //Add all listeners
     workingFiles.addEventListener("click", (event) => 
     {
+
         //Button clicked event
         if (event && event.target && (event.target as HTMLElement).tagName === "BUTTON") 
         {
@@ -282,6 +283,15 @@ const openFolderIcon = document.getElementById("openFolderIcon");
 if (openFolderIcon) 
 {
     openFolderIcon.onclick = function () { openFileEmitter(); };
+}
+
+const buildTreeIcon = document.getElementById("buildTree");
+if (buildTreeIcon)
+{
+    buildTreeIcon.onclick = function () 
+    {
+        editor.handleNodeTreeBuild();
+    };
 }
 
 // Load a file into the application if it has a .yarn extension

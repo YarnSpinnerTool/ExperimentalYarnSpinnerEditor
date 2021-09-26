@@ -113,12 +113,13 @@ export const tokens : Monaco.languages.IMonarchLanguage =
             //Integer
             [/@yarnInteger/,"Default"],
             //Symbols
-            [/@dialogueSymbols/,"Default"],
-            //[/@yarnOperator/, "operator"],//Does operator belong in body / dialogue?
             
-            //Body Delimiter
             //End of node
-            { regex: /^===\n/, action: { token: "Default", next: "@popall" } }
+            //Body Delimiter
+            { regex: /^===\n/, action: { token: "Default", next: "@popall" } },
+            
+            [/@dialogueSymbols/,"Default"],
+            //[/@yarnOperator/, "operator"],//Does operator belong in body / dialogue
         ], 
         strings:
         [

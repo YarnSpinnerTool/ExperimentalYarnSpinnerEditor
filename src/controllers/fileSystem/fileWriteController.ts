@@ -5,7 +5,7 @@
  *---------------------------------------------------------------------------------------------
  */
 
-import { dialog } from "electron";
+import { dialog, app } from "electron";
 import * as path from "path";
 import * as fs from "fs";
 
@@ -26,9 +26,8 @@ export function writeFile(filePathToWrite: string | null, contentToWrite: string
     {
         const dialogResult = dialog.showSaveDialogSync(
             {
-                filters: [{ name: "Yarn file", extensions: ["yarn"] },
-                    { name: "Text file", extensions: ["txt"] }],    //! change before release
-                defaultPath: path.join(__dirname, "../src/")
+                filters: [{ name: "Yarn file", extensions: ["yarn"] }],
+                defaultPath: app.getPath("documents")
             });
 
         if (dialogResult) 

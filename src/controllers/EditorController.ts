@@ -216,14 +216,9 @@ export class EditorController
         let lastNodeTitle = "";
         let lastNode: YarnNode = null;
         let metadata: Map<string, string>;
-
-
-        
-        
     
         const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue(), e);
-            
-    
+        
         for (let i = 0; i < returnedObjectList.length; i++) 
         {
             const currentObject: ReturnObject = returnedObjectList[i];
@@ -254,15 +249,16 @@ export class EditorController
                     console.log("Updating node");
                     if(currentObject.returnNode)
                     {
-                        nodeView.changeNodeName(currentObject.returnNode);   
+                        nodeView.changeNodeName(currentObject.returnNode);
+                        nodeView.changeNodeColour(currentObject.returnNode);
                     }
                     break;
                 case ReturnCode.Jumps:
+
                     console.log("Doing the jumps");
                     //if (currentObject.returnJumps.length !== 0)
-                    //{
+                    //{ 
                     nodeView.receiveJumps(currentObject.returnJumps);
-    
                     //}
                     break;
                 case ReturnCode.Content:

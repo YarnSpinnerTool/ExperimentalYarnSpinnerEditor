@@ -355,7 +355,6 @@ headerTag: otherTest
              * -------------------------------------------------
              */
             
-            //TODO Removed by Cullie for multiple files
             //Deletion may have occured
             
             if (contentChangeEvent.changes[0].text === "") 

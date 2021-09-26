@@ -12,8 +12,12 @@ import { NodeJump } from "../../models/NodeJump";
 const sceneWidth = 500;         // For comparing scale in responsiveSize()
 const nodeMap = new Map<number,Konva.Group>();      // Map for storing all nodes.
 const miniNodeMap = new Map<number,Konva.Group>();
-
 const jumpMap = new Map<Array<number>, Konva.Group>();
+const validColours = ["aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige", "bisque", "black", "blanchealmond", "blue", "blueviolet", "brown", "burlywood", "cadetblue", "chartreuse", "chocolate", "coral", "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue", "darkcyan", "darkgoldenrod", "darkgray", "darkgreen", "darkgrey", "darkkhaki", "darkmagenta", "darkolivegreen", 
+    "darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategrey","darkslategray","darkturqoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","fuchsia","gainsboro","ghostwhite","gold","goldenrod","gray","green","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavendar","lavendarblush","lawngreen",
+    "lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldrenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategrey","lightslategray","lightsteelblue","lightyellow","lime","limegreen","linen","magenta","maroon","mediumaquamarine","mediumorchid","mediumpurple","mediumseagreen", "mediumslateblue", "mediumspringgreen", "mediumturqoise", 
+    "mediumvioletred", "midnightblue", "mintcream", "mistyrose", "moccasin", "navajowhite","navy","oldlace", "olive","olivedrab","orange","orangered","orchid","palegoldenrod","palegreen","paleturqoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","purple","red","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","silver","skyblue","slateblue","slategray",
+    "slategrey","snow","springgreen","steelblue","tan","teal","thistle","tomato","turqoise","violet","wheat","white","whitesmoke","yellow","yellowgreen"];
 
 const eventHandler = document.getElementById("miniNodeContainer"); 
 
@@ -145,7 +149,9 @@ export function newNode(newNode: YarnNode): void
     });
     
     const nodeMetaData = newNode.getMetaData();
-    if(nodeMetaData.get("colour"))
+    
+    //If the colour exists, and it's either in hex format #ffffff, or a css extended colour keyword.
+    if(nodeMetaData.get("colour") && (nodeMetaData.get("colour").match(/^#(?:[0-9a-fA-F]{3}){1,2}$/) || validColours.includes(nodeMetaData.get("colour"))))
     {
         let nodeColour = "#f2deac";
         let nodeLighterColour = "#f5f0b0";
@@ -250,17 +256,14 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
         nodeGroup.y(ypos);
     }
     // Add the rectangle using both h + w parameters.
-    if(nodeMetaData.get("colour"))
+    
+    //If the colour exists, and it's either in hex format #ffffff, or a css extended colour keyword.
+    if(nodeMetaData.get("colour") && (nodeMetaData.get("colour").match(/^#(?:[0-9a-fA-F]{3}){1,2}$/) || validColours.includes(nodeMetaData.get("colour"))))
     {
         let nodeColour = "#f2deac";
         let nodeLighterColour = "#f5f0b0";
         nodeColour = nodeMetaData.get("colour").toUpperCase();
         nodeLighterColour = nodeMetaData.get("colour").toUpperCase();
-        //Check for hex colour format
-        //if (!nodeColour.match(/^#(?:[0-9a-fA-F]{3}){1,2}$/))
-        //{
-        // nodeColour = convert.keyword.hex(nodeColour);
-        //}
         nodeGroup.add(
             new Konva.Rect({
                 name: "bigSquare",
@@ -744,6 +747,16 @@ export function changeNodeName(titleNode: YarnNode) : void
     tempMiniNode.name(titleNode.getTitle());
 }
 
+/**  
+ * Function for changing a node's colour. 
+ * @param {YarnNode} node The node which is getting its colour changed.
+ *
+ * @returns {void}
+ */
+export function changeNodeColour(node: YarnNode) : void
+{
+    console.log("Changing colour of: " + node.getTitle());
+}
 /**  
  * Function for getting info on all nodes, including x & y position, and title.
  * Behaviour not finalised.

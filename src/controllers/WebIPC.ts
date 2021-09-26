@@ -102,17 +102,17 @@ export class WebIPC
     }
 
     /**
- * Emits an event containing the contents of the editor, instructing the main process to perform the Save As function.
+ * Web has no differentiation between save and save as.
  * 
  * @returns {void}
  */
     saveAsEmitter(): void 
     {
-        ipcRenderer.send("fileSaveToMain", null, this.yarnFileManager.getCurrentOpenFile().getContents());
+        this.saveEmitter();
     }
 
     /**
-     * Emits an event containing the contents of the editor, instructing the main process to perform the Save As function.
+     * Emits an event containing the contents of the editor, instructing the main process to perform the Save function.
      * 
      * @returns {void}
      */
@@ -149,21 +149,21 @@ export class WebIPC
     /**
      * Emits an event to request that main opens a file.
      * 
-     * @param {string} filepath file path if available
+     * @param {string} filePath file path if available
      * @returns {void}
      */
-    openFileEmitter(filepath?: string[]): void 
+    openFileEmitter(filePath?: string[]): void 
     {
-        const _self = this;
-
-        document.getElementById("file-input").addEventListener("change", this.readFile.bind(_self), false);
+        console.log(filePath);
+        document.getElementById("file-input").addEventListener("change", this.readFile.bind(this), false);
         document.getElementById("file-input").click();
     }
 
-    readFile(e : any) 
+    readFile(e : Event) : void
     {
 
-        const file = e.target.files[0];
+        const target = e.target as HTMLInputElement;
+        const file = target.files[0];
         if (!file) 
         {
             return;

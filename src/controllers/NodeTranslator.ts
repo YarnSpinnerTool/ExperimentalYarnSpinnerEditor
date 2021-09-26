@@ -344,7 +344,6 @@ title: test4
                     this.reverseSearchTextForNode(allLines, lineNumber + contentChangeEvent.changes[0].range.startLineNumber, listOfReturns);
                 }
             });
-            //TODO Changed to true by Cullie for multiple files, but to not remove the check for later.
             runRegexCheck = false;
         }
 
@@ -359,7 +358,7 @@ title: test4
                     console.log("title is a new title");
                     if (title.length > 1)
                     {
-                        console.log("Fiunding nodce");
+                        console.log("Finding node");
                         this.forwardSearchTextForNode(allLines, listOfReturns,contentChangeEvent.changes[0].range.startLineNumber, allLines);
                         runRegexCheck = false;
                     }
@@ -378,7 +377,6 @@ title: test4
              * -------------------------------------------------
              */
             
-            //TODO Removed by Cullie for multiple files
             //Deletion may have occured
             
             if (contentChangeEvent.changes[0].text === "") 
@@ -404,7 +402,7 @@ title: test4
             if (allLines[lineStart].match(this.metadataRegexExp) && !allLines[lineStart].match(this.titleRegexExp)) 
             {
                 console.log("Metadata regex has been found on line " + lineStart);
-                this.checkForMetadataUpdate(allLines, contentChangeEvent);
+                listOfReturns.push(new ReturnObject(ReturnCode.Update, undefined, this.checkForMetadataUpdate(allLines, contentChangeEvent)));
             }
 
             if (allLines[lineStart].match(this.endRegexExp)) 
@@ -777,7 +775,7 @@ title: test4
      * @param {monaco.editor.IModelContentChangedEvent} contentChangeEvent Monaco's content change event
      * @returns {void}
      */
-    checkForMetadataUpdate(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent): void 
+    checkForMetadataUpdate(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent): YarnNode 
     {
         let currentCursor = contentChangeEvent.changes[0].range.startLineNumber - 1;
         let nodeTitle = "";
@@ -826,6 +824,7 @@ title: test4
         {
             node.setMetadata(metadata);
         }
+        return node;
     }
 
     

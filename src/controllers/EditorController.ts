@@ -108,6 +108,7 @@ export class EditorController
                 "title: ",
                 "xpos: ",
                 "ypos: ",
+                "colour: ",
                 "---",
                 " ",
                 "===",
@@ -336,15 +337,16 @@ export class EditorController
                     console.log("Updating node");
                     if(currentObject.returnNode)
                     {
-                        nodeView.changeNodeName(currentObject.returnNode);   
+                        nodeView.changeNodeName(currentObject.returnNode);
+                        nodeView.changeNodeColour(currentObject.returnNode);
                     }
                     break;
                 case ReturnCode.Jumps:
+
                     console.log("Doing the jumps");
                     //if (currentObject.returnJumps.length !== 0)
-                    //{
+                    //{ 
                     nodeView.receiveJumps(currentObject.returnJumps);
-    
                     //}
                     break;
                 case ReturnCode.Content:

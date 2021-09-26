@@ -760,6 +760,8 @@ export function changeNodeColour(colourNode: YarnNode) : void
     const littleSquare = node.getChildren()[1];
     const bigSquare = node.getChildren()[0];
 
+    const miniNode : Konva.Group = miniNodeMap.get(colourNode.getUniqueIdentifier());
+    const miniSquare = miniNode.getChildren()[0];
     const nodeMetaData = colourNode.getMetaData();
     
     if(nodeMetaData.get("colour") && (nodeMetaData.get("colour").match(/^#(?:[0-9a-fA-F]{3}){1,2}$/) || validColours.includes(nodeMetaData.get("colour"))))
@@ -773,6 +775,10 @@ export function changeNodeColour(colourNode: YarnNode) : void
         bigSquare.fill(colour);
         //@ts-expect-error Forge
         bigSquare.stroke(colour);
+        //@ts-expect-error Forge
+        miniSquare.fill(colour);
+        //@ts-expect-error Forge
+        miniSquare.stroke(colour);
     }
     else
     {
@@ -786,6 +792,10 @@ export function changeNodeColour(colourNode: YarnNode) : void
         bigSquare.fill(nodeLighterColour);
         //@ts-expect-error Forge
         bigSquare.stroke(nodeColour);
+        //@ts-expect-error Forge
+        miniSquare.fill(nodeLighterColour);
+        //@ts-expect-error Forge
+        miniSquare.stroke(nodeColour);
     }
 }
 /**  

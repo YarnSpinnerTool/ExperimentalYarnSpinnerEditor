@@ -32,6 +32,8 @@ if (!loaded)
         optionsForTheme.value = settings.getSync("theme.name").toString();
         loaded = true;
     }
+
+    
 }
 
 
@@ -57,7 +59,6 @@ if (settingsButton)
         {
             const value = themeSelectElement.options[themeSelectElement.selectedIndex].value;
             console.log(value);
-            ipcRenderer.send("themeChange", value);
 
             settings.setSync("theme", {
                 name: value,
@@ -65,6 +66,8 @@ if (settingsButton)
                     themeName: value
                 }
             });
+
+            ipcRenderer.send("themeChange", value);
 
         }
 
@@ -74,7 +77,6 @@ if (settingsButton)
         {
             const value = fontSelectElement.options[fontSelectElement.selectedIndex].value;
             console.log(value);
-            ipcRenderer.send("fontChange", value);
 
             settings.setSync("font", {
                 fontname: value,
@@ -82,6 +84,9 @@ if (settingsButton)
                     fontname: value
                 }
             });
+
+            ipcRenderer.send("fontChange", value);
+
         }
 
         console.log("Settings button been clicked " + event );

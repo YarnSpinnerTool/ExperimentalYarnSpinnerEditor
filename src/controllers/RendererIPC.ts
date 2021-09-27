@@ -189,7 +189,7 @@ export class RendererIPC {
  * @param {string} theme String representation of theme choice
  * @returns {void}
  */
- updateTheme(theme: Record<string,string>): void 
+updateTheme(theme: Record<string,string>): void 
 {
     console.log("TODO IMPLEMENT UPDATE THEME");
     document.documentElement.style.setProperty("--editor", theme.editor);
@@ -201,7 +201,7 @@ export class RendererIPC {
     document.documentElement.style.setProperty("--primary_text", theme.default);
     document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
     document.documentElement.style.setProperty("--selectedFileBg", theme.selectedFileBg);
-    
+
     this.editor.setThemeOfEditor(theme);
 }
     

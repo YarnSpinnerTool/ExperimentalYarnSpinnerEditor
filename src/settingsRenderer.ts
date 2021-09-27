@@ -30,10 +30,16 @@ if (!loaded)
     if (optionsForTheme)
     {
         optionsForTheme.value = settings.getSync("theme.name").toString();
-        loaded = true;
     }
 
-    
+    const fontSelectElement: HTMLSelectElement = document.getElementById("FontValue") as HTMLSelectElement;
+    if (fontSelectElement)
+    {
+        fontSelectElement.value = settings.getSync("font.fontname").toString();
+    }
+
+    loaded = true;
+
 }
 
 

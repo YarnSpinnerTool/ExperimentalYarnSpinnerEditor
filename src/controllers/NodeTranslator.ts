@@ -278,12 +278,35 @@ headerTag: tester
 title: ttt
 headerTag: otherTest
 ---
+<<jump ttt2ElectricBoogaloo>>
 ===
 
 title: ttt2ElectricBoogaloo
 headerTag: otherTest
 --- 
+<<jump test1>>
+<<jump test2>>
+<<jump test3>>
+<<jump test4>>
+<<jump test5>>
 === 
+
+title: test1
+---
+===
+
+title: test2
+---
+===
+
+title: test3
+---
+===
+
+title: test4
+---
+<<jump abc>>
+===
             */
 
 
@@ -321,7 +344,6 @@ headerTag: otherTest
                     this.reverseSearchTextForNode(allLines, lineNumber + contentChangeEvent.changes[0].range.startLineNumber, listOfReturns);
                 }
             });
-            //TODO Changed to true by Cullie for multiple files, but to not remove the check for later.
             runRegexCheck = false;
         }
 
@@ -336,7 +358,7 @@ headerTag: otherTest
                     console.log("title is a new title");
                     if (title.length > 1)
                     {
-                        console.log("Fiunding nodce");
+                        console.log("Finding node");
                         this.forwardSearchTextForNode(allLines, listOfReturns,contentChangeEvent.changes[0].range.startLineNumber, allLines);
                         runRegexCheck = false;
                     }
@@ -355,7 +377,6 @@ headerTag: otherTest
              * -------------------------------------------------
              */
             
-            //TODO Removed by Cullie for multiple files
             //Deletion may have occured
             
             if (contentChangeEvent.changes[0].text === "") 
@@ -381,7 +402,7 @@ headerTag: otherTest
             if (allLines[lineStart].match(this.metadataRegexExp) && !allLines[lineStart].match(this.titleRegexExp)) 
             {
                 console.log("Metadata regex has been found on line " + lineStart);
-                this.checkForMetadataUpdate(allLines, contentChangeEvent);
+                listOfReturns.push(new ReturnObject(ReturnCode.Update, undefined, this.checkForMetadataUpdate(allLines, contentChangeEvent)));
             }
 
             if (allLines[lineStart].match(this.endRegexExp)) 
@@ -754,7 +775,7 @@ headerTag: otherTest
      * @param {monaco.editor.IModelContentChangedEvent} contentChangeEvent Monaco's content change event
      * @returns {void}
      */
-    checkForMetadataUpdate(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent): void 
+    checkForMetadataUpdate(allLines: string[], contentChangeEvent: monaco.editor.IModelContentChangedEvent): YarnNode 
     {
         let currentCursor = contentChangeEvent.changes[0].range.startLineNumber - 1;
         let nodeTitle = "";
@@ -803,6 +824,7 @@ headerTag: otherTest
         {
             node.setMetadata(metadata);
         }
+        return node;
     }
 
     

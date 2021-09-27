@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!--
+ *---------------------------------------------------------------------------------------------
+ *  Copyright (c) Yarn Spinner Editor Team. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *---------------------------------------------------------------------------------------------
+-->
+
+
+<html>
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Yarn Spinner Editor</title>
+	<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+
+    <style>
+
+        body {
+            background-color: lightgrey;
+
+        }
+
+        .centerDiv {
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 10px;
+            width: 75%;
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+
+            background-color: ghostwhite;
+        }
+
+        .settingsElement{
+            border-bottom-style: solid;
+            border-bottom-width: 1px;
+            border-color: grey;
+
+            margin-top: 5px;
+            padding-bottom: 5px;
+
+            display: flex;
+            justify-content: space-evenly;
+        }
+
+        .debugDiv
+        {
+            display: none;
+        }
+
+
+        #themeValue{
+            width: 200px;
+            color: pink;
+            background-color: pink;
+        }
+
+        #themeValue option {
+            width: 200px;
+        }
+
+        #settingsConfirmChangeButton{
+            border: 1px solid black;
+            background-color: green;
+            color: white;
+        }
+
+        
+    </style>
+</head>
+
+<body>
+	<p class="centerDiv">✨ THIS IS THE SETTINGS PAGE! ✨</p>
+    <div class="centerDiv">
+        <div horizontal layout class="settingsElement">
+            <label for="ThemeOption">Current Theme:</label>
+            <select name="ThemeValue" id="ThemeValue">
+                <option value ="OGBlue">OGBlue</option>
+                <option value ="Pink">Pink</option>
+                <option value ="Night">Night</option>
+                <option value ="WireFrame">WireFrame</option>
+            </select>
+        </div>
+
+        <div class="settingsElement">
+            <label for="FontOption">*Experimental* Current Font:</label>
+            <select name="FontValue" id="FontValue">
+                <option value="Roboto">Roboto</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Consolas">Consolas</option>
+                <option value="Monospace">Monospace</option>
+            </select>
+        </div>
+
+        <div class="settingsElement">
+            <p>Future setting placeholder</p>
+        </div>
+
+        <div class="settingsElement">
+            <p>Future setting placeholder</p>
+        </div>
+
+        <div class="settingsElement">
+            <p>Future setting placeholder</p>
+        </div>
+
+        <div class="settingsElement">
+            <p>Future setting placeholder</p>
+        </div>
+
+
+
+        <div class="settingsElement">
+            <button id=settingsConfirmChangeButton>Confirm changes</button>
+        </div>
+
+        <div class="settingsElement debugDiv">
+            <button id="debugButton">If you can see this, you must be developing</button>
+        </div>
+    </div>
+</body>
+</html>

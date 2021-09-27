@@ -12,8 +12,12 @@ import { NodeJump } from "../../models/NodeJump";
 const sceneWidth = 500;         // For comparing scale in responsiveSize()
 const nodeMap = new Map<number,Konva.Group>();      // Map for storing all nodes.
 const miniNodeMap = new Map<number,Konva.Group>();
-
 const jumpMap = new Map<Array<number>, Konva.Group>();
+const validColours = ["aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige", "bisque", "black", "blanchealmond", "blue", "blueviolet", "brown", "burlywood", "cadetblue", "chartreuse", "chocolate", "coral", "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue", "darkcyan", "darkgoldenrod", "darkgray", "darkgreen", "darkgrey", "darkkhaki", "darkmagenta", "darkolivegreen", 
+    "darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategrey","darkslategray","darkturqoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","fuchsia","gainsboro","ghostwhite","gold","goldenrod","gray","green","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavendar","lavendarblush","lawngreen",
+    "lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategrey","lightslategray","lightsteelblue","lightyellow","lime","limegreen","linen","magenta","maroon","mediumaquamarine","mediumorchid","mediumpurple","mediumseagreen", "mediumslateblue", "mediumspringgreen", "mediumturqoise", 
+    "mediumvioletred", "midnightblue", "mintcream", "mistyrose", "moccasin", "navajowhite","navy","oldlace", "olive","olivedrab","orange","orangered","orchid","palegoldenrod","palegreen","paleturqoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","purple","red","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","silver","skyblue","slateblue","slategray",
+    "slategrey","snow","springgreen","steelblue","tan","teal","thistle","tomato","turqoise","violet","wheat","white","whitesmoke","yellow","yellowgreen"];
 
 const eventHandler = document.getElementById("miniNodeContainer"); 
 
@@ -56,12 +60,12 @@ miniMapStage.add(miniMapLayer);
 
 //Draw the layers.
 layer.draw();
-createAdditionMiniNode();
 
 //Resize the stage appropriately, recall on window resize.
 responsiveSize();
 zoomOnCursor();
 window.addEventListener("resize", responsiveSize);
+createAdditionMiniNode();
 
 /**
  * Function for creating a mininode at the top of the list with an addition event
@@ -86,29 +90,31 @@ function createAdditionMiniNode(): void
         shadowOffset: { x: 1, y: 1 },
         shadowOpacity: 0.1,
         perfectDrawEnabled: false,
-        x: miniStage.width() - (miniNodeSize / 2),
+        x: miniStage.width() / 2 - (miniNodeSize / 2),
         y: 5,
     });
-    const miniText = new Konva.Text({
-        name: "text",
-        width: miniNodeSize,
-        height: miniNodeSize,
-        fill: "black",
-        ellipsis: true,
-        perfectDrawEnabled: false,
-        text: "New Node\n\n        +",
-        wrap: "word",
-        fontSize: 10,
-        x: miniStage.width() - (miniNodeSize / 2),
-        y: 5,
-        strokeWidth: 0,
+    const miniVert = new Konva.Rect({
+        width: 7,
+        height: miniNodeSize - 10,
+        x: 33,
+        y: 10,
+        fill: "#f3d186"
     });
-
+    const miniHorizon = new Konva.Rect({
+        width: miniNodeSize - 10,
+        height: 7,
+        x: 17,
+        y: 26,
+        fill: "#f3d186"
+    }); 
+    
     // Adds all onclick functionality for the mini node.
 
-    miniText.moveToTop();
+    miniVert.moveToTop();
+    miniHorizon.moveToTop();
     miniGroup.add(miniRect);
-    miniGroup.add(miniText);
+    miniGroup.add(miniVert);
+    miniGroup.add(miniHorizon);
 
     miniLayer.add(miniGroup);
     miniGroup.on("click", function () 
@@ -145,7 +151,9 @@ export function newNode(newNode: YarnNode): void
     });
     
     const nodeMetaData = newNode.getMetaData();
-    if(nodeMetaData.get("colour"))
+
+    //If the colour exists, and it's either in hex format #ffffff, or a css extended colour keyword.
+    if(nodeMetaData.get("colour") && (nodeMetaData.get("colour").match(/^#(?:[0-9a-fA-F]{3}){1,2}$/) || validColours.includes(nodeMetaData.get("colour"))))
     {
         let nodeColour = "#f2deac";
         let nodeLighterColour = "#f5f0b0";
@@ -195,6 +203,7 @@ export function newNode(newNode: YarnNode): void
         text: newNode.getTitle(),
         wrap: "word",
         fontSize: 10,
+        fontFamily: "'Roboto', sans-serif;",
         x: miniStage.width() / 2 - (miniNodeSize / 2),
         y: miniNodeY,
         strokeWidth: 0,
@@ -250,17 +259,14 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
         nodeGroup.y(ypos);
     }
     // Add the rectangle using both h + w parameters.
-    if(nodeMetaData.get("colour"))
+    
+    //If the colour exists, and it's either in hex format #ffffff, or a css extended colour keyword.
+    if(nodeMetaData.get("colour") && (nodeMetaData.get("colour").match(/^#(?:[0-9a-fA-F]{3}){1,2}$/) || validColours.includes(nodeMetaData.get("colour"))))
     {
         let nodeColour = "#f2deac";
         let nodeLighterColour = "#f5f0b0";
         nodeColour = nodeMetaData.get("colour").toUpperCase();
         nodeLighterColour = nodeMetaData.get("colour").toUpperCase();
-        //Check for hex colour format
-        //if (!nodeColour.match(/^#(?:[0-9a-fA-F]{3}){1,2}$/))
-        //{
-        // nodeColour = convert.keyword.hex(nodeColour);
-        //}
         nodeGroup.add(
             new Konva.Rect({
                 name: "bigSquare",
@@ -278,6 +284,7 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
         );
         nodeGroup.add(
             new Konva.Rect({
+                name: "littleSquare",
                 width: width,
                 height: height / 5,
                 fill: nodeColour,
@@ -328,6 +335,7 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
             text: node.getTitle(),
             fill: "black",
             stroke: "black",
+            fontFamily: "'Roboto', sans-serif;",
             strokeWidth: 0,
             perfectDrawEnabled: false,
             ellipsis: true,
@@ -353,7 +361,7 @@ function createNewGroupNode(node: YarnNode, height: number, width: number)
     {
         nodeGroup.moveToTop();
     });
-
+    
     nodeGroup.on("dragend", function () 
     {
         updateMiniMap();
@@ -405,14 +413,28 @@ export function connectNodes(from: number, to: number): void
         );
         arrow.add(arrow2);
         arrow.add(circle);
-        nodeFrom.on("dragmove", () => 
+        if(jumpMap.size >= 10)
         {
-            const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-            arrow2.points([nodeFrom.x() + nodeCenterLength * 2, nodeFrom.y() + nodeCenterLength, nodeFrom.x() + nodeCenterLength * 2 + 10, nodeFrom.y() + nodeCenterLength - 2]);
-            circle.x(nodeTo.x() + nodeCenterLength * 2);
-            circle.y(nodeTo.y());
-            layer.draw();
-        });
+            nodeFrom.on("dragend", () => 
+            {
+                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+                arrow2.points([nodeFrom.x() + nodeCenterLength * 2, nodeFrom.y() + nodeCenterLength, nodeFrom.x() + nodeCenterLength * 2 + 10, nodeFrom.y() + nodeCenterLength - 2]);
+                circle.x(nodeTo.x() + nodeCenterLength * 2);
+                circle.y(nodeTo.y());
+                layer.draw();
+            });
+        }
+        else
+        {
+            nodeFrom.on("dragmove", () => 
+            {
+                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+                arrow2.points([nodeFrom.x() + nodeCenterLength * 2, nodeFrom.y() + nodeCenterLength, nodeFrom.x() + nodeCenterLength * 2 + 10, nodeFrom.y() + nodeCenterLength - 2]);
+                circle.x(nodeTo.x() + nodeCenterLength * 2);
+                circle.y(nodeTo.y());
+                layer.draw();
+            });  
+        }
     }
     else
     {
@@ -430,20 +452,40 @@ export function connectNodes(from: number, to: number): void
         arrow.add(line);
         
         //Redraw the line when moving the from node.
-        nodeFrom.on("dragmove", () => 
+        if(jumpMap.size >= 10)
         {
-            const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-            line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
-            layer.draw();
-        });
+            nodeFrom.on("dragend", () => 
+            {
+                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+                line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
+                layer.draw();
+            });
 
-        //Redraw the line when moving the to node.
-        nodeTo.on("dragmove", () => 
+            //Redraw the line when moving the to node.
+            nodeTo.on("dragend", () => 
+            {
+                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+                line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
+                layer.draw();
+            });
+        }
+        else
         {
-            const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-            line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
-            layer.draw();
-        });
+            nodeFrom.on("dragmove", () => 
+            {
+                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+                line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
+                layer.draw();
+            });
+    
+            //Redraw the line when moving the to node.
+            nodeTo.on("dragmove", () => 
+            {
+                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+                line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
+                layer.draw();
+            });    
+        }
     }
     //Add to the map of jumps
     jumpMap.set([from, to], arrow);
@@ -745,6 +787,56 @@ export function changeNodeName(titleNode: YarnNode) : void
 }
 
 /**  
+ * Function for changing a node's colour. 
+ * @param {YarnNode} colourNode The node which is getting its colour changed.
+ *
+ * @returns {void}
+ */
+export function changeNodeColour(colourNode: YarnNode) : void
+{
+    const node : Konva.Group = nodeMap.get(colourNode.getUniqueIdentifier());
+    const littleSquare = node.getChildren()[1];
+    const bigSquare = node.getChildren()[0];
+
+    const miniNode : Konva.Group = miniNodeMap.get(colourNode.getUniqueIdentifier());
+    const miniSquare = miniNode.getChildren()[0];
+    const nodeMetaData = colourNode.getMetaData();
+    
+    if(nodeMetaData.get("colour") && (nodeMetaData.get("colour").match(/^#(?:[0-9a-fA-F]{3}){1,2}$/) || validColours.includes(nodeMetaData.get("colour"))))
+    {
+        const colour = nodeMetaData.get("colour");
+        //@ts-expect-error Forge
+        littleSquare.fill(colour);
+        //@ts-expect-error Forge
+        littleSquare.stroke(colour);
+        //@ts-expect-error Forge
+        bigSquare.fill(colour);
+        //@ts-expect-error Forge
+        bigSquare.stroke(colour);
+        //@ts-expect-error Forge
+        miniSquare.fill(colour);
+        //@ts-expect-error Forge
+        miniSquare.stroke(colour);
+    }
+    else
+    {
+        const nodeColour = "#f2deac";
+        const nodeLighterColour = "#f5f0b0";
+        //@ts-expect-error Forge
+        littleSquare.fill(nodeColour);
+        //@ts-expect-error Forge
+        littleSquare.stroke(nodeColour);
+        //@ts-expect-error Forge
+        bigSquare.fill(nodeLighterColour);
+        //@ts-expect-error Forge
+        bigSquare.stroke(nodeColour);
+        //@ts-expect-error Forge
+        miniSquare.fill(nodeLighterColour);
+        //@ts-expect-error Forge
+        miniSquare.stroke(nodeColour);
+    }
+}
+/**  
  * Function for getting info on all nodes, including x & y position, and title.
  * Behaviour not finalised.
  * @returns {string} String values of all nodes.
@@ -951,3 +1043,26 @@ export function getAllNodes() : Map<number,YarnNode>
     Add a [+] button somewhere on the node view (put on top of mininode, might be able to create popup across the right on click like a context menu)
     Create the node, and pass that to the text view
 */
+
+/**
+ * Updates node positions based on list of nodes
+ * @param {Map<number, YarnNode>} nodesFromEditor Node map from the editor controller
+ * @param {NodeJump[]} jumps Jumps to update positioning of drawn jumps
+ * @returns {void}
+ */
+export function updateNodePositions(nodesFromEditor: Map<number,YarnNode>, jumps: NodeJump[]) : void
+{
+    nodesFromEditor.forEach((node, number) => 
+    {
+        nodeMap.get(number).x(parseInt(node.getMetaData().get("xpos")));
+        nodeMap.get(number).y(parseInt(node.getMetaData().get("ypos")));
+
+
+        //Updates views
+        updateMapPort();
+        updateMiniMap();
+        receiveJumps(jumps);
+        const nodeMovement = new CustomEvent("nodeMovement",{detail:5});
+        eventHandler.dispatchEvent(nodeMovement);
+    });
+}

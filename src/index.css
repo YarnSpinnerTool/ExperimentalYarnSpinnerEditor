@@ -90,7 +90,7 @@ body {
 
     overflow-x: hidden;
     overflow-y: hidden;
-    font-family: 'Roboto', sans-serif;
+    font-family: var(--font_choice)
 }
 
 

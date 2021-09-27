@@ -79,38 +79,6 @@ nodeView.newNode("Node Five");
 nodeView.newNode("Node Six");
 */
 
-/**
- * Updates the theme based on parameter choice
- * @param {string} theme String representation of theme choice
- * @returns {void}
- */
-function updateTheme(theme: Record<string,string>): void 
-{
-    console.log("TODO IMPLEMENT UPDATE THEME");
-    document.documentElement.style.setProperty("--editor", theme.editor);
-    document.documentElement.style.setProperty("--editorMinimap", theme.editorMinimap);
-    document.documentElement.style.setProperty("--topSideEdit", theme.editor);
-    document.documentElement.style.setProperty("--workingFile", theme.workingFile);
-    document.documentElement.style.setProperty("--tabGap", theme.tabGap);
-    document.documentElement.style.setProperty("--dividerColour", theme.invertDefault);
-    document.documentElement.style.setProperty("--primary_text", theme.default);
-    document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
-    document.documentElement.style.setProperty("--selectedFileBg", theme.selectedFileBg);
-    
-    editor.setThemeOfEditor(theme);
-}
-
-/**
- * Updates the font based on parameter choice
- * @param {string} font Font family to change to 
- * @returns {void}
- */
-function updateFont(font: string): void
-{
-    document.documentElement.style.setProperty("--font_choice", settings.getSync("font.fontname").toString());
-    editor.setFontOfEditor(font);
-}
-
 //Working file details specific events
 const workingFiles = document.getElementById("workingFilesDetail");
 

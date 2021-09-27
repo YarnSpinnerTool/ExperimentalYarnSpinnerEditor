@@ -6,19 +6,24 @@ import { setActiveFile, addFileToDisplay } from "./DomHelpers";
 import { ThemeReader } from "./themeReader";
 import settings from "electron-settings";
 
-export class RendererIPC {
+export class RendererIPC 
+{
     yarnFileManager: YarnFileManager
     editor: EditorController
     themeReader: ThemeReader
 
-    constructor(fileManager: YarnFileManager, editor: EditorController) {
+    constructor(fileManager: YarnFileManager, editor: EditorController) 
+    {
         this.yarnFileManager = fileManager;
         this.editor = editor;
         this.themeReader = new ThemeReader();
 
-        ipcRenderer.on("openFile", (event, files: { path: string, contents: string, name: string }[]) => {
-            files.forEach(openedFileDetails => {
-                if (!openedFileDetails.name) {
+        ipcRenderer.on("openFile", (event, files: { path: string, contents: string, name: string }[]) => 
+        {
+            files.forEach(openedFileDetails => 
+            {
+                if (!openedFileDetails.name) 
+                {
                     openedFileDetails.name = "New File";
                 }
 
@@ -32,30 +37,37 @@ export class RendererIPC {
             });
         });
 
-        ipcRenderer.on("themeRequestChange", (event, arg) => {
+        ipcRenderer.on("themeRequestChange", (event, arg) => 
+        {
             console.log("Got request for " + arg);
             console.log(this.themeReader.returnThemeOnStringName(arg));
             console.log(typeof (this.themeReader.returnThemeOnStringName(arg)));
             this.updateTheme(this.themeReader.returnThemeOnStringName(arg));
         });
 
-        ipcRenderer.on("fontChangeRequest", (event, arg) => {
+        ipcRenderer.on("fontChangeRequest", (event, arg) => 
+        {
             console.log("Request to change font to: " + arg);
             this.updateFont(arg.toString());
         });
 
-        ipcRenderer.on("fileSaveResponse", (event, response, filePath, fileName) => {
-            if (response) {
-                if (filePath) {
+        ipcRenderer.on("fileSaveResponse", (event, response, filePath, fileName) => 
+        {
+            if (response) 
+            {
+                if (filePath) 
+                {
                     this.yarnFileManager.getCurrentOpenFile().setFilePath(filePath);
                 }
 
-                if (fileName) {
+                if (fileName) 
+                {
                     this.yarnFileManager.getCurrentOpenFile().setName(fileName);
 
                     const workingDetailDiv = document.getElementById(this.yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString());
 
-                    if (workingDetailDiv) {
+                    if (workingDetailDiv) 
+                    {
                         workingDetailDiv.children[0].innerHTML = this.yarnFileManager.getCurrentOpenFile().getName();
                     }
                 }
@@ -63,60 +75,73 @@ export class RendererIPC {
                 this.yarnFileManager.getCurrentOpenFile().fileSaved();
 
             }
-            else {
+            else 
+            {
                 console.error("File save error occurred");
             }
         });
 
-        ipcRenderer.on("setOpenFile", (event, uid) => {
+        ipcRenderer.on("setOpenFile", (event, uid) => 
+        {
             this.yarnFileManager.setCurrentOpenYarnFile(uid);
             editor.setValue(this.yarnFileManager.getCurrentOpenFile().getContents());
             editor.setReadOnly(false);
             setActiveFile(uid);
         });
 
-        ipcRenderer.on("setFileSaved", (event, uid) => {
+        ipcRenderer.on("setFileSaved", (event, uid) => 
+        {
             this.yarnFileManager.getYarnFile(uid).fileSaved();
             const workingDetailDiv = document.getElementById(uid.toString());
 
-            if (workingDetailDiv) {
+            if (workingDetailDiv) 
+            {
                 workingDetailDiv.children[0].innerHTML = this.yarnFileManager.getYarnFile(uid).getName();
             }
         });
 
-        ipcRenderer.on("mainRequestSaveAs", () => {
+        ipcRenderer.on("mainRequestSaveAs", () => 
+        {
             this.saveAsEmitter();
         });
 
-        ipcRenderer.on("mainRequestSave", () => {
+        ipcRenderer.on("mainRequestSave", () => 
+        {
             this.saveEmitter();
         });
 
-        ipcRenderer.on("mainRequestUnsavedFiles", () => {
+        ipcRenderer.on("mainRequestUnsavedFiles", () => 
+        {
             this.getUnsavedFiles();
         });
 
-        ipcRenderer.on("mainRequestNewFile", () => {
+        ipcRenderer.on("mainRequestNewFile", () => 
+        {
             this.createNewFile();
         });
 
-        ipcRenderer.on("mainRequestFind", () => {
+        ipcRenderer.on("mainRequestFind", () => 
+        {
             editor.showFindDialog();
         });
 
-        ipcRenderer.on("mainRequestUndo", () => {
+        ipcRenderer.on("mainRequestUndo", () => 
+        {
             editor.actionUndo();
         });
 
-        ipcRenderer.on("mainRequestRedo", () => {
+        ipcRenderer.on("mainRequestRedo", () => 
+        {
             editor.actionRedo();
         });
 
-        ipcRenderer.on("mainRequestFindAndReplace", () => {
+        ipcRenderer.on("mainRequestFindAndReplace", () => 
+        {
             editor.showFindAndReplaceDialog();
         });
 
-        ipcRenderer.on("gotPing", (event, arg) => {
+        ipcRenderer.on("gotPing", (event, arg) => 
+        {
             console.log(arg);//Should be pong
         });
     }
@@ -127,7 +152,8 @@ export class RendererIPC {
      * 
      * @returns {void}
      */
-    createNewFile(): void {
+    createNewFile(): void 
+    {
         // this.yarnFileManager.createEmptyFile();
         addFileToDisplay(this.yarnFileManager.createEmptyFile());
         this.editor.setValue(this.yarnFileManager.getCurrentOpenFile().getContents());
@@ -139,7 +165,8 @@ export class RendererIPC {
  * 
  * @returns {void}
  */
-    saveAsEmitter(): void {
+    saveAsEmitter(): void 
+    {
         ipcRenderer.send("fileSaveToMain", null, this.yarnFileManager.getCurrentOpenFile().getContents());
     }
 
@@ -148,7 +175,8 @@ export class RendererIPC {
      * 
      * @returns {void}
      */
-    saveEmitter(): void {
+    saveEmitter(): void 
+    {
         ipcRenderer.send("fileSaveToMain", this.yarnFileManager.getCurrentOpenFile().getPath(), this.yarnFileManager.getCurrentOpenFile().getContents());
     }
 
@@ -157,12 +185,15 @@ export class RendererIPC {
      * 
      * @returns {void}
      */
-    getUnsavedFiles(): void {
+    getUnsavedFiles(): void 
+    {
         const unsaved: string[][] = [[], [], [], []];
 
-        this.yarnFileManager.getFiles().forEach((value) => {
+        this.yarnFileManager.getFiles().forEach((value) => 
+        {
             console.log(value);
-            if (!value.getSaved()) {
+            if (!value.getSaved()) 
+            {
                 unsaved[0].push(value.getUniqueIdentifier().toString());
                 unsaved[1].push(value.getName());
                 unsaved[2].push(value.getPath());
@@ -180,7 +211,8 @@ export class RendererIPC {
      * @param {string} filepath file path if available
      * @returns {void}
      */
-    openFileEmitter(filepath?: string[]): void {
+    openFileEmitter(filepath?: string[]): void 
+    {
         ipcRenderer.send("fileOpenToMain", filepath);
     }
 
@@ -189,21 +221,21 @@ export class RendererIPC {
  * @param {string} theme String representation of theme choice
  * @returns {void}
  */
-updateTheme(theme: Record<string,string>): void 
-{
-    console.log("TODO IMPLEMENT UPDATE THEME");
-    document.documentElement.style.setProperty("--editor", theme.editor);
-    document.documentElement.style.setProperty("--editorMinimap", theme.editorMinimap);
-    document.documentElement.style.setProperty("--topSideEdit", theme.editor);
-    document.documentElement.style.setProperty("--workingFile", theme.workingFile);
-    document.documentElement.style.setProperty("--tabGap", theme.tabGap);
-    document.documentElement.style.setProperty("--dividerColour", theme.invertDefault);
-    document.documentElement.style.setProperty("--primary_text", theme.default);
-    document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
-    document.documentElement.style.setProperty("--selectedFileBg", theme.selectedFileBg);
+    updateTheme(theme: Record<string,string>): void 
+    {
+        console.log("TODO IMPLEMENT UPDATE THEME");
+        document.documentElement.style.setProperty("--editor", theme.editor);
+        document.documentElement.style.setProperty("--editorMinimap", theme.editorMinimap);
+        document.documentElement.style.setProperty("--topSideEdit", theme.editor);
+        document.documentElement.style.setProperty("--workingFile", theme.workingFile);
+        document.documentElement.style.setProperty("--tabGap", theme.tabGap);
+        document.documentElement.style.setProperty("--dividerColour", theme.invertDefault);
+        document.documentElement.style.setProperty("--primary_text", theme.default);
+        document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
+        document.documentElement.style.setProperty("--selectedFileBg", theme.selectedFileBg);
 
-    this.editor.setThemeOfEditor(theme);
-}
+        this.editor.setThemeOfEditor(theme);
+    }
     
     /**
  * Updates the font based on parameter choice
@@ -211,8 +243,8 @@ updateTheme(theme: Record<string,string>): void
  * @returns {void}
  */
     updateFont(font: string): void
-{
-    document.documentElement.style.setProperty("--font_choice", settings.getSync("font.fontname").toString());
-    this.editor.setFontOfEditor(font);
-}
+    {
+        document.documentElement.style.setProperty("--font_choice", settings.getSync("font.fontname").toString());
+        this.editor.setFontOfEditor(font);
+    }
 }

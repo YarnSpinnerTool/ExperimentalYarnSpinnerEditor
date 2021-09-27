@@ -25,11 +25,30 @@ import { setUpResizing } from "./views/ts/WindowResizing";
 import { EditorController } from "./controllers/EditorController";
 import { setActiveFile, addFileToDisplay } from "./controllers/DomHelpers";
 import { RendererIPC } from "./controllers/RendererIPC";
+import settings from "electron-settings";
 
+//Forces the creation of settings with our defaults
+if (!settings.hasSync("theme"))
+{
+    settings.setSync("theme", {
+        name: "OGBlue",
+        code: {
+            themeName: "OGBlue"
+        }
+    });
+
+    settings.setSync("font", {
+        fontname: "Roboto",
+        code: {
+            fontname: "Roboto"
+        }
+    });
+}
 
 const yarnFileManager = new YarnFileManager();
 const yarnNodeList = new YarnNodeList();
-const theme = new ThemeReader().OGBlue;
+const themeReader = new ThemeReader();
+const theme = themeReader.returnThemeOnStringName(settings.getSync("theme.name").toString());
 const editor = new EditorController("container", theme, yarnFileManager, yarnNodeList);
 const ipcHandler = new RendererIPC(yarnFileManager, editor);
 setUpResizing();
@@ -38,6 +57,7 @@ setUpResizing();
 //set css variables
 //TODO streamline variables, a few of these are using the same colour
 document.documentElement.style.setProperty("--editor", theme.editor);
+document.documentElement.style.setProperty("--editorMinimap", theme.editorMinimap);
 document.documentElement.style.setProperty("--topSideEdit", theme.editor);
 document.documentElement.style.setProperty("--workingFile", theme.workingFile);
 document.documentElement.style.setProperty("--tabGap", theme.tabGap);
@@ -45,6 +65,7 @@ document.documentElement.style.setProperty("--dividerColour", theme.invertDefaul
 document.documentElement.style.setProperty("--primary_text", theme.default);
 document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
 document.documentElement.style.setProperty("--selectedFileBg", theme.selectedFileBg);
+document.documentElement.style.setProperty("--font_choice", settings.getSync("font.fontname").toString());
 
 
 // * Initialise and create a node in the node view.
@@ -57,8 +78,6 @@ nodeView.newNode("Node Four");
 nodeView.newNode("Node Five");
 nodeView.newNode("Node Six");
 */
-
-
 
 //Working file details specific events
 const workingFiles = document.getElementById("workingFilesDetail");
@@ -75,6 +94,7 @@ if (workingFiles)
     //Add all listeners
     workingFiles.addEventListener("click", (event) => 
     {
+
         //Button clicked event
         if (event && event.target && (event.target as HTMLElement).tagName === "BUTTON") 
         {
@@ -212,6 +232,15 @@ const openFolderIcon = document.getElementById("openFolderIcon");
 if (openFolderIcon) 
 {
     openFolderIcon.onclick = function () { ipcHandler.openFileEmitter(); };
+}
+
+const buildTreeIcon = document.getElementById("buildTree");
+if (buildTreeIcon)
+{
+    buildTreeIcon.onclick = function () 
+    {
+        editor.handleNodeTreeBuild();
+    };
 }
 
 // Load a file into the application if it has a .yarn extension

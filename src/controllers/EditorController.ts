@@ -6,12 +6,16 @@ import { YarnFileManager } from "../models/YarnFileManager";
 import { YarnFile } from "../models/YarnFile";
 import { ReturnCode, ReturnObject, YarnNodeList } from "./NodeTranslator";
 import { YarnNode } from "../models/YarnNode";
+import settings from "electron-settings";
+import { NodeObject, TreeRepresentationOfGraph } from "./TreeGenerator";
 
 export class EditorController 
 {
     editor: monaco.editor.IStandaloneCodeEditor;
     yarnFileManager: YarnFileManager;
     yarnNodeList: YarnNodeList;
+
+    generateTreeRun = false;
 
     constructor(editorContainerId: string, theme: Record<string, string>, yarnFileManager: YarnFileManager, yarnNodeList: YarnNodeList) 
     {
@@ -36,7 +40,7 @@ export class EditorController
         //monaco.editor.defineTheme("yarnSpinnerTheme", yarnSpinner.theme);
 
         //Utilising theme we can get the variable information from themeReader
-
+        console.log(settings.getSync("font.fontname"));
         monaco.editor.defineTheme("customTheme", {
             base: "vs",
             inherit: true,
@@ -87,7 +91,7 @@ export class EditorController
             value: "".toString(),
             language: "yarnSpinner",
             automaticLayout: true,
-            fontFamily: "Courier New",
+            fontFamily: settings.getSync("font.fontname").toString(),
             fontSize: 20,
             mouseWheelZoom: true,
             wordWrap: "on",
@@ -105,6 +109,7 @@ export class EditorController
                 "title: ",
                 "xpos: ",
                 "ypos: ",
+                "colour: ",
                 "---",
                 " ",
                 "===",
@@ -168,6 +173,68 @@ export class EditorController
         });
     }
 
+
+    setFontOfEditor(font: string): void
+    {
+        this.editor.updateOptions({
+            fontFamily: font
+        });
+    }
+
+    setThemeOfEditor(theme: Record<string,string>): void
+    {
+
+        
+        monaco.editor.defineTheme("customTheme", {
+            base: "vs",
+            inherit: true,
+            rules: [
+                //{ background: 'CFD8DC'},
+                { token: "body.bold", foreground: theme.default, fontStyle: "bold" },
+                { token: "body.underline", foreground: theme.default, fontStyle: "underline" },
+                { token: "body.italic", foreground: theme.default, fontStyle: "italic" },
+
+                { token: "Commands", foreground: theme.commands },
+                { token: "CommandsInternals", foreground: theme.commandsInternal },
+                { token: "VarAndNum", foreground: theme.varAndNum },
+                { token: "Options", foreground: theme.options },
+                { token: "Interpolation", foreground: theme.interpolation },
+                { token: "Strings", foreground: theme.strings },
+                { token: "Metadata", foreground: theme.metadata },
+                { token: "Comments", foreground: theme.comments },
+                { token: "Default", foreground: theme.default },
+
+                { token: "Invalid", foreground: "#931621" }
+
+            ],
+            // * A list of colour names: https://github.com/Microsoft/monaco-editor/blob/main/test/playground.generated/customizing-the-appearence-exposed-colors.html
+            colors: {
+                "editor.foreground": theme.default,
+                "editor.background": theme.editor,
+                "editorCursor.foreground": theme.invertDefault,
+                //"editor.lineHighlightBackground": theme.invertDefault, //Removed from parameter
+
+                //Shows indentation
+                "editorIndentGuide.background": theme.metadata,
+
+                //lineNumberColour
+                "editorLineNumber.foreground": theme.default,
+                //Changes bgColour of lineNumbers
+                "editorGutter.background": theme.editorMinimap,
+
+                "editor.selectionBackground": theme.invertDefault,
+                "editor.inactiveSelectionBackground": theme.editor,
+                "minimap.background": theme.editorMinimap
+
+            }
+        });
+
+        this.editor.updateOptions({
+            theme: "customTheme"
+        });
+    }
+
+
     /**
     * Generic function for inserting at the front and the end of a selection.
     *
@@ -200,15 +267,100 @@ export class EditorController
     }
 
 
+    convertFromNodeToYarnNode(treeRep: TreeRepresentationOfGraph) : Map<number,YarnNode>
+    {
+        const treeRepNodes = treeRep.allNodes;
+        const allYarnNodes = new Map<number, YarnNode>();
+
+
+        treeRepNodes.forEach((node, idNumber) => 
+        {
+            const metaDataMap = new Map<string,string>();
+            metaDataMap.set("xpos", node.getXPosition().toString());
+            metaDataMap.set("ypos", node.getYPosition().toString());
+
+            const yarnNode = new YarnNode(
+                idNumber,
+                node.getTitle(),
+                -1,
+                -1,
+                -1,
+                metaDataMap
+            );
+
+            allYarnNodes.set(idNumber, yarnNode);
+        });
+
+
+        return allYarnNodes;
+    }
+
+    convertAllNodesFromYarnNodeToNode(treeRep: TreeRepresentationOfGraph, listOfNodes: Map<number, YarnNode>) : void
+    {
+        console.log("Converting from yarn node to node");
+        console.log("list of nodes passewd through");
+        console.log(listOfNodes);
+        const ArrayOfAllJumps = this.yarnNodeList.getJumps();
+
+        console.log("length of all nodes " + this.yarnNodeList.getNodes().size);
+        let assumeFirstNodeRoot = true;
+
+        listOfNodes.forEach((node) => 
+        {
+            console.log("Converting :" + node.getTitle());
+
+            const createdNodeObject = new NodeObject(
+                node.getUniqueIdentifier(),
+                node.getTitle()
+            );
+
+            if (assumeFirstNodeRoot)
+            {
+                treeRep.rootNode = createdNodeObject;
+                assumeFirstNodeRoot = false;
+            }
+
+            console.log("Created: NODE " + createdNodeObject.getTitle());
+
+            treeRep.addChildToNodeList(createdNodeObject);
+        });
+
+        ArrayOfAllJumps.forEach((NodeJump) => 
+        {
+            console.log("Iterate over each jump and assign child based on targets and sources");
+            
+            if (treeRep.allNodes.get(NodeJump.getSource()) && treeRep.allNodes.get(NodeJump.getTarget()))
+            {
+                treeRep.addChildIDToNodeParentID(NodeJump.getSource(), NodeJump.getTarget());
+                
+            }
+            
+        });
+
+
+        console.log(treeRep.rootNode);
+
+        treeRep.buildTreeCoordinates(70,70,70,70);
+
+        console.log(treeRep.allNodes);
+
+
+    }
+
+    handleNodeTreeBuild() : void
+    {
+        console.log("Running tree");
+        const TreeRep = new TreeRepresentationOfGraph();
+
+        this.convertAllNodesFromYarnNodeToNode(TreeRep, this.yarnNodeList.getNodes());
+        const listOfNodes = this.convertFromNodeToYarnNode(TreeRep);
+        nodeView.updateNodePositions(listOfNodes, this.yarnNodeList.getJumps());
+        this.generateTreeRun = false;
+    }
+
     //Editor specific events
     modelChangeHandler(e: monaco.editor.IModelContentChangedEvent): void 
     {
-        //TODO SETH - Maybe pass the ILineChange event info into this method too?
-
-
-        //TODO pass in the insertions here (the reassigning of the editor content) with a check to prevent the convert from content to node being ran on this run
-        // As changing the content will call this again, prevents a double run (which wont cause any problems, just will make it more efficient)
-
         const allLines = this.editor.getValue().split("\n");
         const titleRegexExp = /(title:.*)/g;//Get title match
 
@@ -216,13 +368,8 @@ export class EditorController
         let lastNode: YarnNode = null;
         let metadata: Map<string, string>;
 
-
-
-
-
         const returnedObjectList = this.yarnNodeList.convertFromContentToNode(this.editor.getValue(), e);
-
-
+    
         for (let i = 0; i < returnedObjectList.length; i++) 
         {
             const currentObject: ReturnObject = returnedObjectList[i];
@@ -254,14 +401,15 @@ export class EditorController
                     if (currentObject.returnNode) 
                     {
                         nodeView.changeNodeName(currentObject.returnNode);
+                        nodeView.changeNodeColour(currentObject.returnNode);
                     }
                     break;
                 case ReturnCode.Jumps:
+
                     console.log("Doing the jumps");
                     //if (currentObject.returnJumps.length !== 0)
-                    //{
+                    //{ 
                     nodeView.receiveJumps(currentObject.returnJumps);
-
                     //}
                     break;
                 case ReturnCode.Content:
@@ -286,6 +434,7 @@ export class EditorController
         }
 
         const listOfNodes = nodeView.getAllNodes();
+
         //Another line to get a new node?
 
         let changesOccured = false;
@@ -373,7 +522,8 @@ export class EditorController
             console.log("Resetting editor value");
             this.editor.setValue(allLines.join("\n"));
             changesOccured = false;
-        }
+        }  
+          
 
         // Leaving this here to stop eslint complaining about unused vars
         //console.log(e);

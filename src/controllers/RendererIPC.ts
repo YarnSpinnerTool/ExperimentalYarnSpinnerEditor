@@ -3,16 +3,20 @@ import { YarnFile } from "../models/YarnFile";
 import { YarnFileManager } from "../models/YarnFileManager";
 import { EditorController } from "./EditorController";
 import { setActiveFile, addFileToDisplay } from "./DomHelpers";
+import { ThemeReader } from "./themeReader";
+import settings from "electron-settings";
 
 export class RendererIPC 
 {
     yarnFileManager: YarnFileManager
     editor: EditorController
+    themeReader: ThemeReader
 
     constructor(fileManager: YarnFileManager, editor: EditorController) 
     {
         this.yarnFileManager = fileManager;
         this.editor = editor;
+        this.themeReader = new ThemeReader();
 
         ipcRenderer.on("openFile", (event, files: { path: string, contents: string, name: string }[]) => 
         {
@@ -33,6 +37,19 @@ export class RendererIPC
             });
         });
 
+        ipcRenderer.on("themeRequestChange", (event, arg) => 
+        {
+            console.log("Got request for " + arg);
+            console.log(this.themeReader.returnThemeOnStringName(arg));
+            console.log(typeof (this.themeReader.returnThemeOnStringName(arg)));
+            this.updateTheme(this.themeReader.returnThemeOnStringName(arg));
+        });
+
+        ipcRenderer.on("fontChangeRequest", (event, arg) => 
+        {
+            console.log("Request to change font to: " + arg);
+            this.updateFont(arg.toString());
+        });
 
         ipcRenderer.on("fileSaveResponse", (event, response, filePath, fileName) => 
         {
@@ -135,7 +152,7 @@ export class RendererIPC
      * 
      * @returns {void}
      */
-    createNewFile() : void
+    createNewFile(): void 
     {
         // this.yarnFileManager.createEmptyFile();
         addFileToDisplay(this.yarnFileManager.createEmptyFile());
@@ -148,7 +165,7 @@ export class RendererIPC
  * 
  * @returns {void}
  */
-    saveAsEmitter() : void
+    saveAsEmitter(): void 
     {
         ipcRenderer.send("fileSaveToMain", null, this.yarnFileManager.getCurrentOpenFile().getContents());
     }
@@ -158,7 +175,7 @@ export class RendererIPC
      * 
      * @returns {void}
      */
-    saveEmitter() : void
+    saveEmitter(): void 
     {
         ipcRenderer.send("fileSaveToMain", this.yarnFileManager.getCurrentOpenFile().getPath(), this.yarnFileManager.getCurrentOpenFile().getContents());
     }
@@ -168,7 +185,7 @@ export class RendererIPC
      * 
      * @returns {void}
      */
-    getUnsavedFiles() : void
+    getUnsavedFiles(): void 
     {
         const unsaved: string[][] = [[], [], [], []];
 
@@ -194,9 +211,40 @@ export class RendererIPC
      * @param {string} filepath file path if available
      * @returns {void}
      */
-    openFileEmitter(filepath?: string[]) : void
+    openFileEmitter(filepath?: string[]): void 
     {
         ipcRenderer.send("fileOpenToMain", filepath);
     }
 
+    /**
+ * Updates the theme based on parameter choice
+ * @param {string} theme String representation of theme choice
+ * @returns {void}
+ */
+    updateTheme(theme: Record<string,string>): void 
+    {
+        console.log("TODO IMPLEMENT UPDATE THEME");
+        document.documentElement.style.setProperty("--editor", theme.editor);
+        document.documentElement.style.setProperty("--editorMinimap", theme.editorMinimap);
+        document.documentElement.style.setProperty("--topSideEdit", theme.editor);
+        document.documentElement.style.setProperty("--workingFile", theme.workingFile);
+        document.documentElement.style.setProperty("--tabGap", theme.tabGap);
+        document.documentElement.style.setProperty("--dividerColour", theme.invertDefault);
+        document.documentElement.style.setProperty("--primary_text", theme.default);
+        document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
+        document.documentElement.style.setProperty("--selectedFileBg", theme.selectedFileBg);
+
+        this.editor.setThemeOfEditor(theme);
+    }
+    
+    /**
+ * Updates the font based on parameter choice
+ * @param {string} font Font family to change to 
+ * @returns {void}
+ */
+    updateFont(font: string): void
+    {
+        document.documentElement.style.setProperty("--font_choice", settings.getSync("font.fontname").toString());
+        this.editor.setFontOfEditor(font);
+    }
 }

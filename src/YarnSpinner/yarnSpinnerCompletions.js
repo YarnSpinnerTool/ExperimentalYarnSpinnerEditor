@@ -72,6 +72,7 @@ export const completions = {
                 'title: $1',
                 'xpos:',
                 'ypos:',
+                'colour: ',
                 '---',
                 '$0',
                 '==='

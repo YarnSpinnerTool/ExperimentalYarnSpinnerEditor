@@ -23,6 +23,30 @@
 export class ThemeReader 
 {
 
+    constructor()
+    {
+        console.log("Theme reader loaded");
+    }
+
+    returnThemeOnStringName(name: string) : Record<string,string>
+    {
+        switch (name)
+        {
+        case "OGBlue":
+            return this.OGBlue;
+            break;
+        case "Pink":
+            return this.Pink;
+        case "Night":
+            return this.Night;
+        case "Wireframe":
+            return this.WireFrame;
+        default:
+            return null;
+        }
+    }
+
+
     //Original blue theme //! TODO
     OGBlue = {
         default: "#000000",
@@ -105,8 +129,8 @@ export class ThemeReader
         comments: "#888888",
 
         editor: "#FFFFFF",
-        editorMinimap: "#DDDDDD",
-        workingFile: "#BBBBBB",
+        editorMinimap: "#999999",
+        workingFile: "#555555",
         tabGap: "#999999"
     };
     /**/

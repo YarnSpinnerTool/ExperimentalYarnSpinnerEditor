@@ -37,6 +37,7 @@ img {
     /* ~~CONSTANT COLOURS~~ */
     /* --primary_text: #000000;
     --secondary_text: #FFFFFF;  */
+    font-family: var(--font_choice);
 
 }
 
@@ -89,6 +90,7 @@ body {
 
     overflow-x: hidden;
     overflow-y: hidden;
+    font-family: var(--font_choice)
 }
 
 
@@ -358,6 +360,7 @@ select{
     border-radius: 15px;
     margin-top: 5px;
     margin-right: -10px;
+    margin-bottom: 5px;
     float: right;
 }
 
@@ -429,21 +432,19 @@ cursor: col-resize;
 }
 
 .mainEditorView {
-    height: 98vh;    
+    height: 100vh;    
     border-style: hidden;
     border-top-right-radius: 15px;
     border-top-left-radius: 15px;
     background-color: var(--editor);
-    margin-top: 15px;
     width: 100%;
     display: flex;
     /* padding-top: 5px; */
 }
 
 .editorView {
-    margin-top: 1vh;
-    margin-right: 2vw;
-    height: 82vh;
+    margin-right: 26px;
+    height: 83vh;
     /* z-index: 3; */
     flex: 1 1 0%;
     /* float: right; */
@@ -453,23 +454,24 @@ cursor: col-resize;
 .nodeView{
     position: relative;
     width: 45%;
-    height: 82vh;
+    height: auto;
     display:flex;
     float: left;
+    margin-bottom: 120px;
 }
 
 .nodeEditorView {
     /* position: absolute; */
-    height: 84vh;
+    height: 100%;
 
-    background-color: #CFD8DC;
+    background-color: var(--editor);
 }
 
 .miniNodeEditorView{
     /* position: absolute; */
     width: 75px;
     height: 98vh;
-    background-color: var(--selectedFileBg);
+    background-color: var(--editorMinimap);
     /* z-index: 2; */
 }
 

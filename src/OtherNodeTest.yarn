@@ -1,25 +1,33 @@
 #This is a file tag
     //This is a comment
-Title: abc
+title: abc
 headerTag: otherTest
+xpos: 230
+ypos: 214
 ---
 <<jump 333>>
 <<jump ttt>>
 ===
 
 preceedingTag: wahoo
-Title: 333
+title: 333
 headerTag: otherTest
+xpos: 179
+ypos: 351
 ---
 <<jump ttt>>
 ===
 
-Title: ttt
+title: ttt
 headerTag: otherTest
+xpos: 94
+ypos: 128
 ---
 ===
 
-Title: ttt2ElectricBoogaloo
+title: ttt2ElectricBoogaloo
 headerTag: otherTest
+xpos: 375
+ypos: 50
 --- 
 === 

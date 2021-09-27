@@ -129,8 +129,8 @@ export class ThemeReader
         comments: "#888888",
 
         editor: "#FFFFFF",
-        editorMinimap: "#DDDDDD",
-        workingFile: "#BBBBBB",
+        editorMinimap: "#999999",
+        workingFile: "#555555",
         tabGap: "#999999"
     };
     /**/

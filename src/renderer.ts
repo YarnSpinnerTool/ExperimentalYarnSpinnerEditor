@@ -18,13 +18,13 @@
 // Use preload.js to selectively enable features
 // needed in the renderer process.
 import "./index.css";
-import { ipcRenderer } from "electron";
+import { ThemeReader } from "./controllers/themeReader";
 import { YarnFileManager } from "./models/YarnFileManager";
-import { YarnFile } from "./models/YarnFile";
 import { YarnNodeList } from "./controllers/NodeTranslator";
 import { setUpResizing } from "./views/ts/WindowResizing";
 import { EditorController } from "./controllers/EditorController";
-import { ThemeReader } from "./controllers/themeReader";
+import { setActiveFile, addFileToDisplay } from "./controllers/DomHelpers";
+import { RendererIPC } from "./controllers/RendererIPC";
 import settings from "electron-settings";
 
 //Forces the creation of settings with our defaults
@@ -50,6 +50,7 @@ const yarnNodeList = new YarnNodeList();
 const themeReader = new ThemeReader();
 const theme = themeReader.returnThemeOnStringName(settings.getSync("theme.name").toString());
 const editor = new EditorController("container", theme, yarnFileManager, yarnNodeList);
+const ipcHandler = new RendererIPC(yarnFileManager, editor);
 setUpResizing();
 
 
@@ -77,38 +78,6 @@ nodeView.newNode("Node Four");
 nodeView.newNode("Node Five");
 nodeView.newNode("Node Six");
 */
-
-/**
- * Updates the theme based on parameter choice
- * @param {string} theme String representation of theme choice
- * @returns {void}
- */
-function updateTheme(theme: Record<string,string>): void 
-{
-    console.log("TODO IMPLEMENT UPDATE THEME");
-    document.documentElement.style.setProperty("--editor", theme.editor);
-    document.documentElement.style.setProperty("--editorMinimap", theme.editorMinimap);
-    document.documentElement.style.setProperty("--topSideEdit", theme.editor);
-    document.documentElement.style.setProperty("--workingFile", theme.workingFile);
-    document.documentElement.style.setProperty("--tabGap", theme.tabGap);
-    document.documentElement.style.setProperty("--dividerColour", theme.invertDefault);
-    document.documentElement.style.setProperty("--primary_text", theme.default);
-    document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
-    document.documentElement.style.setProperty("--selectedFileBg", theme.selectedFileBg);
-    
-    editor.setThemeOfEditor(theme);
-}
-
-/**
- * Updates the font based on parameter choice
- * @param {string} font Font family to change to 
- * @returns {void}
- */
-function updateFont(font: string): void
-{
-    document.documentElement.style.setProperty("--font_choice", settings.getSync("font.fontname").toString());
-    editor.setFontOfEditor(font);
-}
 
 //Working file details specific events
 const workingFiles = document.getElementById("workingFilesDetail");
@@ -208,27 +177,7 @@ if (workingFiles)
 }
 
 
-/**
- * Add and remove classes to correctly highlight the active file.
- * 
- * @param {string|number} fileToMarkCurrent The file to mark current.
- * 
- * @returns {void}
- */
-function setActiveFile(fileToMarkCurrent: string | number) 
-{
-    // Convert mixed type to string.
-    fileToMarkCurrent = fileToMarkCurrent.toString();
 
-    const activeFiles = document.getElementsByClassName("active-file");
-    Array.from(activeFiles).forEach((value) => 
-    {
-        value.classList.remove("active-file");
-    });
-
-    document.getElementById(fileToMarkCurrent)?.classList.add("active-file");
-
-}
 
 //Set selection to BOLD
 const boldText = document.getElementById("boldTextIcon");
@@ -270,19 +219,19 @@ const saveFileIcon = document.getElementById("saveFileIcon");
 
 if (saveFileIcon) 
 {
-    saveFileIcon.onclick = () => { saveEmitter(); };
+    saveFileIcon.onclick = () => { ipcHandler.saveEmitter(); };
 }
 
 const newFileIcon = document.getElementById("newFileIcon");
 if (newFileIcon) 
 {
-    newFileIcon.onclick = function () { createNewFile(); };
+    newFileIcon.onclick = function () { ipcHandler.createNewFile(); };
 }
 
 const openFolderIcon = document.getElementById("openFolderIcon");
 if (openFolderIcon) 
 {
-    openFolderIcon.onclick = function () { openFileEmitter(); };
+    openFolderIcon.onclick = function () { ipcHandler.openFileEmitter(); };
 }
 
 const buildTreeIcon = document.getElementById("buildTree");
@@ -295,26 +244,26 @@ if (buildTreeIcon)
 }
 
 // Load a file into the application if it has a .yarn extension
-document.ondrop = (e) =>
+document.ondrop = (e) => 
 {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const paths = [];
-    
+
     const files = e.dataTransfer.files;
     for (let i = 0; i < files.length; i++) 
     {
-        if(files[i].path.endsWith(".yarn")) 
+        if (files[i].path.endsWith(".yarn")) 
         {
             paths.push(files[i].path);
-        }        
+        }
     }
-    openFileEmitter(paths);
+    ipcHandler.openFileEmitter(paths);
 };
 
 // ! Prevents issue with electron and ondrop event not firing
-document.ondragover = (e) =>
+document.ondragover = (e) => 
 {
     e.preventDefault();
 };
@@ -323,271 +272,4 @@ const findIcon = document.getElementById("searchFolderIcon");
 if (findIcon) 
 {
     findIcon.onclick = function () { editor.showFindDialog(); };
-}
-
-/**
- * Creates a new file and shows it in the display.
- * 
- * @returns {void}
- */
-function createNewFile() 
-{
-    yarnFileManager.createEmptyFile();
-    addFileToDisplay(yarnFileManager.createEmptyFile());
-    editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-    editor.setReadOnly(false);
-
-
-    ipcRenderer.send("getPing", null, null);
-
-}
-
-/**
- * Creates and appends the HTML required for showing a new file.
- * 
- * @param {YarnFIleClass} file The file to add to the display.
- * 
- * @returns {void}
- */
-function addFileToDisplay(file: YarnFile): void 
-{
-    const div = document.createElement("div");
-    div.setAttribute("id", file.getUniqueIdentifier().toString());
-
-    const closeButton = document.createElement("button");
-    closeButton.textContent = "x";
-
-    const para = document.createElement("p");
-    para.textContent = file.getName();
-
-    div.appendChild(para);
-    div.appendChild(closeButton);
-
-
-    const fileListElement = document.getElementById("workingFilesDetail");
-
-    if (fileListElement) 
-    {
-        fileListElement.appendChild(div);
-    }
-    else 
-    {
-        console.error("OpenFileError: Cannot append file to display list");
-    }
-
-    setActiveFile(file.getUniqueIdentifier());
-}
-
-
-/*
-    ******************************************************************************************************************
-                                        IPCRenderer Listeners and Emitters                                                                                                                                                                                            
-    ******************************************************************************************************************
-*/
-
-/*
-    ------------------------------------
-                LISTENERS
-    ------------------------------------
-*/
-
-ipcRenderer.on("openFile", (event, files:{ path: string, contents: string, name: string }[]) => 
-{
-    files.forEach(openedFileDetails => 
-    {
-        if (!openedFileDetails.name) 
-        {
-            openedFileDetails.name = "New File";
-        }
-    
-        const openedFile = new YarnFile(openedFileDetails.path, openedFileDetails.contents, openedFileDetails.name, Date.now());
-        yarnFileManager.addToFiles(openedFile);
-        yarnFileManager.setCurrentOpenYarnFile(openedFile.getUniqueIdentifier());
-        addFileToDisplay(openedFile);
-        editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-        editor.setReadOnly(false);
-        
-    });
-});
-
-
-ipcRenderer.on("fileSaveResponse", (event, response, filePath, fileName) => 
-{
-    if (response) 
-    {
-        if (filePath) 
-        {
-            yarnFileManager.getCurrentOpenFile().setFilePath(filePath);
-        }
-
-        if (fileName) 
-        {
-            yarnFileManager.getCurrentOpenFile().setName(fileName);
-
-            const workingDetailDiv = document.getElementById(yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString());
-
-            if (workingDetailDiv) 
-            {
-                workingDetailDiv.children[0].innerHTML = yarnFileManager.getCurrentOpenFile().getName();
-            }
-        }
-
-        yarnFileManager.getCurrentOpenFile().fileSaved();
-
-    }
-    else 
-    {
-        console.error("File save error occurred");
-    }
-});
-
-ipcRenderer.on("setOpenFile", (event, uid) => 
-{
-    yarnFileManager.setCurrentOpenYarnFile(uid);
-    editor.setValue(yarnFileManager.getCurrentOpenFile().getContents());
-    editor.setReadOnly(false);
-    setActiveFile(uid);
-});
-
-ipcRenderer.on("setFileSaved", (event, uid) =>
-{
-    yarnFileManager.getYarnFile(uid).fileSaved();
-    const workingDetailDiv = document.getElementById(uid.toString());
-
-    if (workingDetailDiv) 
-    {
-        workingDetailDiv.children[0].innerHTML = yarnFileManager.getYarnFile(uid).getName();
-    }
-});
-
-ipcRenderer.on("mainRequestSaveAs", () => 
-{
-    saveAsEmitter();
-});
-
-ipcRenderer.on("mainRequestSave", () => 
-{
-    saveEmitter();
-});
-
-ipcRenderer.on("mainRequestUnsavedFiles", () =>
-{
-    getUnsavedFiles();
-});
-
-ipcRenderer.on("mainRequestNewFile", () => 
-{
-    createNewFile();
-});
-
-ipcRenderer.on("mainRequestFind", () => 
-{
-    editor.showFindDialog();
-});
-
-ipcRenderer.on("mainRequestUndo", () => 
-{
-    editor.actionUndo();
-});
-
-ipcRenderer.on("mainRequestRedo", () => 
-{
-    editor.actionRedo();
-});
-
-ipcRenderer.on("mainRequestFindAndReplace", () => 
-{
-    editor.showFindAndReplaceDialog();
-});
-
-ipcRenderer.on("gotPing", (event, arg) => 
-{
-    console.log(arg);//Should be pong
-});
-
-ipcRenderer.on("getPing", (event, arg) =>
-{
-    console.log("Got ping? " + arg);
-});
-
-ipcRenderer.on("themeRequestChange", (event, arg) =>
-{
-    console.log("Got request for " + arg);
-    console.log(themeReader.returnThemeOnStringName(arg));
-    console.log(typeof(themeReader.returnThemeOnStringName(arg)));
-    updateTheme(themeReader.returnThemeOnStringName(arg));
-});
-
-ipcRenderer.on("fontChangeRequest", (event, arg) =>
-{
-    console.log("Request to change font to: " + arg);
-    updateFont(arg.toString());
-});
-
-/*
-    ------------------------------------
-                EMITTERS
-    ------------------------------------
-*/
-
-/*
-    FORMAT:
-        EVENT LISTENER (EVENT, => {
-            ipcRenderer.send(CHANNEL, ARGS)
-        })
-*/
-
-/**
- * Emits an event containing the contents of the editor, instructing the main process to perform the Save As function.
- * 
- * @returns {void}
- */
-function saveAsEmitter() 
-{
-    ipcRenderer.send("fileSaveToMain", null, yarnFileManager.getCurrentOpenFile().getContents());
-}
-
-/**
- * Emits an event containing the contents of the editor, instructing the main process to perform the Save As function.
- * 
- * @returns {void}
- */
-function saveEmitter() 
-{
-    ipcRenderer.send("fileSaveToMain", yarnFileManager.getCurrentOpenFile().getPath(), yarnFileManager.getCurrentOpenFile().getContents());
-}
-/**
- * Creates a list of unsaved files open in the editor and sends the info to main.
- * 
- * @returns {void}
- */
-function getUnsavedFiles()
-{
-    const unsaved:string[][] = [[],[],[],[]];
-
-    yarnFileManager.getFiles().forEach((value) => 
-    {
-        console.log(value);
-        if(!value.getSaved())
-        {
-            unsaved[0].push(value.getUniqueIdentifier().toString());
-            unsaved[1].push(value.getName());
-            unsaved[2].push(value.getPath());
-            unsaved[3].push(value.getContents());
-        }
-    });
-    console.log(unsaved);
-    ipcRenderer.send("returnUnsavedFiles", unsaved);
-}
-
-
-/**
- * Emits an event to request that main opens a file.
- * 
- * @param {string} filepath file path if available
- * @returns {void}
- */
-function openFileEmitter(filepath?: string[]) 
-{
-    ipcRenderer.send("fileOpenToMain", filepath);
 }

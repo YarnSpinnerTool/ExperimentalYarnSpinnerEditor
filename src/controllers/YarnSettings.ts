@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+declare const ELECTRON_AVAILABLE: boolean;
 /**
  * Sets the settings defaults.
  * 
@@ -6,7 +7,6 @@
  */
 export function setupSettingsDefaults(): void 
 {
-    let ELECTRON_AVAILABLE: boolean;
 
     if (ELECTRON_AVAILABLE) 
     {
@@ -39,8 +39,6 @@ export function setupSettingsDefaults(): void
  */
 export function getFontString(): string 
 {
-    let ELECTRON_AVAILABLE: boolean;
-
     if (ELECTRON_AVAILABLE) 
     {
         const settings = require("electron-settings");
@@ -57,8 +55,6 @@ export function getFontString(): string
  */
 export function getThemeName(): string 
 {
-    let ELECTRON_AVAILABLE: boolean;
-
     if (ELECTRON_AVAILABLE) 
     {
         const settings = require("electron-settings");

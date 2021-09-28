@@ -43,14 +43,14 @@ if (ELECTRON_AVAILABLE)
 {
     const RendererIPC = require("./controllers/RendererIPC");
 
-    ipcHandler = new RendererIPC(yarnFileManager, editor);
+    ipcHandler = new RendererIPC.RendererIPC(yarnFileManager, editor);
     setupSettingsDefaults();
 }
 else 
 {
     const WebIPC = require("./controllers/WebIPC");
 
-    ipcHandler = new WebIPC(yarnFileManager, editor);
+    ipcHandler = new WebIPC.WebIPC(yarnFileManager, editor);
     // @ts-expect-error The element is an image, so src exists.
     document.getElementById("YSLogo").src = "./img/YSLogo.png";
 }

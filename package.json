@@ -1,6 +1,6 @@
 {
 	"name": "yarnspinnereditor",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"description": "A new editor for Yarn Spinner",
 	"main": ".webpack/main",
 	"scripts": {
@@ -23,7 +23,7 @@
 				"icon": "./assets/icons/YSLogo.png",
 				"appCategoryType": "public.app-category.utilities",
 				"extendInfo": "assets/Info.plist",
-        "name": "Yarn Spinner Editor v0.0.8",
+                "name": "Yarn Spinner Editor v0.0.9",
 				"extraResource": [
 					"assets/icons/yarnIcon.png",
 					"assets/icons/YSLogo.png"

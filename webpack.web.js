@@ -5,6 +5,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
     entry: './src/renderer.ts',
+    mode: 'production',
     module: {
         rules: [
             {

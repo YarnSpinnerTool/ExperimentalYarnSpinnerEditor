@@ -1,8 +1,7 @@
-import { ipcRenderer } from "electron";
 import { YarnFile } from "../models/YarnFile";
 import { YarnFileManager } from "../models/YarnFileManager";
 import { EditorController } from "./EditorController";
-import { setActiveFile, addFileToDisplay } from "./DomHelpers";
+import { addFileToDisplay } from "./DomHelpers";
 
 export class WebIPC 
 {
@@ -15,78 +14,7 @@ export class WebIPC
         this.yarnFileManager = fileManager;
         this.editor = editor;
         this.fileOpenCount = 0;
-
-        
-        ipcRenderer.on("openFile", (event, files: { path: string, contents: string, name: string }[]) => 
-        {
-            files.forEach(openedFileDetails => 
-            {
-                if (!openedFileDetails.name) 
-                {
-                    openedFileDetails.name = "New File";
-                }
-
-                const openedFile = new YarnFile(openedFileDetails.path, openedFileDetails.contents, openedFileDetails.name, Date.now());
-                this.yarnFileManager.addToFiles(openedFile);
-                this.yarnFileManager.setCurrentOpenYarnFile(openedFile.getUniqueIdentifier());
-                addFileToDisplay(openedFile);
-                editor.setValue(this.yarnFileManager.getCurrentOpenFile().getContents());
-                editor.setReadOnly(false);
-
-            });
-        });
-
-
-        ipcRenderer.on("fileSaveResponse", (event, response, filePath, fileName) => 
-        {
-            if (response) 
-            {
-                if (filePath) 
-                {
-                    this.yarnFileManager.getCurrentOpenFile().setFilePath(filePath);
-                }
-
-                if (fileName) 
-                {
-                    this.yarnFileManager.getCurrentOpenFile().setName(fileName);
-
-                    const workingDetailDiv = document.getElementById(this.yarnFileManager.getCurrentOpenFile().getUniqueIdentifier().toString());
-
-                    if (workingDetailDiv) 
-                    {
-                        workingDetailDiv.children[0].innerHTML = this.yarnFileManager.getCurrentOpenFile().getName();
-                    }
-                }
-
-                this.yarnFileManager.getCurrentOpenFile().fileSaved();
-
-            }
-            else 
-            {
-                console.error("File save error occurred");
-            }
-        });
-
-        ipcRenderer.on("setOpenFile", (event, uid) => 
-        {
-            this.yarnFileManager.setCurrentOpenYarnFile(uid);
-            editor.setValue(this.yarnFileManager.getCurrentOpenFile().getContents());
-            editor.setReadOnly(false);
-            setActiveFile(uid);
-        });
-
-        ipcRenderer.on("setFileSaved", (event, uid) => 
-        {
-            this.yarnFileManager.getYarnFile(uid).fileSaved();
-            const workingDetailDiv = document.getElementById(uid.toString());
-
-            if (workingDetailDiv) 
-            {
-                workingDetailDiv.children[0].innerHTML = this.yarnFileManager.getYarnFile(uid).getName();
-            }
-        });
     }
-
 
     /**
      * Creates a new file and shows it in the display.
@@ -100,17 +28,7 @@ export class WebIPC
         this.editor.setValue(this.yarnFileManager.getCurrentOpenFile().getContents());
         this.editor.setReadOnly(false);
     }
-
-    /**
- * Web has no differentiation between save and save as.
- * 
- * @returns {void}
- */
-    saveAsEmitter(): void 
-    {
-        this.saveEmitter();
-    }
-
+    
     /**
      * Emits an event containing the contents of the editor, instructing the main process to perform the Save function.
      * 
@@ -118,33 +36,17 @@ export class WebIPC
      */
     saveEmitter(): void 
     {
-        ipcRenderer.send("fileSaveToMain", this.yarnFileManager.getCurrentOpenFile().getPath(), this.yarnFileManager.getCurrentOpenFile().getContents());
+        const element = document.createElement("a");
+        element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(this.editor.getValue()));
+        element.setAttribute("download", this.yarnFileManager.getCurrentOpenFile().getName() + ".yarn");
+      
+        element.style.display = "none";
+        document.body.appendChild(element);
+      
+        element.click();
+      
+        document.body.removeChild(element);
     }
-
-    /**
-     * Creates a list of unsaved files open in the editor and sends the info to main.
-     * 
-     * @returns {void}
-     */
-    getUnsavedFiles(): void 
-    {
-        const unsaved: string[][] = [[], [], [], []];
-
-        this.yarnFileManager.getFiles().forEach((value) => 
-        {
-            console.log(value);
-            if (!value.getSaved()) 
-            {
-                unsaved[0].push(value.getUniqueIdentifier().toString());
-                unsaved[1].push(value.getName());
-                unsaved[2].push(value.getPath());
-                unsaved[3].push(value.getContents());
-            }
-        });
-        console.log(unsaved);
-        ipcRenderer.send("returnUnsavedFiles", unsaved);
-    }
-
 
     /**
      * Emits an event to request that main opens a file.

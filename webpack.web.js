@@ -1,4 +1,5 @@
 path = require('path')
+var webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
@@ -37,6 +38,9 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
     },
     plugins: [
+        new webpack.DefinePlugin({
+            ELECTRON_AVAILABLE: JSON.stringify(false),
+          }),
         new HtmlWebpackPlugin({
             title: 'Custom template',
             // Load a custom template (lodash by default)

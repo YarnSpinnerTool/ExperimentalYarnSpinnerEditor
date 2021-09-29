@@ -24,35 +24,37 @@ import { YarnNodeList } from "./controllers/NodeTranslator";
 import { setUpResizing } from "./views/ts/WindowResizing";
 import { EditorController } from "./controllers/EditorController";
 import { setActiveFile, addFileToDisplay } from "./controllers/DomHelpers";
-import { RendererIPC } from "./controllers/RendererIPC";
-import settings from "electron-settings";
-
-//Forces the creation of settings with our defaults
-if (!settings.hasSync("theme"))
-{
-    settings.setSync("theme", {
-        name: "OGBlue",
-        code: {
-            themeName: "OGBlue"
-        }
-    });
-
-    settings.setSync("font", {
-        fontname: "Roboto",
-        code: {
-            fontname: "Roboto"
-        }
-    });
-}
+import { getThemeName, getFontString, setupSettingsDefaults } from "./controllers/YarnSettings";
 
 const yarnFileManager = new YarnFileManager();
 const yarnNodeList = new YarnNodeList();
 const themeReader = new ThemeReader();
-const theme = themeReader.returnThemeOnStringName(settings.getSync("theme.name").toString());
+const theme = themeReader.returnThemeOnStringName(getThemeName());
 const editor = new EditorController("container", theme, yarnFileManager, yarnNodeList);
-const ipcHandler = new RendererIPC(yarnFileManager, editor);
+
+// Need to disable no-var-requires here, as it is the nicest way to use a module without an import statement, as import statements must be at the top of the file.
+/* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/no-explicit-any */
+let ipcHandler: any;
 setUpResizing();
 
+declare const ELECTRON_AVAILABLE: boolean;
+
+if (ELECTRON_AVAILABLE) 
+{
+    const RendererIPC = require("./controllers/RendererIPC");
+
+    ipcHandler = new RendererIPC.RendererIPC(yarnFileManager, editor);
+    setupSettingsDefaults();
+}
+else 
+{
+    const WebIPC = require("./controllers/WebIPC");
+
+    ipcHandler = new WebIPC.WebIPC(yarnFileManager, editor);
+    // @ts-expect-error The element is an image, so src exists.
+    document.getElementById("YSLogo").src = "./img/YSLogo.png";
+}
+/* eslint-enable @typescript-eslint/no-var-requires, @typescript-eslint/no-explicit-any */
 
 //set css variables
 //TODO streamline variables, a few of these are using the same colour
@@ -65,7 +67,7 @@ document.documentElement.style.setProperty("--dividerColour", theme.invertDefaul
 document.documentElement.style.setProperty("--primary_text", theme.default);
 document.documentElement.style.setProperty("--secondary_text", theme.invertDefault);
 document.documentElement.style.setProperty("--selectedFileBg", theme.selectedFileBg);
-document.documentElement.style.setProperty("--font_choice", settings.getSync("font.fontname").toString());
+document.documentElement.style.setProperty("--font_choice", getFontString());
 
 
 // * Initialise and create a node in the node view.

@@ -6,7 +6,7 @@ import { YarnFileManager } from "../models/YarnFileManager";
 import { YarnFile } from "../models/YarnFile";
 import { ReturnCode, ReturnObject, YarnNodeList } from "./NodeTranslator";
 import { YarnNode } from "../models/YarnNode";
-import settings from "electron-settings";
+import { getFontString } from "./YarnSettings";
 import { NodeObject, TreeRepresentationOfGraph } from "./TreeGenerator";
 
 export class EditorController 
@@ -40,7 +40,6 @@ export class EditorController
         //monaco.editor.defineTheme("yarnSpinnerTheme", yarnSpinner.theme);
 
         //Utilising theme we can get the variable information from themeReader
-        console.log(settings.getSync("font.fontname"));
         monaco.editor.defineTheme("customTheme", {
             base: "vs",
             inherit: true,
@@ -91,7 +90,7 @@ export class EditorController
             value: "".toString(),
             language: "yarnSpinner",
             automaticLayout: true,
-            fontFamily: settings.getSync("font.fontname").toString(),
+            fontFamily: getFontString(),
             fontSize: 20,
             mouseWheelZoom: true,
             wordWrap: "on",

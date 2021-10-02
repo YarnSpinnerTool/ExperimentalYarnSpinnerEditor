@@ -41,7 +41,7 @@ stage.on("dragend", function ()
 const miniStage: Konva.Stage = new Konva.Stage({
     container: "miniNodeContainer", //id of html element to contain the mini left stage.
     width: 35,
-    height: 420,
+    height: 1000,
 });
 
 const miniMapStage: Konva.Stage = new Konva.Stage({

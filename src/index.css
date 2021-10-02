@@ -470,7 +470,7 @@ cursor: col-resize;
 .miniNodeEditorView{
     /* position: absolute; */
     width: 75px;
-    height: 98vh;
+    height: 100%;
     background-color: var(--editorMinimap);
     /* z-index: 2; */
 }

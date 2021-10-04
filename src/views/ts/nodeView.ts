@@ -413,28 +413,14 @@ export function connectNodes(from: number, to: number): void
         );
         arrow.add(arrow2);
         arrow.add(circle);
-        if(jumpMap.size >= 10)
+       
+        nodeFrom.on("dragmove", () => 
         {
-            nodeFrom.on("dragend", () => 
-            {
-                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-                arrow2.points([nodeFrom.x() + nodeCenterLength * 2, nodeFrom.y() + nodeCenterLength, nodeFrom.x() + nodeCenterLength * 2 + 10, nodeFrom.y() + nodeCenterLength - 2]);
-                circle.x(nodeTo.x() + nodeCenterLength * 2);
-                circle.y(nodeTo.y());
-                layer.draw();
-            });
-        }
-        else
-        {
-            nodeFrom.on("dragmove", () => 
-            {
-                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-                arrow2.points([nodeFrom.x() + nodeCenterLength * 2, nodeFrom.y() + nodeCenterLength, nodeFrom.x() + nodeCenterLength * 2 + 10, nodeFrom.y() + nodeCenterLength - 2]);
-                circle.x(nodeTo.x() + nodeCenterLength * 2);
-                circle.y(nodeTo.y());
-                layer.draw();
-            });  
-        }
+            const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+            arrow2.points([nodeFrom.x() + nodeCenterLength * 2, nodeFrom.y() + nodeCenterLength, nodeFrom.x() + nodeCenterLength * 2 + 10, nodeFrom.y() + nodeCenterLength - 2]);
+            circle.x(nodeTo.x() + nodeCenterLength * 2);
+            circle.y(nodeTo.y());
+        });  
     }
     else
     {
@@ -452,40 +438,29 @@ export function connectNodes(from: number, to: number): void
         arrow.add(line);
         
         //Redraw the line when moving the from node.
-        if(jumpMap.size >= 10)
+        nodeFrom.on("dragmove", () => 
         {
-            nodeFrom.on("dragend", () => 
-            {
-                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-                line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
-                layer.draw();
-            });
-
-            //Redraw the line when moving the to node.
-            nodeTo.on("dragend", () => 
-            {
-                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-                line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
-                layer.draw();
-            });
-        }
-        else
-        {
-            nodeFrom.on("dragmove", () => 
-            {
-                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-                line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
-                layer.draw();
-            });
+            const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+            const tempPoints = line.points();
+            tempPoints[0] = nodeFrom.x() + nodeCenterLength;
+            tempPoints[1] = nodeFrom.y() + nodeCenterLength;
+            //line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
+            line.points(tempPoints);
+                
+        });
     
-            //Redraw the line when moving the to node.
-            nodeTo.on("dragmove", () => 
-            {
-                const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
-                line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
-                layer.draw();
-            });    
-        }
+        //Redraw the line when moving the to node.
+        nodeTo.on("dragmove", () => 
+        {
+            const nodeCenterLength: number = nodeTo.getChildren()[0].width() / 2;
+            const tempPoints = line.points();
+            tempPoints[2] = nodeTo.x() + nodeCenterLength;
+            tempPoints[3] = nodeTo.y() + nodeCenterLength;
+            //line.points([(nodeFrom.x() + nodeCenterLength), (nodeFrom.y() + nodeCenterLength), (nodeTo.x() + nodeCenterLength), (nodeTo.y() + nodeCenterLength)]);
+            line.points(tempPoints);
+
+        });    
+        
     }
     //Add to the map of jumps
     jumpMap.set([from, to], arrow);

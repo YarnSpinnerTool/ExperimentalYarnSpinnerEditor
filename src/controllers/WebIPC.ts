@@ -14,6 +14,7 @@ export class WebIPC
         this.yarnFileManager = fileManager;
         this.editor = editor;
         this.fileOpenCount = 0;
+        document.getElementById("file-input").addEventListener("change", this.readFile.bind(this), false);
     }
 
     /**
@@ -51,13 +52,10 @@ export class WebIPC
     /**
      * Emits an event to request that main opens a file.
      * 
-     * @param {string} filePath file path if available
      * @returns {void}
      */
-    openFileEmitter(filePath?: string[]): void 
+    openFileEmitter(): void 
     {
-        console.log(filePath);
-        document.getElementById("file-input").addEventListener("change", this.readFile.bind(this), false);
         document.getElementById("file-input").click();
     }
 

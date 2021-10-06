@@ -7,13 +7,11 @@ export class WebIPC
 {
     yarnFileManager: YarnFileManager
     editor: EditorController
-    fileOpenCount : number
 
     constructor(fileManager: YarnFileManager, editor: EditorController) 
     {
         this.yarnFileManager = fileManager;
         this.editor = editor;
-        this.fileOpenCount = 0;
         document.getElementById("file-input").addEventListener("change", this.readFile.bind(this), false);
     }
 
@@ -24,7 +22,6 @@ export class WebIPC
      */
     createNewFile(): void 
     {
-        // this.yarnFileManager.createEmptyFile();
         addFileToDisplay(this.yarnFileManager.createEmptyFile());
         this.editor.setValue(this.yarnFileManager.getCurrentOpenFile().getContents());
         this.editor.setReadOnly(false);

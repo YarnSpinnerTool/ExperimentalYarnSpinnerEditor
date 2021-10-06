@@ -23,9 +23,9 @@ export function setupSettingsDefaults(): void
             });
 
             settings.setSync("font", {
-                fontname: "Roboto",
+                fontname: "Roboto, sans-serif",
                 code: {
-                    fontname: "Roboto"
+                    fontname: "Roboto, sans-serif"
                 }
             });
         }

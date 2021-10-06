@@ -1,5 +1,5 @@
 {
-	"name": "yarnspinnereditor",
+	"name": "experimentalyarnspinnereditor",
 	"version": "0.0.10",
 	"description": "A new editor for Yarn Spinner",
 	"main": ".webpack/main",
@@ -10,7 +10,7 @@
 		"publish": "electron-forge publish",
 		"lint": "npx eslint src/ --ext .ts --max-warnings 0",
 		"lint-fix": "npx eslint src/ --ext .ts --fix",
-        "web": "webpack --config ./webpack.web.js"
+		"web": "webpack --config ./webpack.web.js"
 	},
 	"keywords": [],
 	"author": "UTAS Project Team (YarnSpinnerEditor)",
@@ -23,7 +23,7 @@
 				"icon": "./assets/icons/YSLogo.png",
 				"appCategoryType": "public.app-category.utilities",
 				"extendInfo": "assets/Info.plist",
-                "name": "Yarn Spinner Editor v0.0.10",
+				"name": "Experimental Yarn Spinner Editor v0.0.10",
 				"extraResource": [
 					"assets/icons/yarnIcon.png",
 					"assets/icons/YSLogo.png"
@@ -33,7 +33,7 @@
 				{
 					"name": "@electron-forge/maker-squirrel",
 					"config": {
-						"name": "yarnspinnereditor"
+						"name": "ExperimentalYarnSpinnerEditor"
 					}
 				},
 				{
@@ -56,8 +56,8 @@
 					"name": "@electron-forge/publisher-github",
 					"config": {
 						"repository": {
-							"owner": "setho246",
-							"name": "YarnSpinnerEditor"
+							"owner": "YarnSpinnerTool",
+							"name": "ExperimentalYarnSpinnerEditor"
 						}
 					},
 					"draft": true
@@ -96,6 +96,7 @@
 		"@electron-forge/maker-squirrel": "^6.0.0-beta.59",
 		"@electron-forge/maker-zip": "^6.0.0-beta.59",
 		"@electron-forge/plugin-webpack": "6.0.0-beta.59",
+		"@types/node": "^16.10.3",
 		"@typescript-eslint/eslint-plugin": "^4.0.1",
 		"@typescript-eslint/parser": "^4.0.1",
 		"@vercel/webpack-asset-relocator-loader": "1.6.0",

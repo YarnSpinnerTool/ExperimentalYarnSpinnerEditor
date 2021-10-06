@@ -26,6 +26,8 @@ import { EditorController } from "./controllers/EditorController";
 import { setActiveFile, addFileToDisplay } from "./controllers/DomHelpers";
 import { getThemeName, getFontString, setupSettingsDefaults } from "./controllers/YarnSettings";
 
+setupSettingsDefaults();
+
 const yarnFileManager = new YarnFileManager();
 const yarnNodeList = new YarnNodeList();
 const themeReader = new ThemeReader();
@@ -44,7 +46,6 @@ if (ELECTRON_AVAILABLE)
     const RendererIPC = require("./controllers/RendererIPC");
 
     ipcHandler = new RendererIPC.RendererIPC(yarnFileManager, editor);
-    setupSettingsDefaults();
 }
 else 
 {
